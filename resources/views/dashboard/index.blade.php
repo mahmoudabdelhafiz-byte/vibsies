@@ -6,6 +6,9 @@
 <form method="post" action="{{ route('logout') }}">@csrf<button>{{ __('Log out') }}</button></form>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
 <h2>{{ __('Notifications') }}</h2>
+@if(auth()->user()->unreadNotifications()->exists())
+<form method="post" action="{{ route('notifications.read-all') }}">@csrf<button>{{ __('Mark all as read') }}</button></form>
+@endif
 @forelse($notifications as $notification)
 <article class="card">
  @if(($notification->data['event']??null)==='verification_renewal')
