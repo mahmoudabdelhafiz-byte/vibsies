@@ -25,6 +25,7 @@ class AdminController extends Controller {
    $creator=CreatorProfile::whereKey($creator->id)->lockForUpdate()->firstOrFail();
    abort_unless($creator->status==='pending',409);
    $creator->update(['status'=>$d['decision']]);
+   // Approval of a creator does not automatically reactivate packages; each requires its own moderation.
    if($d['decision']==='rejected'){
     CreatorPackage::where('creator_profile_id',$creator->id)->where('is_active',true)->update(['is_active'=>false]);
    }
