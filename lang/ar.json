@@ -143,5 +143,7 @@
   "Watch portfolio video": "مشاهدة فيديو الأعمال",
   "Portfolio samples awaiting review": "نماذج أعمال تنتظر المراجعة",
   "Review external video": "مراجعة الفيديو الخارجي",
-  "No portfolio samples awaiting review": "لا توجد نماذج أعمال بانتظار المراجعة"
+  "No portfolio samples awaiting review": "لا توجد نماذج أعمال بانتظار المراجعة",
+  "Save and resubmit for review": "حفظ وإعادة الإرسال للمراجعة",
+  "Remove sample": "حذف النموذج"
 }
