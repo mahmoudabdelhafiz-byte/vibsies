@@ -2,6 +2,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
+use App\Http\Controllers\CreatorPortfolioController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\BusinessController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
+Route::get('/creators/{slug}',[CreatorPortfolioController::class,'show'])->name('creators.show');
 Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
 Route::middleware('guest')->group(function(){
  Route::get('/register',[AuthController::class,'registerForm'])->name('register');
