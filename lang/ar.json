@@ -163,5 +163,8 @@
   "rejected": "مرفوض",
   "revoked": "ملغى",
   "expired": "منتهي الصلاحية",
-  "superseded": "تم استبداله"
+  "superseded": "تم استبداله",
+  "Notifications": "الإشعارات",
+  "Verification renewal reminder": "تذكير بتجديد التحقق",
+  "Notification": "إشعار"
 }
