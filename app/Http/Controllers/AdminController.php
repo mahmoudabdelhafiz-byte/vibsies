@@ -25,6 +25,9 @@ class AdminController extends Controller {
    $creator=CreatorProfile::whereKey($creator->id)->lockForUpdate()->firstOrFail();
    abort_unless($creator->status==='pending',409);
    $creator->update(['status'=>$d['decision']]);
+   if($d['decision']==='rejected'){
+    CreatorPackage::where('creator_profile_id',$creator->id)->where('is_active',true)->update(['is_active'=>false]);
+   }
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'creator','target_id'=>$creator->id,'action'=>$d['decision'],'reason'=>$d['reason']??null,'created_at'=>now(),'updated_at'=>now()]);
   });
   return redirect()->route('admin.index');
