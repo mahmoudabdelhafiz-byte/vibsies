@@ -3,6 +3,24 @@
 @section('content')
 <h1>{{ __('Administration') }}</h1>
 <p>{{ __('Moderation decisions are audited. Financial actions are unavailable.') }}</p>
+<h2>{{ __('Marketplace overview') }}</h2>
+<section class="grid">
+@foreach([
+ 'users'=>__('Registered users'),
+ 'approved_creators'=>__('Approved creators'),
+ 'active_packages'=>__('Active approved packages'),
+ 'pending_creators'=>__('Creators pending review'),
+ 'pending_packages'=>__('Packages awaiting approval'),
+ 'bookings_total'=>__('Total bookings'),
+ 'bookings_requested'=>__('Bookings awaiting response'),
+ 'bookings_in_review'=>__('Videos awaiting customer review'),
+ 'deliveries_total'=>__('Total video deliveries'),
+ 'disputes_open'=>__('Unresolved disputes')
+] as $key=>$label)
+<article class="card"><p>{{ $label }}</p><strong style="font-size:1.8rem">{{ number_format($metrics[$key]) }}</strong></article>
+@endforeach
+</section>
+<p>{{ __('Operational counts only. No payment or revenue figures are shown.') }}</p>
 <h2>{{ __('Creators pending review') }}</h2>
 @forelse($creators as $creator)
 <article class="card"><strong>{{ $creator->display_name }}</strong> — {{ $creator->category }}
