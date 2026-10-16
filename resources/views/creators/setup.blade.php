@@ -9,6 +9,14 @@
 <label>{{ __('Country') }}<select name="country_code"><option value="EG" @selected(old('country_code',$creator?->country_code)==='EG')>{{ __('Egypt') }}</option><option value="SA" @selected(old('country_code',$creator?->country_code)==='SA')>{{ __('Saudi Arabia') }}</option></select></label>
 <button>{{ __('Save creator profile') }}</button></form>
 @if($creator)
+<h2>{{ __('Portfolio samples') }}</h2>
+<p>{{ __('Submit a YouTube or Vimeo video URL for approval before it appears publicly.') }}</p>
+<form method="post" action="{{ route('creator.samples.store') }}">@csrf
+<label>{{ __('Title') }}<input name="title" maxlength="160" required></label>
+<label>{{ __('Description') }}<textarea name="description" maxlength="1000"></textarea></label>
+<label>{{ __('Video URL') }}<input name="video_url" type="url" maxlength="500" required></label>
+<button>{{ __('Submit sample for review') }}</button></form>
+@foreach($samples as $sample)<p>{{ $sample->title }} — {{ $sample->moderation_status }}</p>@endforeach
 <h2>{{ __('Create package') }}</h2>
 <form method="post" action="{{ route('creator.package') }}">@csrf
 <label>{{ __('Package title') }}<input name="title" required></label>
