@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function(){
  Route::post('/bookings/{booking}/agreement',[OrderWorkflowController::class,'accept'])->name('bookings.accept-agreement');
  Route::get('/bookings/{booking}/fulfillment',[FulfillmentController::class,'show'])->name('bookings.fulfillment');
  Route::post('/bookings/{booking}/deliveries',[FulfillmentController::class,'deliver'])->name('deliveries.store');
+ Route::get('/bookings/{booking}/deliveries/{delivery}/preview',[FulfillmentController::class,'preview'])->name('deliveries.preview');
  Route::get('/bookings/{booking}/deliveries/{delivery}/download',[FulfillmentController::class,'download'])->name('deliveries.download');
  Route::post('/bookings/{booking}/deliveries/{delivery}/review',[FulfillmentController::class,'review'])->name('deliveries.review');
  Route::post('/bookings/{booking}/disputes',[FulfillmentController::class,'dispute'])->name('disputes.store');
