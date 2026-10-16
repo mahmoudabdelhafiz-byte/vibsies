@@ -40,6 +40,7 @@ class FulfillmentController extends Controller {
     $snapshot=json_encode($a->terms,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
     abort_unless(hash_equals($a->terms_sha256,hash('sha256',$snapshot)),409,'Agreement snapshot integrity failure.');
     abort_unless(in_array($b->status,['accepted','revisions_requested'],true),409,'Invalid booking state.');
+    abort_unless(!Dispute::where('booking_id',$b->id)->whereIn('status',['open','escalated'])->exists(),409,'Dispute requires resolution.');
     $version=((int)Delivery::where('booking_id',$b->id)->max('version'))+1;
     Delivery::create([
      'booking_id'=>$b->id,'creator_user_id'=>$r->user()->id,'version'=>$version,
