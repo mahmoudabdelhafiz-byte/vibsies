@@ -47,7 +47,7 @@ class AdminController extends Controller {
    // Approval of a creator does not automatically reactivate packages; each requires its own moderation.
    if($d['decision']==='rejected'){
     CreatorPackage::where('creator_profile_id',$creator->id)->where('is_active',true)->update(['is_active'=>false]);
-    CreatorVerification::where('creator_profile_id',$creator->id)->where('status','verified')->update(['status'=>'revoked']);
+    CreatorVerification::where('creator_profile_id',$creator->id)->whereIn('status',['verified','pending'])->update(['status'=>'revoked']);
     CreatorPortfolioSample::where('creator_profile_id',$creator->id)->where('moderation_status','approved')->update(['moderation_status'=>'pending']);
    }
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'creator','target_id'=>$creator->id,'action'=>$d['decision'],'reason'=>$d['reason']??null,'created_at'=>now(),'updated_at'=>now()]);
