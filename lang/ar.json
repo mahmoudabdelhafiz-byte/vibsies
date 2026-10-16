@@ -134,5 +134,6 @@
   "Customer total": "إجمالي المبلغ على العميل",
   "Estimated platform fee": "رسوم المنصة التقديرية",
   "Estimated customer total": "الإجمالي التقديري على العميل",
-  "No payment has been collected. Checkout is disabled.": "لم يتم تحصيل أي مبلغ. الدفع الإلكتروني غير مفعل."
+  "No payment has been collected. Checkout is disabled.": "لم يتم تحصيل أي مبلغ. الدفع الإلكتروني غير مفعل.",
+  "All categories": "جميع الفئات"
 }
