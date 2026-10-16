@@ -36,6 +36,26 @@ CREATE TABLE IF NOT EXISTS sessions (
 );`);
 db.exec(`CREATE TABLE IF NOT EXISTS organizations (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL REFERENCES users(id), name TEXT NOT NULL, country_code TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS agreements (id TEXT PRIMARY KEY, booking_id TEXT UNIQUE NOT NULL REFERENCES bookings(id), terms TEXT NOT NULL, sha256 TEXT NOT NULL, customer_accepted_at TEXT, creator_accepted_at TEXT);`);
+db.exec(`
+CREATE TABLE IF NOT EXISTS deliveries(
+ id TEXT PRIMARY KEY, booking_id TEXT NOT NULL REFERENCES bookings(id),
+ creator_user_id TEXT NOT NULL REFERENCES users(id), version INTEGER NOT NULL,
+ media_url TEXT NOT NULL, note TEXT NOT NULL DEFAULT '',
+ status TEXT NOT NULL DEFAULT 'submitted', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE(booking_id,version)
+);
+CREATE TABLE IF NOT EXISTS disputes(
+ id TEXT PRIMARY KEY, booking_id TEXT NOT NULL REFERENCES bookings(id),
+ raised_by TEXT NOT NULL REFERENCES users(id), reason TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS payment_intents(
+ id TEXT PRIMARY KEY, booking_id TEXT NOT NULL UNIQUE REFERENCES bookings(id),
+ amount_minor INTEGER NOT NULL CHECK(amount_minor>0), currency TEXT NOT NULL DEFAULT 'EGP',
+ status TEXT NOT NULL DEFAULT 'disabled', provider_reference TEXT,
+ CHECK(status='disabled')
+);
+`);
 const uid = () => crypto.randomUUID();
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const hashPassword = p => { const salt=crypto.randomBytes(16).toString('hex'); return ['scrypt',salt,crypto.scryptSync(p,salt,64).toString('hex')].join(':'); };
@@ -144,13 +164,74 @@ async function handler(req,res){
  const col=a.customer_id===u.id?'customer_accepted_at':'creator_accepted_at';
  db.prepare(`UPDATE agreements SET ${col}=COALESCE(${col},CURRENT_TIMESTAMP) WHERE id=?`).run(a.id);return redirect(res,'/agreement?id='+encodeURIComponent(a.id));
  }
+
+ if(req.method==='GET'&&url.pathname==='/order'){
+  if(!requireUser(res,u))return;
+  const b=db.prepare(`SELECT b.*,p.title,c.user_id creator_user FROM bookings b JOIN packages p ON p.id=b.package_id JOIN creators c ON c.id=p.creator_id WHERE b.id=?`).get(url.searchParams.get('id'));
+  if(!b||![b.customer_id,b.creator_user].includes(u.id)){res.writeHead(404);return res.end('Not found');}
+  const isCreator=b.creator_user===u.id;
+  const agreement=db.prepare('SELECT * FROM agreements WHERE booking_id=?').get(b.id);
+  const deliveries=db.prepare('SELECT * FROM deliveries WHERE booking_id=? ORDER BY version DESC').all(b.id);
+  const disputes=db.prepare('SELECT * FROM disputes WHERE booking_id=? ORDER BY created_at DESC').all(b.id);
+  const signed=agreement&&agreement.customer_accepted_at&&agreement.creator_accepted_at;
+  const rows=deliveries.map(d=>`<div class="card"><b>Version ${d.version}: ${esc(d.status)}</b><p>${esc(d.note)}</p><a rel="noopener noreferrer nofollow" target="_blank" href="${esc(d.media_url)}">Open submitted media</a>${!isCreator&&d.status==='submitted'?`<form method="post" action="/delivery/decision"><input type="hidden" name="delivery" value="${esc(d.id)}"><button name="decision" value="accepted">Approve delivery</button><button name="decision" value="revisions">Request revisions</button></form>`:''}</div>`).join('');
+  return res.end(page('Order workspace',`<h1>${esc(b.title)}</h1><p>Status: ${esc(b.status)} | Payment: unavailable (prototype)</p><p>${esc(b.description)}</p><p><a href="/agreements">Review agreements</a></p><h2>Deliveries</h2>${rows||'<p>No deliveries yet</p>'}
+  ${isCreator&&signed&&['accepted','revisions_requested'].includes(b.status)?`<form class="panel stack" method="post" action="/delivery"><input type="hidden" name="booking" value="${esc(b.id)}"><label>Video URL (HTTPS)<input type="url" name="media_url" placeholder="https://..." required maxlength="2000"></label><label>Delivery notes<textarea name="note" maxlength="2000"></textarea></label><button>Submit delivery</button></form>`:''}
+  <h2>Disputes</h2>${disputes.map(d=>`<div class="card"><b>${esc(d.status)}</b><p>${esc(d.reason)}</p></div>`).join('')||'<p>No disputes</p>'}
+  ${!['declined','completed'].includes(b.status)&&!disputes.some(d=>d.status==='open')?`<form class="panel stack" method="post" action="/dispute"><input type="hidden" name="booking" value="${esc(b.id)}"><label>Describe the issue<textarea name="reason" minlength="15" maxlength="2000" required></textarea></label><button>Open dispute</button></form>`:''}`,u));
+ }
+ if(req.method==='POST'&&url.pathname==='/delivery'){
+  if(!requireUser(res,u))return;
+  const d=await form(req);
+  let parsed;try{parsed=new URL(d.media_url);}catch{throw new Error('Invalid video URL');}
+  if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.hostname==='localhost'||!d.media_url||d.media_url.length>2000)throw new Error('A public HTTPS media URL is required');
+  const b=db.prepare(`SELECT b.*,c.user_id creator_user,a.customer_accepted_at,a.creator_accepted_at FROM bookings b
+  JOIN packages p ON p.id=b.package_id JOIN creators c ON c.id=p.creator_id
+  JOIN agreements a ON a.booking_id=b.id WHERE b.id=?`).get(d.booking);
+  if(!b||b.creator_user!==u.id||!b.customer_accepted_at||!b.creator_accepted_at||!['accepted','revisions_requested'].includes(b.status)){res.writeHead(403);return res.end('Not allowed');}
+  const version=db.prepare('SELECT COALESCE(MAX(version),0)+1 AS n FROM deliveries WHERE booking_id=?').get(b.id).n;
+  db.exec('BEGIN IMMEDIATE');
+  try{
+   const updated=db.prepare("UPDATE bookings SET status='in_review' WHERE id=? AND status IN ('accepted','revisions_requested')").run(b.id);
+   if(updated.changes!==1)throw new Error('Order state changed');
+   db.prepare('INSERT INTO deliveries(id,booking_id,creator_user_id,version,media_url,note) VALUES(?,?,?,?,?,?)')
+   .run(uid(),b.id,u.id,version,parsed.toString(),(d.note||'').slice(0,2000));
+   db.exec('COMMIT');
+  }catch(e){db.exec('ROLLBACK');throw e;}
+  return redirect(res,'/order?id='+encodeURIComponent(b.id));
+ }
+ if(req.method==='POST'&&url.pathname==='/delivery/decision'){
+  if(!requireUser(res,u))return;const d=await form(req);
+  if(!['accepted','revisions'].includes(d.decision))throw new Error('Invalid decision');
+  const row=db.prepare(`SELECT dl.*,b.customer_id,b.status booking_status FROM deliveries dl JOIN bookings b ON b.id=dl.booking_id WHERE dl.id=?`).get(d.delivery);
+  if(!row||row.customer_id!==u.id||row.status!=='submitted'||row.booking_status!=='in_review'){res.writeHead(403);return res.end('Not allowed');}
+  db.exec('BEGIN IMMEDIATE');try{
+   const changed=db.prepare("UPDATE deliveries SET status=? WHERE id=? AND status='submitted'").run(d.decision,row.id);
+   if(changed.changes!==1)throw new Error('Already reviewed');
+   db.prepare("UPDATE bookings SET status=? WHERE id=? AND status='in_review'").run(d.decision==='accepted'?'delivery_approved':'revisions_requested',row.booking_id);
+   db.exec('COMMIT');
+  }catch(e){db.exec('ROLLBACK');throw e;}
+  return redirect(res,'/order?id='+encodeURIComponent(row.booking_id));
+ }
+ if(req.method==='POST'&&url.pathname==='/dispute'){
+  if(!requireUser(res,u))return;const d=await form(req);
+  const b=db.prepare(`SELECT b.*,c.user_id creator_user FROM bookings b JOIN packages p ON p.id=b.package_id JOIN creators c ON c.id=p.creator_id WHERE b.id=?`).get(d.booking);
+  if(!b||![b.customer_id,b.creator_user].includes(u.id)||['declined','completed'].includes(b.status)||!d.reason||d.reason.trim().length<15){res.writeHead(403);return res.end('Not allowed');}
+  if(!db.prepare("SELECT id FROM disputes WHERE booking_id=? AND status='open'").get(b.id)){
+   db.exec('BEGIN IMMEDIATE');try{
+    db.prepare('INSERT INTO disputes(id,booking_id,raised_by,reason) VALUES(?,?,?,?)').run(uid(),b.id,u.id,d.reason.trim().slice(0,2000));
+    db.prepare("UPDATE bookings SET status='disputed' WHERE id=?").run(b.id);db.exec('COMMIT');
+   }catch(e){db.exec('ROLLBACK');throw e;}
+  }
+  return redirect(res,'/order?id='+encodeURIComponent(b.id));
+ }
  if(req.method==='GET'&&url.pathname==='/dashboard'){
   if(!requireUser(res,u))return;
   const own=db.prepare('SELECT c.id FROM creators c WHERE c.user_id=?').get(u.id);
   const customer=db.prepare('SELECT b.*,p.title,c.name creator_name FROM bookings b JOIN packages p ON p.id=b.package_id JOIN creators c ON c.id=p.creator_id WHERE b.customer_id=? ORDER BY b.created_at DESC').all(u.id);
   const incoming=own?db.prepare('SELECT b.*,p.title,us.name customer_name FROM bookings b JOIN packages p ON p.id=b.package_id JOIN users us ON us.id=b.customer_id WHERE p.creator_id=? ORDER BY b.created_at DESC').all(own.id):[];
-  const cards=(items,creator)=>items.map(b=>`<div class="card"><div class="tag">${esc(b.status)}</div><h3>${esc(b.title)}</h3><p>${esc(creator?b.customer_name:b.creator_name)}</p><p>${esc(b.description)}</p><p>EGP ${((b.base_price+b.fee)/100).toFixed(2)} including platform fee</p>${creator&&b.status==='requested'?`<form method="post" action="/booking/status"><input type="hidden" name="id" value="${esc(b.id)}"><button name="status" value="accepted">Accept</button> <button name="status" value="declined">Decline</button></form>`:''}</div>`).join('')||'<p class="muted">No bookings yet.</p>';
-  return res.end(page('Dashboard',`<h1>Hello, ${esc(u.name)}</h1><p><a class="pill" href="/creator/setup">Create a creator package</a> <a href="/creators">Explore creators →</a></p><h2>My requests</h2><div class="grid">${cards(customer,false)}</div><h2>Creator bookings</h2><div class="grid">${cards(incoming,true)}</div>`,u));
+  const cards=(items,creator)=>items.map(b=>`<div class="card"><div class="tag">${esc(b.status)}</div><h3><a href="/order?id=${esc(b.id)}">${esc(b.title)} →</a></h3><p>${esc(creator?b.customer_name:b.creator_name)}</p><p>${esc(b.description)}</p><p>EGP ${((b.base_price+b.fee)/100).toFixed(2)} including platform fee</p>${creator&&b.status==='requested'?`<form method="post" action="/booking/status"><input type="hidden" name="id" value="${esc(b.id)}"><button name="status" value="accepted">Accept</button> <button name="status" value="declined">Decline</button></form>`:''}</div>`).join('')||'<p class="muted">No bookings yet.</p>';
+  return res.end(page('Dashboard',`<h1>Hello, ${esc(u.name)}</h1><p><a class="pill" href="/creator/setup">Create a creator package</a> <a href="/business">Business accounts</a> <a href="/agreements">Agreements</a> <a href="/creators">Explore creators →</a></p><h2>My requests</h2><div class="grid">${cards(customer,false)}</div><h2>Creator bookings</h2><div class="grid">${cards(incoming,true)}</div>`,u));
  }
  if(req.method==='POST'&&url.pathname==='/booking/status'){
   if(!requireUser(res,u))return;const d=await form(req);

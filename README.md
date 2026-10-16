@@ -29,3 +29,5 @@ Business organization accounts, Arabic translation, verified identity, media upl
 
 ## Security
 Prototype only. Use a real security review, CSRF protections, rate limiting, verification and secure deployment configuration before exposing to the internet.
+## Milestone 3
+Order workspace, creator delivery submissions (HTTPS links only), customer approval/revision, disputes, payment-disabled financial intent schema. Delivery approval is **not** payment completion. This application is still a non-production prototype. External video URLs are untrusted; do not supply sensitive private URLs. All payment routes remain disabled.
