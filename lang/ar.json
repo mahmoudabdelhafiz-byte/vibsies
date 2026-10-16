@@ -170,5 +170,11 @@
   "Mark all as read": "تحديد الكل كمقروء",
   "Mark as read": "تحديد كمقروء",
   "Read": "مقروء",
-  "unread": "غير مقروء"
+  "unread": "غير مقروء",
+  "Filter notifications": "تصفية الإشعارات",
+  "All": "الكل",
+  "Unread": "غير المقروءة",
+  "Booking updates": "تحديثات الحجوزات",
+  "Verification reminders": "تذكيرات التحقق",
+  "Apply filter": "تطبيق التصفية"
 }
