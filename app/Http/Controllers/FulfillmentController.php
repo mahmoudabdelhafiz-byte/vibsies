@@ -64,6 +64,7 @@ class FulfillmentController extends Controller {
  public function thumbnail(Request $r,Booking $booking,Delivery $delivery) {
   $this->authorizeParty($r,$booking);
   abort_unless($delivery->booking_id===$booking->id && $delivery->processing_status==='ready' && $delivery->thumbnail_path,404);
+  abort_unless(str_starts_with($delivery->thumbnail_path,'private-thumbnails/'.$booking->id.'/') && !str_contains($delivery->thumbnail_path,'..'),404);
   $disk=Storage::disk('local');
   abort_unless($disk->exists($delivery->thumbnail_path),404);
   return response()->file($disk->path($delivery->thumbnail_path),[
@@ -75,6 +76,7 @@ class FulfillmentController extends Controller {
   $this->authorizeParty($r,$booking);
   abort_unless($delivery->booking_id===$booking->id && $delivery->storage_disk==='local' && $delivery->storage_path,404);
   abort_unless(in_array($delivery->mime_type,['video/mp4','video/quicktime','video/webm'],true),415);
+  abort_unless(str_starts_with($delivery->storage_path,'private-deliveries/'.$booking->id.'/') && !str_contains($delivery->storage_path,'..'),404);
   $disk=Storage::disk('local');
   abort_unless($disk->exists($delivery->storage_path),404);
   // BinaryFileResponse supports HTTP range requests used by browser video players.
@@ -91,6 +93,7 @@ class FulfillmentController extends Controller {
  public function download(Request $r,Booking $booking,Delivery $delivery) {
   $this->authorizeParty($r,$booking);
   abort_unless($delivery->booking_id===$booking->id && $delivery->storage_disk==='local' && $delivery->storage_path,404);
+  abort_unless(str_starts_with($delivery->storage_path,'private-deliveries/'.$booking->id.'/') && !str_contains($delivery->storage_path,'..'),404);
   $disk=Storage::disk('local');
   abort_unless($disk->exists($delivery->storage_path),404);
   return $disk->download($delivery->storage_path,'vibsies-delivery-'.$delivery->version.'.'.match($delivery->mime_type){
