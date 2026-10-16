@@ -17,3 +17,9 @@ Provider sandbox integration remains **pending**. Before implementation, choose 
 `SandboxPaymentSimulator` supports deterministic `success`, `declined`, and `timeout` scenarios in non-production environments. It is not connected to routes, actual providers, payment intents, card data, external services or the ledger. Its “success” means **simulated authorization only** and never authorizes delivery or settlement. Real capture, refund and payout methods throw exceptions. Production invocation is explicitly rejected.
 
 A provider sandbox integration (with verified webhooks, replay protection, idempotency and settlement reconciliation) must be completed separately before any checkout is offered.
+
+## Payment event inbox foundation
+
+`payment_webhook_events` stores provider event identifiers and SHA-256 payload fingerprints, with a unique constraint to prevent duplicate identifiers per provider. `payment_idempotency_keys` reserves a separate schema for future checkout operations. These are **not active payment integrations**. There is no public webhook route, signature verification or settlement processing. The `PaymentEventInbox` service deliberately rejects production use until an authenticated provider adapter exists. Duplicate identifiers with conflicting payloads are rejected if detected before the unique insert, while the unique constraint prevents duplicate rows under concurrency.
+
+Remaining prerequisites: provider selection, provider signature verification before calling the inbox, transactional processing and ledger postings, authenticated reconciliation, retry controls, retention and personal-data assessment, and sandbox integration tests.
