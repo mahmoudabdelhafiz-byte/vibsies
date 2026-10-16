@@ -152,5 +152,16 @@
   "Advertising license reviewed": "تمت مراجعة الترخيص الإعلاني",
   "Reviewed verification": "تمت مراجعة التحقق",
   "Verification reflects reviewed evidence, not a guarantee of a transaction or endorsement.": "يعكس التحقق مراجعة الأدلة المقدمة ولا يُعد ضمانًا لأي معاملة أو توصية.",
-  "No current verification checks displayed.": "لا توجد إجراءات تحقق سارية معروضة."
+  "No current verification checks displayed.": "لا توجد إجراءات تحقق سارية معروضة.",
+  "Verification history": "سجل التحقق",
+  "Verification expires": "تاريخ انتهاء التحقق",
+  "Verification expires within 30 days. You may request renewal.": "ستنتهي صلاحية التحقق خلال 30 يومًا. يمكنك تقديم طلب تجديد.",
+  "No verification requests yet.": "لا توجد طلبات تحقق حتى الآن.",
+  "Expired": "منتهي الصلاحية",
+  "pending": "قيد المراجعة",
+  "verified": "تم التحقق",
+  "rejected": "مرفوض",
+  "revoked": "ملغى",
+  "expired": "منتهي الصلاحية",
+  "superseded": "تم استبداله"
 }
