@@ -58,6 +58,23 @@ class FulfillmentController extends Controller {
   }
   return redirect()->route('bookings.fulfillment',$booking);
  }
+ public function preview(Request $r,Booking $booking,Delivery $delivery) {
+  $this->authorizeParty($r,$booking);
+  abort_unless($delivery->booking_id===$booking->id && $delivery->storage_disk==='local' && $delivery->storage_path,404);
+  abort_unless(in_array($delivery->mime_type,['video/mp4','video/quicktime','video/webm'],true),415);
+  $disk=Storage::disk('local');
+  abort_unless($disk->exists($delivery->storage_path),404);
+  // BinaryFileResponse supports HTTP range requests used by browser video players.
+  // The path is server-side private storage; no public URL or storage symlink is created.
+  return response()->file($disk->path($delivery->storage_path),[
+   'Content-Type'=>$delivery->mime_type,
+   'Content-Disposition'=>'inline',
+   'Cache-Control'=>'private, no-store, max-age=0',
+   'X-Content-Type-Options'=>'nosniff',
+   'X-Frame-Options'=>'DENY',
+   'Referrer-Policy'=>'no-referrer'
+  ]);
+ }
  public function download(Request $r,Booking $booking,Delivery $delivery) {
   $this->authorizeParty($r,$booking);
   abort_unless($delivery->booking_id===$booking->id && $delivery->storage_disk==='local' && $delivery->storage_path,404);
