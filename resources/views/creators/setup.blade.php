@@ -16,7 +16,16 @@
 <label>{{ __('Description') }}<textarea name="description" maxlength="1000"></textarea></label>
 <label>{{ __('Video URL') }}<input name="video_url" type="url" maxlength="500" required></label>
 <button>{{ __('Submit sample for review') }}</button></form>
-@foreach($samples as $sample)<p>{{ $sample->title }} — {{ $sample->moderation_status }}</p>@endforeach
+@foreach($samples as $sample)
+<article class="card"><p>{{ $sample->title }} — {{ $sample->moderation_status }}</p>
+<form method="post" action="{{ route('creator.samples.update',$sample) }}">@csrf @method('PUT')
+<label>{{ __('Title') }}<input name="title" value="{{ $sample->title }}" maxlength="160" required></label>
+<label>{{ __('Description') }}<textarea name="description" maxlength="1000">{{ $sample->description }}</textarea></label>
+<label>{{ __('Video URL') }}<input type="url" name="video_url" value="{{ $sample->video_url }}" maxlength="500" required></label>
+<button>{{ __('Save and resubmit for review') }}</button></form>
+<form method="post" action="{{ route('creator.samples.destroy',$sample) }}">@csrf @method('DELETE')
+<button>{{ __('Remove sample') }}</button></form></article>
+@endforeach
 <h2>{{ __('Create package') }}</h2>
 <form method="post" action="{{ route('creator.package') }}">@csrf
 <label>{{ __('Package title') }}<input name="title" required></label>
