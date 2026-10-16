@@ -135,5 +135,13 @@
   "Estimated platform fee": "رسوم المنصة التقديرية",
   "Estimated customer total": "الإجمالي التقديري على العميل",
   "No payment has been collected. Checkout is disabled.": "لم يتم تحصيل أي مبلغ. الدفع الإلكتروني غير مفعل.",
-  "All categories": "جميع الفئات"
+  "All categories": "جميع الفئات",
+  "Portfolio samples": "نماذج الأعمال",
+  "Submit a YouTube or Vimeo video URL for approval before it appears publicly.": "أرسل رابط فيديو من يوتيوب أو فيميو لمراجعته قبل نشره.",
+  "Video URL": "رابط الفيديو",
+  "Submit sample for review": "إرسال النموذج للمراجعة",
+  "Watch portfolio video": "مشاهدة فيديو الأعمال",
+  "Portfolio samples awaiting review": "نماذج أعمال تنتظر المراجعة",
+  "Review external video": "مراجعة الفيديو الخارجي",
+  "No portfolio samples awaiting review": "لا توجد نماذج أعمال بانتظار المراجعة"
 }
