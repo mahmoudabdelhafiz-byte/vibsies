@@ -120,5 +120,15 @@
   "video_submitted": "تم تسليم الفيديو",
   "video_approved": "تم اعتماد الفيديو",
   "revisions_requested": "التعديلات مطلوبة",
-  "dispute_opened": "تم فتح نزاع"
+  "dispute_opened": "تم فتح نزاع",
+  "Marketplace overview": "نظرة عامة على السوق",
+  "Registered users": "المستخدمون المسجلون",
+  "Approved creators": "صنّاع المحتوى المعتمدون",
+  "Active approved packages": "الباقات المعتمدة النشطة",
+  "Total bookings": "إجمالي الحجوزات",
+  "Bookings awaiting response": "حجوزات بانتظار الرد",
+  "Videos awaiting customer review": "فيديوهات بانتظار مراجعة العميل",
+  "Total video deliveries": "إجمالي تسليمات الفيديو",
+  "Unresolved disputes": "النزاعات غير المحسومة",
+  "Operational counts only. No payment or revenue figures are shown.": "إحصاءات تشغيلية فقط؛ لا يتم عرض أي بيانات للمدفوعات أو الإيرادات."
 }
