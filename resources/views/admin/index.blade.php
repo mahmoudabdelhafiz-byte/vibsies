@@ -37,6 +37,15 @@
 <button name="decision" value="approved">{{ __('Approve') }}</button>
 <button name="decision" value="rejected">{{ __('Reject') }}</button></form></article>
 @empty<p>{{ __('No pending packages') }}</p>@endforelse
+<h2>{{ __('Portfolio samples awaiting review') }}</h2>
+@forelse($samples as $sample)
+<article class="card"><strong>{{ $sample->creator->display_name }} — {{ $sample->title }}</strong>
+<p><a href="{{ $sample->video_url }}" target="_blank" rel="noopener noreferrer nofollow">{{ __('Review external video') }}</a></p>
+<form method="post" action="{{ route('admin.samples.decide',$sample) }}">@csrf
+<label>{{ __('Reason') }}<input name="reason" maxlength="1000"></label>
+<button name="decision" value="approved">{{ __('Approve') }}</button>
+<button name="decision" value="rejected">{{ __('Reject') }}</button></form></article>
+@empty<p>{{ __('No portfolio samples awaiting review') }}</p>@endforelse
 <h2>{{ __('Open disputes') }}</h2>
 @forelse($disputes as $dispute)
 <article class="card"><p>{{ $dispute->reason }}</p>
