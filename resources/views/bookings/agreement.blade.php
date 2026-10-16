@@ -1,1 +1,11 @@
-<h1>Agreement for booking {{ $booking->id }}</h1><p>Prototype consent record only — not a certified signature and not a payment confirmation.</p><pre>{{ json_encode($agreement->terms,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre><p>SHA-256: {{ $agreement->terms_sha256 }}</p><p>Customer: {{ $agreement->customer_accepted_at ? 'Accepted' : 'Pending' }}</p><p>Creator: {{ $agreement->creator_accepted_at ? 'Accepted' : 'Pending' }}</p><form method="post" action="{{ route('bookings.accept-agreement',$booking) }}">@csrf<button>Accept this agreement</button></form>
+@extends('layouts.public')
+@section('title',__('Agreement'))
+@section('content')
+<h1>{{ __('Agreement') }} — {{ __('Booking') }} {{ $booking->id }}</h1>
+<p>{{ __('Prototype consent only; not a certified signature or payment confirmation.') }}</p>
+<pre style="white-space:pre-wrap;overflow-wrap:anywhere" dir="ltr">{{ json_encode($agreement->terms,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre>
+<p>SHA-256: <code>{{ $agreement->terms_sha256 }}</code></p>
+<p>{{ __('Customer') }}: {{ $agreement->customer_accepted_at ? __('Accepted') : __('Pending') }}</p>
+<p>{{ __('Creator') }}: {{ $agreement->creator_accepted_at ? __('Accepted') : __('Pending') }}</p>
+<form method="post" action="{{ route('bookings.accept-agreement',$booking) }}">@csrf<button>{{ __('Accept this agreement') }}</button></form>
+@endsection
