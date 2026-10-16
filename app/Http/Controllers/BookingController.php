@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\CreatorPackage;
+use App\Notifications\BookingUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class BookingController extends Controller {
     'creator_package_id'=>$package->id,'brief'=>$input['brief'],'price_minor'=>$package->price_minor,
     'fee_minor'=>$fee,'currency'=>$package->currency,'status'=>'requested']);
   });
+  $booking->creator->user->notify(new BookingUpdate($booking->id,'requested'));
   return redirect()->route('bookings.show',$booking);
  }
  public function show(Request $request,Booking $booking){
