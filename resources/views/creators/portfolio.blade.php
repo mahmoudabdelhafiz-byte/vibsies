@@ -7,6 +7,14 @@
  <p>{{ __('Country') }}: {{ $creator->country_code }}</p>
  @if($creator->bio)<p style="white-space:pre-wrap;overflow-wrap:anywhere">{{ $creator->bio }}</p>@endif
 </article>
+@if($samples->isNotEmpty())
+<h2>{{ __('Portfolio samples') }}</h2>
+<section class="grid">@foreach($samples as $sample)
+<article class="card"><h3>{{ $sample->title }}</h3>
+@if($sample->description)<p>{{ $sample->description }}</p>@endif
+<a href="{{ $sample->video_url }}" target="_blank" rel="noopener noreferrer nofollow">{{ __('Watch portfolio video') }}</a>
+</article>@endforeach</section>
+@endif
 <h2>{{ __('Available packages') }}</h2>
 <section class="grid">
 @foreach($packages as $package)
