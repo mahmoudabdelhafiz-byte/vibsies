@@ -24,6 +24,10 @@ class FulfillmentController extends Controller {
    'video'=>['required','file','mimetypes:video/mp4,video/quicktime,video/webm','max:102400'],
    'note'=>['nullable','string','max:2000']
   ]);
+  // Reject invalid orders before writing any file to storage.
+  $current=Booking::with('agreement')->findOrFail($booking->id);
+  abort_unless(in_array($current->status,['accepted','revisions_requested'],true) &&
+   $current->agreement?->customer_accepted_at && $current->agreement?->creator_accepted_at,409,'Agreement must be accepted before delivery.');
   $file=$r->file('video');
   $disk='local'; // Laravel local disk is not web-public.
   $stored=$file->store('private-deliveries/'.$booking->id,$disk);
@@ -67,7 +71,8 @@ class FulfillmentController extends Controller {
   DB::transaction(function()use($booking,$delivery,$d){
    $b=Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
    $v=Delivery::whereKey($delivery->id)->lockForUpdate()->firstOrFail();
-   abort_unless($b->status==='in_review' && $v->status==='submitted',409);
+   abort_unless($v->booking_id===$b->id && $b->status==='in_review' && $v->status==='submitted',409);
+   abort_unless($v->version===(int)Delivery::where('booking_id',$b->id)->max('version'),409,'Only the latest delivery may be reviewed.');
    $v->update(['status'=>$d['decision']]);
    $b->update(['status'=>$d['decision']==='accepted'?'delivery_approved':'revisions_requested']);
   });
