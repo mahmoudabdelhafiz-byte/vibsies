@@ -5,7 +5,7 @@
 <form method="get" action="{{ route('home') }}"><input name="q" aria-label="{{ __('Search creators') }}" placeholder="{{ __('Search creators') }}" value="{{ request('q') }}"><label for="category">{{ __('Category') }}</label><select name="category" id="category"><option value="">{{ __('All categories') }}</option>@foreach($categories as $category)<option value="{{ $category }}" @selected(request('category')===$category)>{{ $category }}</option>@endforeach</select><button>{{ __('Search') }}</button></form>
 <section class="grid">
 @forelse($packages as $package)
-<article class="card"><h2>{{ $package->creator->display_name }}</h2><p>{{ $package->title }}</p><p>{{ $package->description }}</p><strong>{{ number_format($package->price_minor/100,2) }} {{ $package->currency }}</strong>
+<article class="card"><h2><a href="{{ route('creators.show',$package->creator->slug) }}">{{ $package->creator->display_name }}</a></h2><p>{{ $package->title }}</p><p>{{ $package->description }}</p><strong>{{ number_format($package->price_minor/100,2) }} {{ $package->currency }}</strong>
 <p>{{ __('Estimated platform fee') }}: {{ number_format($quotes[$package->id]['fee_minor']/100,2) }} {{ $package->currency }}</p>
 <p><strong>{{ __('Estimated customer total') }}: {{ number_format($quotes[$package->id]['total_minor']/100,2) }} {{ $package->currency }}</strong></p><p>{{ __('Bookings require an account. Payments are disabled during development.') }}</p>
 @auth
