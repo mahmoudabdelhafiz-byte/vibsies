@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Services\Agreements\AgreementIntegrity;
 use App\Models\Agreement;
 use App\Models\Booking;
 use App\Models\User;
@@ -24,8 +25,7 @@ class OrderWorkflowController extends Controller {
     $terms=['version'=>1,'booking_id'=>$locked->id,'customer_id'=>$locked->customer_id,
       'creator_profile_id'=>$locked->creator_profile_id,'brief'=>$locked->brief,'price_minor'=>$locked->price_minor,
       'fee_minor'=>$locked->fee_minor,'currency'=>$locked->currency,'payment_enabled'=>false];
-    $json=json_encode($terms,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
-    Agreement::create(['booking_id'=>$locked->id,'terms'=>$terms,'terms_sha256'=>hash('sha256',$json)]);
+    Agreement::create(['booking_id'=>$locked->id,'terms'=>$terms,'terms_sha256'=>AgreementIntegrity::digest($terms)]);
    }
   });
   User::findOrFail($booking->customer_id)->notify(new BookingUpdate($booking->id,$data['decision']));
@@ -42,8 +42,7 @@ class OrderWorkflowController extends Controller {
    $lockedBooking=Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
    abort_unless($lockedBooking->status==='accepted',409,'Agreement cannot be accepted in this order state.');
    $agreement=Agreement::where('booking_id',$booking->id)->lockForUpdate()->firstOrFail();
-   $json=json_encode($agreement->terms,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
-   abort_unless(hash_equals($agreement->terms_sha256,hash('sha256',$json)),409,'Agreement integrity failure');
+   abort_unless(AgreementIntegrity::verify($agreement->terms,$agreement->terms_sha256),409,'Agreement integrity failure');
    $column=$lockedBooking->customer_id===$request->user()->id?'customer_accepted_at':'creator_accepted_at';
    if(!$agreement->{$column})$agreement->update([$column=>now()]);
   });
