@@ -15,7 +15,7 @@ final class PaymentIdempotency {
   if(!preg_match('/^[a-z][a-z0-9_-]{1,63}$/',$operation)
     || strlen($key)<8 || strlen($key)>191 || preg_match('/[\x00-\x1F\x7F]/',$key))
    throw new InvalidArgumentException('Invalid idempotency scope or key.');
-  if(strlen($requestBody)>65536)throw new InvalidArgumentException('Request body too large.');
+  if($requestBody==='' || strlen($requestBody)>65536)throw new InvalidArgumentException('Request body too large.');
   $hash=hash('sha256',$requestBody);
   $inserted=DB::table('payment_idempotency_keys')->insertOrIgnore([
    'id'=>(string)Str::uuid(),'operation'=>$operation,'request_key'=>$key,
@@ -23,7 +23,8 @@ final class PaymentIdempotency {
   ]);
   if($inserted===1)return true;
   $existing=DB::table('payment_idempotency_keys')->where('operation',$operation)->where('request_key',$key)->first();
-  if(!$existing || !hash_equals($existing->request_sha256,$hash))
+  if(!$existing)throw new LogicException('Idempotency reservation could not be verified.');
+  if(!hash_equals($existing->request_sha256,$hash))
    throw new LogicException('Idempotency key reused with a different request.');
   return false;
  }
