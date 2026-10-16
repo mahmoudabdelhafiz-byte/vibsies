@@ -37,3 +37,7 @@ Before go-live: document the account chart and financial model, add settlement/r
 ## Read-only finance audit
 
 Run `php artisan vibsies:audit-finance --limit=500` to inspect journal balance and count pending event records and reserved idempotency keys. No funds move, and no records are changed. This is **not** provider settlement reconciliation: the report has no bank/provider balance feeds and does not prove that payments settled. A zero-error result covers only the inspected journal sample.
+
+## Offline sandbox settlement comparison
+
+Run `php artisan vibsies:compare-settlement /path/to/sandbox-export.csv` to compare a manually supplied CSV against locally stored payment intent references. Required exact header: `provider_reference,currency,amount_minor,status`. The comparison is read-only, rejects duplicate references and malformed records, and limits input to 10,000 rows. It does not verify that the CSV originated from a payment provider or that funds settled. It does not reconcile references that are missing from the CSV. Use **test/sandbox exports only** and keep them outside the public web root.
