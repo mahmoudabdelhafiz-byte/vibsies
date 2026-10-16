@@ -5,13 +5,17 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 class ProcessDeliveryPreviews extends Command {
- protected $signature='vibsies:process-previews {--limit=20 : Maximum deliveries per run}';
+ protected $signature='vibsies:process-previews {--limit=20 : Maximum deliveries per run} {--retry-failed : Retry failed thumbnail generations}';
  protected $description='Generate private thumbnails for pending video deliveries with FFmpeg';
  public function handle():int {
   $limit=max(1,min(100,(int)$this->option('limit')));
   if(!is_executable('/usr/bin/ffmpeg')){
    $this->error('FFmpeg unavailable at /usr/bin/ffmpeg; pending deliveries remain unchanged.');
    return self::FAILURE;
+  }
+  if($this->option('retry-failed')){
+   $requeued=Delivery::where('processing_status','failed')->where('storage_disk','local')->whereNotNull('storage_path')->orderBy('updated_at')->limit($limit)->pluck('id');
+   if($requeued->isNotEmpty())Delivery::whereIn('id',$requeued)->where('processing_status','failed')->update(['processing_status'=>'pending','processing_error'=>null]);
   }
   $count=0;
   foreach(Delivery::where('processing_status','pending')->where('storage_disk','local')->whereNotNull('storage_path')->orderBy('created_at')->limit($limit)->get() as $delivery){
