@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use App\Models\CreatorPackage;
 use App\Models\CreatorProfile;
 use App\Models\Dispute;
+use App\Models\CreatorVerification;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,8 @@ class AdminController extends Controller {
   return view('admin.index',[
    'creators'=>CreatorProfile::where('status','pending')->limit(30)->get(),
    'packages'=>CreatorPackage::where('is_active',false)->limit(30)->get(),
-   'disputes'=>Dispute::where('status','open')->limit(30)->get()
+   'disputes'=>Dispute::where('status','open')->limit(30)->get(),
+   'verifications'=>CreatorVerification::with('creator')->where('status','pending')->limit(30)->get()
   ]);
  }
  public function creator(Request $r,CreatorProfile $creator){
