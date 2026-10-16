@@ -61,6 +61,16 @@ class FulfillmentController extends Controller {
   User::findOrFail($booking->customer_id)->notify(new BookingUpdate($booking->id,'video_submitted'));
   return redirect()->route('bookings.fulfillment',$booking);
  }
+ public function thumbnail(Request $r,Booking $booking,Delivery $delivery) {
+  $this->authorizeParty($r,$booking);
+  abort_unless($delivery->booking_id===$booking->id && $delivery->processing_status==='ready' && $delivery->thumbnail_path,404);
+  $disk=Storage::disk('local');
+  abort_unless($disk->exists($delivery->thumbnail_path),404);
+  return response()->file($disk->path($delivery->thumbnail_path),[
+   'Content-Type'=>'image/jpeg','Cache-Control'=>'private, no-store, max-age=0',
+   'X-Content-Type-Options'=>'nosniff','X-Frame-Options'=>'DENY'
+  ]);
+ }
  public function preview(Request $r,Booking $booking,Delivery $delivery) {
   $this->authorizeParty($r,$booking);
   abort_unless($delivery->booking_id===$booking->id && $delivery->storage_disk==='local' && $delivery->storage_path,404);
