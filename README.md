@@ -1,33 +1,11 @@
-# Vibsies — Creator Marketplace
+# Vibsies — Laravel migration in progress
 
-Barmageyat's influencer and UGC booking marketplace. **Development prototype only**: do not deploy publicly or accept real payments yet.
+Laravel 12 and PostgreSQL are the target architecture. Read [migration instructions](docs/MIGRATION.md).
 
-## Run locally
+The original Node.js prototype is retained in `server.js` as a reference. It is not the production application and its records have not been migrated.
 
-Requires Node.js 22.13+ (built-in experimental SQLite).
+**No real payments or certified signing are enabled.**
 
-```bash
-npm start
-# http://localhost:3000
-npm test
-```
+For Laravel: `composer install`, copy `.env.example` to `.env`, configure PostgreSQL, `php artisan key:generate`, `php artisan migrate`, `php artisan serve`.
 
-SQLite is created under `data/` and excluded from Git. No external dependencies.
-
-## Included
-- Public creator directory and responsive landing page
-- Account registration and sign-in
-- Creator profiles and priced service packages
-- Customer booking requests and 15% fee snapshot
-- Customer and creator booking dashboards
-
-## Not yet implemented
-Business organization accounts, Arabic translation, verified identity, media uploads, legal e-signatures, payment capture, refunds, payouts, moderation and dispute resolution. No payment is processed and a booking is **not** a binding agreement.
-
-## Branches
-`develop`: implementation; `main`: release baseline.
-
-## Security
-Prototype only. Use a real security review, CSRF protections, rate limiting, verification and secure deployment configuration before exposing to the internet.
-## Milestone 3
-Order workspace, creator delivery submissions (HTTPS links only), customer approval/revision, disputes, payment-disabled financial intent schema. Delivery approval is **not** payment completion. This application is still a non-production prototype. External video URLs are untrusted; do not supply sensitive private URLs. All payment routes remain disabled.
+Legacy prototype: `npm start` (development reference only).
