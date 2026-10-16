@@ -12,6 +12,12 @@ class PaymentEventInboxTest extends TestCase {
   $this->assertFalse($inbox->record('demo','evt-01','{"status":"test"}'));
   $this->assertDatabaseCount('payment_webhook_events',1);
  }
+ public function test_same_event_id_is_independent_across_providers():void {
+  $inbox=new PaymentEventInbox();
+  $this->assertTrue($inbox->record('demo_a','evt-03','body'));
+  $this->assertTrue($inbox->record('demo_b','evt-03','body'));
+  $this->assertDatabaseCount('payment_webhook_events',2);
+ }
  public function test_same_id_with_different_payload_is_rejected():void {
   $inbox=new PaymentEventInbox();
   $inbox->record('demo','evt-02','original');
