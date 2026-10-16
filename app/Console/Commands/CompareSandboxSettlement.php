@@ -8,10 +8,21 @@ use InvalidArgumentException;
  * No persistence, state transitions or provider API calls.
  */
 class CompareSandboxSettlement extends Command {
- protected $signature='vibsies:compare-settlement {file : Local CSV file to inspect}';
+ protected $signature='vibsies:compare-settlement {file : Local CSV file to inspect} {--from= : Inclusive UTC date YYYY-MM-DD} {--to= : Inclusive UTC date YYYY-MM-DD}';
  protected $description='Read-only comparison of sandbox settlement rows against payment intent references';
+ private static function validDate(mixed $date):bool {
+  if(!is_string($date) || !preg_match('/^\\d{4}-\\d{2}-\\d{2}$/',$date))return false;
+  $parsed=\\DateTimeImmutable::createFromFormat('!Y-m-d',$date,new \\DateTimeZone('UTC'));
+  return $parsed!==false && $parsed->format('Y-m-d')===$date;
+ }
  public function handle():int {
   $file=(string)$this->argument('file');
+  $from=$this->option('from');$to=$this->option('to');
+  // Require explicit bounds; otherwise a partial CSV creates misleading missing-reference results.
+  if(!$from || !$to || !self::validDate($from) || !self::validDate($to) || $from>$to){
+   $this->error('Specify a valid UTC reconciliation range with --from=YYYY-MM-DD --to=YYYY-MM-DD.');
+   return self::FAILURE;
+  }
   if(!is_file($file)||!is_readable($file)){ $this->error('CSV file cannot be read.');return self::FAILURE; }
   $handle=fopen($file,'rb');
   if(!$handle){$this->error('Unable to open CSV.');return self::FAILURE;}
@@ -33,7 +44,7 @@ class CompareSandboxSettlement extends Command {
    }
    $internalMissing=0;
    // Compare in the opposite direction without exposing customer or payment data.
-   DB::table('payment_intents')->whereNotNull('provider_reference')->orderBy('id')
+   DB::table('payment_intents')->whereNotNull('provider_reference')->where('created_at','>=',$from.' 00:00:00')->where('created_at','<',date('Y-m-d',strtotime($to.' +1 day')).' 00:00:00')->orderBy('id')
     ->select(['id','provider_reference'])->chunk(500,function($intents)use(&$internalMissing,$seen){
      foreach($intents as $intent){
       if(!isset($seen[$intent->provider_reference]))$internalMissing++;
