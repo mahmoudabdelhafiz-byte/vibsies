@@ -10,7 +10,21 @@ class CreatorController extends Controller {
  public function store(Request $request){
   $d=$request->validate(['display_name'=>'required|string|max:160','category'=>'required|string|max:120','bio'=>'nullable|string|max:2000','country_code'=>'required|in:EG,SA']);
   $profile=CreatorProfile::firstOrCreate(['user_id'=>$request->user()->id],['display_name'=>$d['display_name'],'slug'=>Str::slug($d['display_name']).'-'.Str::lower(Str::random(8)),'category'=>$d['category'],'country_code'=>$d['country_code'],'bio'=>$d['bio']??null,'status'=>'pending']);
-  $profile->fill($d);$profile->status='pending';$profile->save();
+  \Illuminate\Support\Facades\DB::transaction(function()use($profile,$d){
+   $locked=CreatorProfile::whereKey($profile->id)->lockForUpdate()->firstOrFail();
+   $changed=$locked->status==='approved' && (
+    $locked->display_name!==$d['display_name'] ||
+    $locked->category!==$d['category'] ||
+    $locked->country_code!==$d['country_code'] ||
+    ($locked->bio??'')!==($d['bio']??'')
+   );
+   $locked->fill($d);
+   if($changed){
+    $locked->status='pending';
+    CreatorPackage::where('creator_profile_id',$locked->id)->update(['is_active'=>false,'moderation_status'=>'pending']);
+   }
+   $locked->save();
+  });
   return redirect()->route('dashboard')->with('notice','Creator profile saved and pending review.');
  }
  public function package(Request $request){
