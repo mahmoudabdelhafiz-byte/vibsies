@@ -27,3 +27,9 @@ Remaining prerequisites: provider selection, provider signature verification bef
 ## Reservation-only idempotency
 
 `PaymentIdempotency::reserve()` creates a unique reservation for an operation and request key, based on a SHA-256 request fingerprint. Repeating the same payload returns `false`; changing the payload under the same key raises an exception. The database unique index is the concurrency guard. This service is **disabled in production** and does not conduct checkout, settlement, refund, or payout. Reservations do not expire or resolve automatically; proper lifecycle management and transactional provider integration remain pending.
+
+## Transactional development journals
+
+`LedgerPostingService` validates balanced debit/credit lines, confirms every account belongs to the intended currency, and records the transaction and entries in one database transaction. Duplicate external keys are rejected through application checks and the unique database constraint. It is disabled in production and **not connected** to provider webhooks or the payment simulator. Posting a development journal does not mean money was collected, held, refunded or paid out.
+
+Before go-live: document the account chart and financial model, add settlement/reversal journal types and reconciliation controls, test concurrency and rollback in PostgreSQL, and integrate only provider-verified events.
