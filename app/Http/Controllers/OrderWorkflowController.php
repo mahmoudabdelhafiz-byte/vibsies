@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 use App\Models\Agreement;
 use App\Models\Booking;
+use App\Models\User;
+use App\Notifications\BookingUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +28,7 @@ class OrderWorkflowController extends Controller {
     Agreement::create(['booking_id'=>$locked->id,'terms'=>$terms,'terms_sha256'=>hash('sha256',$json)]);
    }
   });
+  User::findOrFail($booking->customer_id)->notify(new BookingUpdate($booking->id,$data['decision']));
   return redirect()->route('bookings.show',$booking);
  }
  public function agreement(Request $request,Booking $booking){
