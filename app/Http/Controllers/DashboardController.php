@@ -16,8 +16,8 @@ class DashboardController extends Controller {
   $notificationFilter=$filters['notification_filter']??'all';
   $notificationQuery=$user->notifications();
   if($notificationFilter==='unread')$notificationQuery->whereNull('read_at');
-  if($notificationFilter==='booking')$notificationQuery->where('type',\\App\\Notifications\\BookingUpdate::class);
-  if($notificationFilter==='verification')$notificationQuery->where('type',\\App\\Notifications\\CreatorVerificationRenewal::class);
+  if($notificationFilter==='booking')$notificationQuery->where('type',\App\Notifications\BookingUpdate::class);
+  if($notificationFilter==='verification')$notificationQuery->where('type',\App\Notifications\CreatorVerificationRenewal::class);
   $notifications=$notificationQuery->latest()->paginate(15, ['*'], 'notifications_page')->withQueryString();
   $unreadCount=$user->unreadNotifications()->count();
   return view('dashboard.index', compact('customerBookings','creator','incomingBookings','notifications','unreadCount','notificationFilter'));
