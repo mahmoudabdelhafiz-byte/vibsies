@@ -23,4 +23,13 @@ class CreatorProfileReviewSafetyTest extends TestCase {
   $this->assertSame('approved',$profile->fresh()->status);
   $this->assertTrue($package->fresh()->is_active);
  }
+ public function test_profile_re_review_does_not_reset_rejected_package():void {
+  $user=User::factory()->create();
+  $profile=CreatorProfile::create(['user_id'=>$user->id,'display_name'=>'Before','slug'=>'review-rejected','category'=>'UGC','country_code'=>'EG','status'=>'approved']);
+  $approved=CreatorPackage::create(['creator_profile_id'=>$profile->id,'title'=>'Approved','price_minor'=>2000,'currency'=>'EGP','is_active'=>true,'moderation_status'=>'approved']);
+  $rejected=CreatorPackage::create(['creator_profile_id'=>$profile->id,'title'=>'Rejected','price_minor'=>1000,'currency'=>'EGP','is_active'=>false,'moderation_status'=>'rejected']);
+  $this->actingAs($user)->post(route('creator.store'),['display_name'=>'After','category'=>'UGC','country_code'=>'EG'])->assertRedirect(route('dashboard'));
+  $this->assertDatabaseHas('creator_packages',['id'=>$approved->id,'is_active'=>false,'moderation_status'=>'pending']);
+  $this->assertDatabaseHas('creator_packages',['id'=>$rejected->id,'is_active'=>false,'moderation_status'=>'rejected']);
+ }
 }
