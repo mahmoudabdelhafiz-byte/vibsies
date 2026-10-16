@@ -9,8 +9,10 @@ use App\Http\Controllers\OrderWorkflowController;
 use App\Http\Controllers\FulfillmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
+Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
 Route::middleware('guest')->group(function(){
  Route::get('/register',[AuthController::class,'registerForm'])->name('register');
  Route::post('/register',[AuthController::class,'register'])->middleware('throttle:5,1')->name('register.submit');
