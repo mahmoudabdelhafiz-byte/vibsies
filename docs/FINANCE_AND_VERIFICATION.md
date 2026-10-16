@@ -33,3 +33,7 @@ Remaining prerequisites: provider selection, provider signature verification bef
 `LedgerPostingService` validates balanced debit/credit lines, confirms every account belongs to the intended currency, and records the transaction and entries in one database transaction. Duplicate external keys are rejected through application checks and the unique database constraint. It is disabled in production and **not connected** to provider webhooks or the payment simulator. Posting a development journal does not mean money was collected, held, refunded or paid out.
 
 Before go-live: document the account chart and financial model, add settlement/reversal journal types and reconciliation controls, test concurrency and rollback in PostgreSQL, and integrate only provider-verified events.
+
+## Read-only finance audit
+
+Run `php artisan vibsies:audit-finance --limit=500` to inspect journal balance and count pending event records and reserved idempotency keys. No funds move, and no records are changed. This is **not** provider settlement reconciliation: the report has no bank/provider balance feeds and does not prove that payments settled. A zero-error result covers only the inspected journal sample.
