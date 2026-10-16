@@ -12,6 +12,7 @@ class CreatorPortfolioController extends Controller {
   $quotes=[];
   $calculator=app(BookingQuote::class);
   foreach($packages as $package)$quotes[$package->id]=$calculator->calculate($package->price_minor,$package->currency);
-  return view('creators.portfolio',compact('creator','packages','quotes'));
+  $samples=\App\Models\CreatorPortfolioSample::where('creator_profile_id',$creator->id)->where('moderation_status','approved')->latest()->get();
+  return view('creators.portfolio',compact('creator','packages','quotes','samples'));
  }
 }
