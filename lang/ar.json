@@ -102,5 +102,7 @@
   "Decision rationale": "مبررات القرار",
   "Expiry, where applicable": "تاريخ انتهاء الصلاحية إن وجد",
   "Verify": "تحقق",
-  "No pending verifications": "لا توجد طلبات تحقق معلقة"
+  "No pending verifications": "لا توجد طلبات تحقق معلقة",
+  "Rejected packages — revise and resubmit": "الباقات المرفوضة — تعديل وإعادة تقديم",
+  "Resubmit package": "إعادة تقديم الباقة"
 }
