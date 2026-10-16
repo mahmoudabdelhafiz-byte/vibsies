@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 class CreatorController extends Controller {
- public function setup(Request $request){$creator=$request->user()->creatorProfile;return view('creators.setup',['creator'=>$creator,'samples'=>$creator?\App\Models\CreatorPortfolioSample::where('creator_profile_id',$creator->id)->latest()->get():collect(),'rejectedPackages'=>$creator?CreatorPackage::where('creator_profile_id',$creator->id)->where('moderation_status','rejected')->latest()->get():collect()]);}
+ public function setup(Request $request){$creator=$request->user()->creatorProfile;return view('creators.setup',['creator'=>$creator,'verifications'=>$creator?\App\Models\CreatorVerification::where('creator_profile_id',$creator->id)->latest()->get():collect(),'samples'=>$creator?\App\Models\CreatorPortfolioSample::where('creator_profile_id',$creator->id)->latest()->get():collect(),'rejectedPackages'=>$creator?CreatorPackage::where('creator_profile_id',$creator->id)->where('moderation_status','rejected')->latest()->get():collect()]);}
  public function store(Request $request){
   $d=$request->validate(['display_name'=>'required|string|max:160','category'=>'required|string|max:120','bio'=>'nullable|string|max:2000','country_code'=>'required|in:EG,SA']);
   $profile=CreatorProfile::firstOrCreate(['user_id'=>$request->user()->id],['display_name'=>$d['display_name'],'slug'=>Str::slug($d['display_name']).'-'.Str::lower(Str::random(8)),'category'=>$d['category'],'country_code'=>$d['country_code'],'bio'=>$d['bio']??null,'status'=>'pending']);
