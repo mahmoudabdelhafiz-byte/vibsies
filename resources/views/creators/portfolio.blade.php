@@ -3,6 +3,20 @@
 @section('content')
 <article class="card">
  <h1>{{ $creator->display_name }}</h1>
+ @if(count($verifiedTypes))
+ <p><strong>{{ __('Verified checks') }}:</strong>
+ @foreach($verifiedTypes as $type)
+ <span class="badge">{{ match($type) {
+  'identity'=>__('Identity reviewed'),
+  'social'=>__('Social profile reviewed'),
+  'advertising_license'=>__('Advertising license reviewed'),
+  default=>__('Reviewed verification')
+ } }}</span>
+ @endforeach</p>
+ <p><small>{{ __('Verification reflects reviewed evidence, not a guarantee of a transaction or endorsement.') }}</small></p>
+ @else
+ <p>{{ __('No current verification checks displayed.') }}</p>
+ @endif
  <p>{{ __('Category') }}: {{ $creator->category }}</p>
  <p>{{ __('Country') }}: {{ $creator->country_code }}</p>
  @if($creator->bio)<p style="white-space:pre-wrap;overflow-wrap:anywhere">{{ $creator->bio }}</p>@endif
