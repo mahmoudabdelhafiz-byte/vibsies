@@ -29,11 +29,3 @@ Business organization accounts, Arabic translation, verified identity, media upl
 
 ## Security
 Prototype only. Use a real security review, CSRF protections, rate limiting, verification and secure deployment configuration before exposing to the internet.
-## Milestone 2 (develop)
-- Unique per-password random salt (scrypt), instead of one shared salt
-- Basic same-origin POST checks and login/registration rate limits
-- Business organization registration (EG/SA)
-- Immutable SHA-256 agreement snapshot created when creator accepts request
-- Both-party agreement consent screen; prototype consent only, not a legal signature
-
-**Still not production safe:** add CSRF tokens, verified identities, durable distributed throttling, security headers, moderation, full translation, operational testing and real legal review. Do not deploy publicly.
