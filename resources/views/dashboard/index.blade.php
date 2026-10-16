@@ -1,1 +1,14 @@
-<h1>Welcome, {{ auth()->user()->name }}</h1><a href="{{ route('creator.setup') }}">Creator studio</a><form method="post" action="{{ route('logout') }}">@csrf<button>Log out</button></form>@if(session('notice'))<p>{{ session('notice') }}</p>@endif<h2>My bookings</h2>@forelse($customerBookings as $booking)<p><a href="{{ route('bookings.show',$booking) }}">{{ $booking->id }}</a> — {{ $booking->status }}</p>@empty<p>No bookings</p>@endforelse{{ $customerBookings->links() }}<h2>Creator: {{ $creator?->display_name ?? 'Not yet registered' }}</h2>@foreach($incomingBookings as $booking)<p><a href="{{ route('bookings.show',$booking) }}">{{ $booking->id }}</a></p>@endforeach
+@extends('layouts.public')
+@section('title',__('Dashboard'))
+@section('content')
+<h1>{{ __('Welcome') }}, {{ auth()->user()->name }}</h1>
+<p><a href="{{ route('creator.setup') }}">{{ __('Creator studio') }}</a> · <a href="{{ route('business.index') }}">{{ __('Business accounts') }}</a></p>
+<form method="post" action="{{ route('logout') }}">@csrf<button>{{ __('Log out') }}</button></form>
+@if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
+<h2>{{ __('My bookings') }}</h2>
+@forelse($customerBookings as $booking)<article class="card"><a href="{{ route('bookings.show',$booking) }}">{{ __('Booking') }} {{ $booking->id }}</a> — {{ $booking->status }}</article>@empty<p>{{ __('No bookings') }}</p>@endforelse
+{{ $customerBookings->links() }}
+<h2>{{ __('Creator studio') }}: {{ $creator?->display_name ?? __('Not yet registered') }}</h2>
+<h3>{{ __('Incoming bookings') }}</h3>
+@forelse($incomingBookings as $booking)<article class="card"><a href="{{ route('bookings.show',$booking) }}">{{ __('Booking') }} {{ $booking->id }}</a></article>@empty<p>{{ __('No incoming bookings') }}</p>@endforelse
+@endsection
