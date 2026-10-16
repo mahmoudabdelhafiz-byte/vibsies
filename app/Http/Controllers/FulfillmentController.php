@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Services\Agreements\AgreementIntegrity;
 use App\Models\Booking;
 use App\Models\Delivery;
 use App\Models\Dispute;
@@ -39,8 +40,7 @@ class FulfillmentController extends Controller {
     $b=Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
     $a=$b->agreement;
     abort_unless($a && $a->customer_accepted_at && $a->creator_accepted_at,409,'Both parties must accept the agreement.');
-    $snapshot=json_encode($a->terms,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
-    abort_unless(hash_equals($a->terms_sha256,hash('sha256',$snapshot)),409,'Agreement snapshot integrity failure.');
+    abort_unless(AgreementIntegrity::verify($a->terms,$a->terms_sha256),409,'Agreement snapshot integrity failure.');
     abort_unless(in_array($b->status,['accepted','revisions_requested'],true),409,'Invalid booking state.');
     abort_unless(!Dispute::where('booking_id',$b->id)->whereIn('status',['open','escalated'])->exists(),409,'Dispute requires resolution.');
     $version=((int)Delivery::where('booking_id',$b->id)->max('version'))+1;
