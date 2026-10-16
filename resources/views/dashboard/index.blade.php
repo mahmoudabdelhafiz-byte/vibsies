@@ -6,6 +6,15 @@
 <form method="post" action="{{ route('logout') }}">@csrf<button>{{ __('Log out') }}</button></form>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
 <h2>{{ __('Notifications') }} <small>({{ $unreadCount }} {{ __('unread') }})</small></h2>
+<form method="get" action="{{ route('dashboard') }}">
+<label for="notification_filter">{{ __('Filter notifications') }}</label>
+<select id="notification_filter" name="notification_filter">
+@foreach(['all'=>__('All'),'unread'=>__('Unread'),'booking'=>__('Booking updates'),'verification'=>__('Verification reminders')] as $value=>$label)
+<option value="{{ $value }}" @selected($notificationFilter===$value)>{{ $label }}</option>
+@endforeach
+</select>
+<button>{{ __('Apply filter') }}</button>
+</form>
 @if($unreadCount > 0)
 <form method="post" action="{{ route('notifications.read-all') }}">@csrf<button>{{ __('Mark all as read') }}</button></form>
 @endif
