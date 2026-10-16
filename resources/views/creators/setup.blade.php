@@ -34,6 +34,26 @@
 <label>{{ __('Turnaround days') }}<input name="turnaround_days" type="number" value="7" min="1" max="90" required></label>
 <label>{{ __('Revisions') }}<input name="revision_limit" type="number" value="1" min="0" max="10" required></label>
 <button>{{ __('Create package') }}</button></form>
+<h2>{{ __('Verification history') }}</h2>
+@forelse($verifications as $verification)
+<article class="card">
+ <strong>{{ match($verification->type) {
+  'identity'=>__('Identity'),
+  'social'=>__('Social profile'),
+  'advertising_license'=>__('Advertising license'),
+  default=>__('Verification type')
+ } }}</strong>
+ <p>{{ __('Status') }}: {{ $verification->status === 'verified' && $verification->expires_at?->isPast() ? __('Expired') : __($verification->status) }}</p>
+ @if($verification->expires_at)
+ <p>{{ __('Verification expires') }}: {{ $verification->expires_at->format('Y-m-d') }}</p>
+ @endif
+ @if($verification->status==='verified' && $verification->expires_at && $verification->expires_at->isFuture() && $verification->expires_at->diffInDays(now()) <= 30)
+ <p>{{ __('Verification expires within 30 days. You may request renewal.') }}</p>
+ @endif
+</article>
+@empty
+<p>{{ __('No verification requests yet.') }}</p>
+@endforelse
 <h2>{{ __('Request verification') }}</h2>
 <p>{{ __('Verification requests require manual review. Never submit passwords or banking credentials.') }}</p>
 <form method="post" action="{{ route('verification.submit') }}">@csrf
