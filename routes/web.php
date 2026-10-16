@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function(){
  Route::get('/creator',[CreatorController::class,'setup'])->name('creator.setup');
  Route::post('/creator',[CreatorController::class,'store'])->name('creator.store');
  Route::post('/creator/packages',[CreatorController::class,'package'])->name('creator.package');
+ Route::post('/creator/packages/{package}/resubmit',[CreatorController::class,'resubmitPackage'])->name('creator.packages.resubmit');
  Route::get('/business',[BusinessController::class,'index'])->name('business.index');
  Route::post('/business',[BusinessController::class,'store'])->name('business.store');
  Route::post('/bookings/{booking}/decision',[OrderWorkflowController::class,'decide'])->name('bookings.decision');
