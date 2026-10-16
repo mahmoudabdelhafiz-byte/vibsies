@@ -8,6 +8,7 @@ use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\OrderWorkflowController;
 use App\Http\Controllers\FulfillmentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
 Route::middleware('guest')->group(function(){
@@ -21,6 +22,8 @@ Route::middleware('auth')->group(function(){
  Route::post('/admin/creators/{creator}/decision',[AdminController::class,'creator'])->name('admin.creators.decide');
  Route::post('/admin/packages/{package}/decision',[AdminController::class,'package'])->name('admin.packages.decide');
  Route::post('/admin/disputes/{dispute}/decision',[AdminController::class,'dispute'])->name('admin.disputes.decide');
+ Route::post('/verification/submit',[VerificationController::class,'submit'])->name('verification.submit');
+ Route::post('/admin/verifications/{verification}/review',[VerificationController::class,'review'])->name('admin.verifications.review');
  Route::post('/logout',[AuthController::class,'logout'])->name('logout');
  Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
  Route::get('/creator',[CreatorController::class,'setup'])->name('creator.setup');
