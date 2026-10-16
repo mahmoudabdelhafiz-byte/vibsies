@@ -1,0 +1,20 @@
+services:
+  regression:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      APP_KEY: "base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      COMPOSER_ALLOW_SUPERUSER: "1"
+    command: ["sh", "-ec", "composer install --no-interaction --prefer-dist && bash scripts/local-regression.sh"]
