@@ -22,6 +22,9 @@ class CreatorController extends Controller {
    if($changed){
     $locked->status='pending';
     CreatorPackage::where('creator_profile_id',$locked->id)->where('moderation_status','approved')->update(['is_active'=>false,'moderation_status'=>'pending']);
+    // Profile identity has changed: previous checks and approved samples cannot carry over.
+    \App\Models\CreatorVerification::where('creator_profile_id',$locked->id)->where('status','verified')->update(['status'=>'revoked']);
+    \App\Models\CreatorPortfolioSample::where('creator_profile_id',$locked->id)->where('moderation_status','approved')->update(['moderation_status'=>'pending']);
    }
    $locked->save();
   });
