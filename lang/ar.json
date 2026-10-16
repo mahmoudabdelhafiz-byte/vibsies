@@ -114,5 +114,7 @@
   "No notifications yet": "لا توجد إشعارات بعد",
   "requested": "مطلوب",
   "accepted": "مقبول",
-  "declined": "مرفوض"
+  "declined": "مرفوض",
+  "Private video preview": "معاينة الفيديو الخاصة",
+  "Your browser cannot play this video.": "لا يستطيع متصفحك تشغيل هذا الفيديو."
 }
