@@ -20,10 +20,10 @@ class DashboardNotificationFiltersTest extends TestCase {
  }
  public function test_unread_filter_excludes_read_notifications():void {
   $user=User::factory()->create();
-  $user->notify(new BookingUpdate('read-booking','accepted'));
-  $user->notify(new BookingUpdate('unread-booking','accepted'));
-  $user->notifications()->where('data','like','%read-booking%')->first()?->markAsRead();
+  $user->notify(new BookingUpdate('seen-booking','accepted'));
+  $user->notify(new BookingUpdate('pending-booking','accepted'));
+  $user->notifications()->where('data','like','%seen-booking%')->first()?->markAsRead();
   $this->actingAs($user)->get(route('dashboard',['notification_filter'=>'unread']))
-   ->assertOk()->assertSee('unread-booking');
+   ->assertOk()->assertSee('pending-booking')->assertDontSee('seen-booking');
  }
 }
