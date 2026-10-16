@@ -2,7 +2,7 @@
 @section('title',__('Find creators').' — Vibsies')
 @section('content')
 <h1>{{ __('Find a creator for your next video') }}</h1>
-<form method="get" action="{{ route('home') }}"><input name="q" aria-label="{{ __('Search creators') }}" placeholder="{{ __('Search creators') }}" value="{{ request('q') }}"><button>{{ __('Search') }}</button></form>
+<form method="get" action="{{ route('home') }}"><input name="q" aria-label="{{ __('Search creators') }}" placeholder="{{ __('Search creators') }}" value="{{ request('q') }}"><label for="category">{{ __('Category') }}</label><select name="category" id="category"><option value="">{{ __('All categories') }}</option>@foreach($categories as $category)<option value="{{ $category }}" @selected(request('category')===$category)>{{ $category }}</option>@endforeach</select><button>{{ __('Search') }}</button></form>
 <section class="grid">
 @forelse($packages as $package)
 <article class="card"><h2>{{ $package->creator->display_name }}</h2><p>{{ $package->title }}</p><p>{{ $package->description }}</p><strong>{{ number_format($package->price_minor/100,2) }} {{ $package->currency }}</strong>
