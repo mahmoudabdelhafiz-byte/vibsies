@@ -36,10 +36,12 @@ class OrderWorkflowController extends Controller {
  public function accept(Request $request,Booking $booking){
   $this->participant($request,$booking);
   DB::transaction(function()use($request,$booking){
+   $lockedBooking=Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
+   abort_unless($lockedBooking->status==='accepted',409,'Agreement cannot be accepted in this order state.');
    $agreement=Agreement::where('booking_id',$booking->id)->lockForUpdate()->firstOrFail();
    $json=json_encode($agreement->terms,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
    abort_unless(hash_equals($agreement->terms_sha256,hash('sha256',$json)),409,'Agreement integrity failure');
-   $column=$booking->customer_id===$request->user()->id?'customer_accepted_at':'creator_accepted_at';
+   $column=$lockedBooking->customer_id===$request->user()->id?'customer_accepted_at':'creator_accepted_at';
    if(!$agreement->{$column})$agreement->update([$column=>now()]);
   });
   return redirect()->route('bookings.agreement',$booking);
