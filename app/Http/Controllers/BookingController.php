@@ -10,7 +10,7 @@ class BookingController extends Controller {
   $input=$request->validate(['creator_package_id'=>['required','uuid','exists:creator_packages,id'],'brief'=>['required','string','min:20','max:5000']]);
   $booking=DB::transaction(function()use($request,$input){
    $package=CreatorPackage::query()->with('creator')->lockForUpdate()->findOrFail($input['creator_package_id']);
-   abort_unless($package->is_active && $package->creator->status==='approved',422,'Package unavailable');
+   abort_unless($package->is_active && $package->moderation_status==='approved' && $package->creator->status==='approved',422,'Package unavailable');
    abort_if($package->creator->user_id===$request->user()->id,422,'Cannot book your own service');
    $fee=intdiv($package->price_minor*15+50,100);
    return Booking::create(['customer_id'=>$request->user()->id,'creator_profile_id'=>$package->creator_profile_id,
