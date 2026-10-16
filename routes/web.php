@@ -5,6 +5,7 @@ use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
 use App\Http\Controllers\CreatorPortfolioSampleController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\OrderWorkflowController;
