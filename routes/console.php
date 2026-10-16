@@ -10,3 +10,6 @@ if (filter_var(env('VIBSIES_AUTO_PREVIEWS',false),FILTER_VALIDATE_BOOLEAN)) {
 
 // Expire time-limited verification checks; public view also filters expired timestamps.
 Schedule::command('vibsies:expire-verifications')->daily()->withoutOverlapping(15);
+
+// In-app notices at 30, 7 and 1 days before time-limited verification expires.
+Schedule::command('vibsies:remind-verification-renewals')->daily()->withoutOverlapping(15);
