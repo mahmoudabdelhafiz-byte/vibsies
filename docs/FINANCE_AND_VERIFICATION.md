@@ -45,3 +45,7 @@ Run `php artisan vibsies:compare-settlement /path/to/sandbox-export.csv` to comp
 ### Reconciliation window
 
 The offline comparator now requires `--from=YYYY-MM-DD --to=YYYY-MM-DD` (inclusive UTC dates) and restricts the **internal missing-from-CSV check** to payment intents created in that window. Example: `php artisan vibsies:compare-settlement sandbox.csv --from=2026-10-01 --to=2026-10-15`. CSV rows are not date-filtered because the current CSV schema has no transaction date, so export the corresponding provider period before comparing. Internal creation time is not the provider's settlement date; this is still an imperfect sandbox tool, not actual settlement reconciliation.
+
+## Provider integration contract
+
+`PaymentGateway` defines checkout creation and verified webhook parsing for a future provider-specific **sandbox** adapter. `DisabledCheckoutService` is a fail-closed boundary: quotes are available but checkout creation and webhook handling throw exceptions. No checkout endpoint or provider implementation has been activated. A gateway must not be bound into production until verification, idempotency, reconciliation, refunds, legal/compliance review and end-to-end sandbox tests are complete.
