@@ -4,6 +4,9 @@ use App\Models\CreatorPackage;
 use App\Models\CreatorProfile;
 use App\Models\Dispute;
 use App\Models\CreatorVerification;
+use App\Models\Booking;
+use App\Models\Delivery;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +15,20 @@ class AdminController extends Controller {
  private function guard(Request $r):void {abort_unless($r->user()?->is_admin===true,403);}
  public function index(Request $r){
   $this->guard($r);
+  $metrics=[
+   'users'=>User::count(),
+   'approved_creators'=>CreatorProfile::where('status','approved')->count(),
+   'active_packages'=>CreatorPackage::where('is_active',true)->where('moderation_status','approved')->count(),
+   'pending_creators'=>CreatorProfile::where('status','pending')->count(),
+   'pending_packages'=>CreatorPackage::where('moderation_status','pending')->count(),
+   'bookings_total'=>Booking::count(),
+   'bookings_requested'=>Booking::where('status','requested')->count(),
+   'bookings_in_review'=>Booking::where('status','in_review')->count(),
+   'deliveries_total'=>Delivery::count(),
+   'disputes_open'=>Dispute::whereIn('status',['open','escalated'])->count()
+  ];
   return view('admin.index',[
+   'metrics'=>$metrics,
    'creators'=>CreatorProfile::where('status','pending')->limit(30)->get(),
    'packages'=>CreatorPackage::where('moderation_status','pending')->limit(30)->get(),
    'disputes'=>Dispute::where('status','open')->limit(30)->get(),
