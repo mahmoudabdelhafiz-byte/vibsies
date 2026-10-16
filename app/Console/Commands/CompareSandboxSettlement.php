@@ -31,9 +31,17 @@ class CompareSandboxSettlement extends Command {
     if($intent->currency!==$row[1] || (int)$intent->amount_minor!==(int)$row[2] || $intent->status!==$row[3]){$different++;continue;}
     $matched++;
    }
-   $this->table(['Result','Count'],[['Matched',$matched],['Missing internal reference',$missing],['Different amount, currency or state',$different],['Invalid or duplicate CSV rows',$invalid]]);
+   $internalMissing=0;
+   // Compare in the opposite direction without exposing customer or payment data.
+   DB::table('payment_intents')->whereNotNull('provider_reference')->orderBy('id')
+    ->select(['id','provider_reference'])->chunk(500,function($intents)use(&$internalMissing,$seen){
+     foreach($intents as $intent){
+      if(!isset($seen[$intent->provider_reference]))$internalMissing++;
+     }
+    });
+   $this->table(['Result','Count'],[['Matched',$matched],['Missing internal reference',$missing],['Internal reference absent from CSV',$internalMissing],['Different amount, currency or state',$different],['Invalid or duplicate CSV rows',$invalid]]);
    $this->line('Read-only comparison. Source authenticity and actual settlement are NOT verified.');
-   return ($missing+$different+$invalid)>0?self::FAILURE:self::SUCCESS;
+   return ($missing+$internalMissing+$different+$invalid)>0?self::FAILURE:self::SUCCESS;
   }catch(\Throwable $e){$this->error($e->getMessage());return self::FAILURE;}
   finally {fclose($handle);}
  }
