@@ -12,6 +12,7 @@ class DashboardController extends Controller {
   $incomingBookings = $creator
    ? Booking::with('customer')->where('creator_profile_id', $creator->id)->latest()->paginate(10, ['*'], 'incoming_page')
    : collect();
-  return view('dashboard.index', compact('customerBookings','creator','incomingBookings'));
+  $notifications=$user->notifications()->latest()->limit(15)->get();
+  return view('dashboard.index', compact('customerBookings','creator','incomingBookings','notifications'));
  }
 }
