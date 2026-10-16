@@ -19,6 +19,10 @@
  <span>{{ __('Notification') }}</span>
  @endif
  <small>{{ $notification->created_at->diffForHumans() }}</small>
+ @if(!$notification->read_at)
+ <form method="post" action="{{ route('notifications.read',$notification->id) }}">@csrf
+ <button>{{ __('Mark as read') }}</button></form>
+ @else <small>{{ __('Read') }}</small> @endif
 </article>
 @empty<p>{{ __('No notifications yet') }}</p>@endforelse
 <h2>{{ __('My bookings') }}</h2>
