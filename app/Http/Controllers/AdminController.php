@@ -14,7 +14,7 @@ class AdminController extends Controller {
   $this->guard($r);
   return view('admin.index',[
    'creators'=>CreatorProfile::where('status','pending')->limit(30)->get(),
-   'packages'=>CreatorPackage::where('is_active',false)->limit(30)->get(),
+   'packages'=>CreatorPackage::where('moderation_status','pending')->limit(30)->get(),
    'disputes'=>Dispute::where('status','open')->limit(30)->get(),
    'verifications'=>CreatorVerification::with('creator')->where('status','pending')->limit(30)->get()
   ]);
@@ -33,9 +33,9 @@ class AdminController extends Controller {
   $this->guard($r);$d=$r->validate(['decision'=>'required|in:approved,rejected','reason'=>'nullable|string|max:1000']);
   DB::transaction(function()use($r,$package,$d){
    $p=CreatorPackage::whereKey($package->id)->lockForUpdate()->firstOrFail();
-   abort_unless($p->is_active===false,409);
+   abort_unless($p->moderation_status==='pending',409);
    abort_unless($d['decision']!=='approved' || $p->creator->status==='approved',409);
-   $p->update(['is_active'=>$d['decision']==='approved']);
+   $p->update(['is_active'=>$d['decision']==='approved','moderation_status'=>$d['decision']]);
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'package','target_id'=>$p->id,'action'=>$d['decision'],'reason'=>$d['reason']??null,'created_at'=>now(),'updated_at'=>now()]);
   });
   return redirect()->route('admin.index');
