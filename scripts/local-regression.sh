@@ -5,8 +5,7 @@ echo "Vibsies Laravel local regression preflight"
 command -v php >/dev/null || { echo "FAIL: PHP missing"; exit 1; }
 php -v | head -n 1
 php -r 'if(PHP_VERSION_ID < 80300){fwrite(STDERR,"PHP 8.3+ required\n");exit(1);}'
-for ext in mbstring openssl pdo token­izer xml ctype fileinfo; do
-  ext="${ext//­/}"
+for ext in mbstring openssl pdo tokenizer xml ctype fileinfo; do
   php -r 'exit(extension_loaded($argv[1]) ? 0 : 1);' "$ext" || { echo "FAIL: PHP extension $ext missing"; exit 1; }
 done
 command -v composer >/dev/null || { echo "FAIL: Composer 2 missing"; exit 1; }
