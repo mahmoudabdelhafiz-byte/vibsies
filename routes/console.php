@@ -7,3 +7,6 @@ use Illuminate\Support\Facades\Schedule;
 if (filter_var(env('VIBSIES_AUTO_PREVIEWS',false),FILTER_VALIDATE_BOOLEAN)) {
  Schedule::command('vibsies:process-previews --limit=20')->everyFiveMinutes()->withoutOverlapping(15);
 }
+
+// Expire time-limited verification checks; public view also filters expired timestamps.
+Schedule::command('vibsies:expire-verifications')->daily()->withoutOverlapping(15);
