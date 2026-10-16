@@ -5,6 +5,13 @@
 <p><a href="{{ route('creator.setup') }}">{{ __('Creator studio') }}</a> · <a href="{{ route('business.index') }}">{{ __('Business accounts') }}</a></p>
 <form method="post" action="{{ route('logout') }}">@csrf<button>{{ __('Log out') }}</button></form>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
+<h2>{{ __('Booking notifications') }}</h2>
+@forelse($notifications as $notification)
+<article class="card">
+ <a href="{{ route('bookings.show', $notification->data['booking_id']) }}">{{ __('Booking') }} — {{ __($notification->data['event']) }}</a>
+ <small>{{ $notification->created_at->diffForHumans() }}</small>
+</article>
+@empty<p>{{ __('No notifications yet') }}</p>@endforelse
 <h2>{{ __('My bookings') }}</h2>
 @forelse($customerBookings as $booking)<article class="card"><a href="{{ route('bookings.show',$booking) }}">{{ $booking->creator?->display_name ?? __('Booking') }}</a> — {{ __('Status') }}: {{ __($booking->status) }} — {{ number_format($booking->price_minor/100,2) }} {{ $booking->currency }}</article>@empty<p>{{ __('No bookings') }}</p>@endforelse
 {{ $customerBookings->links() }}
