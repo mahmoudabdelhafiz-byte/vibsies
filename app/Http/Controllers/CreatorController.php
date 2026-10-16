@@ -16,7 +16,7 @@ class CreatorController extends Controller {
  public function package(Request $request){
   $d=$request->validate(['title'=>'required|string|max:160','description'=>'nullable|string|max:2000','price'=>'required|numeric|min:1|max:1000000','turnaround_days'=>'required|integer|min:1|max:90','revision_limit'=>'required|integer|min:0|max:10']);
   $creator=$request->user()->creatorProfile;abort_unless($creator,403);
-  CreatorPackage::create(['creator_profile_id'=>$creator->id,'title'=>$d['title'],'description'=>$d['description']??null,'price_minor'=>(int)round((float)$d['price']*100),'currency'=>'EGP','turnaround_days'=>$d['turnaround_days'],'revision_limit'=>$d['revision_limit'],'is_active'=>false]);
+  CreatorPackage::create(['creator_profile_id'=>$creator->id,'title'=>$d['title'],'description'=>$d['description']??null,'price_minor'=>(int)round((float)$d['price']*100),'currency'=>'EGP','turnaround_days'=>$d['turnaround_days'],'revision_limit'=>$d['revision_limit'],'is_active'=>false,'moderation_status'=>'pending']);
   return redirect()->route('dashboard')->with('notice','Package created; awaiting moderation.');
  }
 }
