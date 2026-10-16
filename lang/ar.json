@@ -116,5 +116,9 @@
   "accepted": "مقبول",
   "declined": "مرفوض",
   "Private video preview": "معاينة الفيديو الخاصة",
-  "Your browser cannot play this video.": "لا يستطيع متصفحك تشغيل هذا الفيديو."
+  "Your browser cannot play this video.": "لا يستطيع متصفحك تشغيل هذا الفيديو.",
+  "video_submitted": "تم تسليم الفيديو",
+  "video_approved": "تم اعتماد الفيديو",
+  "revisions_requested": "التعديلات مطلوبة",
+  "dispute_opened": "تم فتح نزاع"
 }
