@@ -24,4 +24,18 @@
 <label>{{ __('Reference') }}<input name="reference" minlength="4" maxlength="200" required></label>
 <button>{{ __('Submit for review') }}</button></form>
 @endif
+
+<h2>{{ __('Rejected packages — revise and resubmit') }}</h2>
+@foreach($rejectedPackages as $package)
+<article class="card">
+ <form method="post" action="{{ route('creator.packages.resubmit',$package) }}">@csrf
+  <label>{{ __('Package title') }}<input name="title" value="{{ old('title',$package->title) }}" required></label>
+  <label>{{ __('Description') }}<textarea name="description">{{ old('description',$package->description) }}</textarea></label>
+  <label>{{ __('Price (EGP)') }}<input name="price" type="number" step="0.01" min="1" value="{{ number_format($package->price_minor/100,2,'.','') }}" required></label>
+  <label>{{ __('Turnaround days') }}<input name="turnaround_days" type="number" min="1" max="90" value="{{ $package->turnaround_days }}" required></label>
+  <label>{{ __('Revisions') }}<input name="revision_limit" type="number" min="0" max="10" value="{{ $package->revision_limit }}" required></label>
+  <button>{{ __('Resubmit package') }}</button>
+ </form>
+</article>
+@endforeach
 @endsection
