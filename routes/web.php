@@ -3,6 +3,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
+use App\Http\Controllers\CreatorPortfolioSampleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\BusinessController;
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function(){
  Route::get('/creator',[CreatorController::class,'setup'])->name('creator.setup');
  Route::post('/creator',[CreatorController::class,'store'])->name('creator.store');
  Route::post('/creator/packages',[CreatorController::class,'package'])->name('creator.package');
+ Route::post('/creator/samples',[CreatorPortfolioSampleController::class,'store'])->name('creator.samples.store');
+ Route::post('/admin/samples/{sample}/decision',[AdminController::class,'sample'])->name('admin.samples.decide');
  Route::post('/creator/packages/{package}/resubmit',[CreatorController::class,'resubmitPackage'])->name('creator.packages.resubmit');
  Route::get('/business',[BusinessController::class,'index'])->name('business.index');
  Route::post('/business',[BusinessController::class,'store'])->name('business.store');
