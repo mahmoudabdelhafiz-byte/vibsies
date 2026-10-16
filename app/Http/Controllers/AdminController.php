@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\CreatorPackage;
+use App\Models\CreatorPortfolioSample;
 use App\Models\CreatorProfile;
 use App\Models\Dispute;
 use App\Models\CreatorVerification;
@@ -21,6 +22,7 @@ class AdminController extends Controller {
    'active_packages'=>CreatorPackage::where('is_active',true)->where('moderation_status','approved')->count(),
    'pending_creators'=>CreatorProfile::where('status','pending')->count(),
    'pending_packages'=>CreatorPackage::where('moderation_status','pending')->count(),
+   'pending_samples'=>CreatorPortfolioSample::where('moderation_status','pending')->count(),
    'bookings_total'=>Booking::count(),
    'bookings_requested'=>Booking::where('status','requested')->count(),
    'bookings_in_review'=>Booking::where('status','in_review')->count(),
@@ -31,6 +33,7 @@ class AdminController extends Controller {
    'metrics'=>$metrics,
    'creators'=>CreatorProfile::where('status','pending')->limit(30)->get(),
    'packages'=>CreatorPackage::where('moderation_status','pending')->limit(30)->get(),
+   'samples'=>CreatorPortfolioSample::with('creator')->where('moderation_status','pending')->limit(30)->get(),
    'disputes'=>Dispute::where('status','open')->limit(30)->get(),
    'verifications'=>CreatorVerification::with('creator')->where('status','pending')->limit(30)->get()
   ]);
@@ -57,6 +60,20 @@ class AdminController extends Controller {
    abort_unless($d['decision']!=='approved' || $p->creator->status==='approved',409);
    $p->update(['is_active'=>$d['decision']==='approved','moderation_status'=>$d['decision']]);
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'package','target_id'=>$p->id,'action'=>$d['decision'],'reason'=>$d['reason']??null,'created_at'=>now(),'updated_at'=>now()]);
+  });
+  return redirect()->route('admin.index');
+ }
+ public function sample(Request $r,CreatorPortfolioSample $sample){
+  $this->guard($r);
+  $d=$r->validate(['decision'=>'required|in:approved,rejected','reason'=>'nullable|string|max:1000']);
+  DB::transaction(function()use($r,$sample,$d){
+   $locked=CreatorPortfolioSample::whereKey($sample->id)->lockForUpdate()->firstOrFail();
+   abort_unless($locked->moderation_status==='pending',409);
+   abort_unless($d['decision']!=='approved' || $locked->creator->status==='approved',409);
+   $locked->update(['moderation_status'=>$d['decision']]);
+   DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,
+    'target_type'=>'portfolio_sample','target_id'=>$locked->id,'action'=>$d['decision'],
+    'reason'=>$d['reason']??null,'created_at'=>now(),'updated_at'=>now()]);
   });
   return redirect()->route('admin.index');
  }
