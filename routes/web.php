@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function(){
  Route::post('/creator',[CreatorController::class,'store'])->name('creator.store');
  Route::post('/creator/packages',[CreatorController::class,'package'])->name('creator.package');
  Route::post('/creator/samples',[CreatorPortfolioSampleController::class,'store'])->name('creator.samples.store');
+ Route::put('/creator/samples/{sample}',[CreatorPortfolioSampleController::class,'update'])->name('creator.samples.update');
+ Route::delete('/creator/samples/{sample}',[CreatorPortfolioSampleController::class,'destroy'])->name('creator.samples.destroy');
  Route::post('/admin/samples/{sample}/decision',[AdminController::class,'sample'])->name('admin.samples.decide');
  Route::post('/creator/packages/{package}/resubmit',[CreatorController::class,'resubmitPackage'])->name('creator.packages.resubmit');
  Route::get('/business',[BusinessController::class,'index'])->name('business.index');
