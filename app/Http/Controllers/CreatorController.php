@@ -21,11 +21,11 @@ class CreatorController extends Controller {
    $locked->fill($d);
    if($changed){
     $locked->status='pending';
-    CreatorPackage::where('creator_profile_id',$locked->id)->update(['is_active'=>false,'moderation_status'=>'pending']);
+    CreatorPackage::where('creator_profile_id',$locked->id)->where('moderation_status','approved')->update(['is_active'=>false,'moderation_status'=>'pending']);
    }
    $locked->save();
   });
-  return redirect()->route('dashboard')->with('notice','Creator profile saved and pending review.');
+  return redirect()->route('dashboard')->with('notice','Creator profile saved. Changes to approved profiles require a new review.');
  }
  public function package(Request $request){
   $d=$request->validate(['title'=>'required|string|max:160','description'=>'nullable|string|max:2000','price'=>'required|numeric|min:1|max:1000000','turnaround_days'=>'required|integer|min:1|max:90','revision_limit'=>'required|integer|min:0|max:10']);
