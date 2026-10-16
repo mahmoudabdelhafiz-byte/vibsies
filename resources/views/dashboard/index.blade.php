@@ -5,8 +5,8 @@
 <p><a href="{{ route('creator.setup') }}">{{ __('Creator studio') }}</a> · <a href="{{ route('business.index') }}">{{ __('Business accounts') }}</a></p>
 <form method="post" action="{{ route('logout') }}">@csrf<button>{{ __('Log out') }}</button></form>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
-<h2>{{ __('Notifications') }}</h2>
-@if(auth()->user()->unreadNotifications()->exists())
+<h2>{{ __('Notifications') }} <small>({{ $unreadCount }} {{ __('unread') }})</small></h2>
+@if($unreadCount > 0)
 <form method="post" action="{{ route('notifications.read-all') }}">@csrf<button>{{ __('Mark all as read') }}</button></form>
 @endif
 @forelse($notifications as $notification)
@@ -25,6 +25,7 @@
  @else <small>{{ __('Read') }}</small> @endif
 </article>
 @empty<p>{{ __('No notifications yet') }}</p>@endforelse
+{{ $notifications->links() }}
 <h2>{{ __('My bookings') }}</h2>
 @forelse($customerBookings as $booking)<article class="card"><a href="{{ route('bookings.show',$booking) }}">{{ $booking->creator?->display_name ?? __('Booking') }}</a> — {{ __('Status') }}: {{ __($booking->status) }} — {{ number_format($booking->price_minor/100,2) }} {{ $booking->currency }}</article>@empty<p>{{ __('No bookings') }}</p>@endforelse
 {{ $customerBookings->links() }}
