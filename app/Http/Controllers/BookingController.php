@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\CreatorPackage;
+use App\Services\Payments\BookingQuote;
 use App\Notifications\BookingUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -13,10 +14,10 @@ class BookingController extends Controller {
    $package=CreatorPackage::query()->with('creator')->lockForUpdate()->findOrFail($input['creator_package_id']);
    abort_unless($package->is_active && $package->moderation_status==='approved' && $package->creator->status==='approved',422,'Package unavailable');
    abort_if($package->creator->user_id===$request->user()->id,422,'Cannot book your own service');
-   $fee=intdiv($package->price_minor*15+50,100);
+   $quote=app(BookingQuote::class)->calculate($package->price_minor,$package->currency);
    return Booking::create(['customer_id'=>$request->user()->id,'creator_profile_id'=>$package->creator_profile_id,
     'creator_package_id'=>$package->id,'brief'=>$input['brief'],'price_minor'=>$package->price_minor,
-    'fee_minor'=>$fee,'currency'=>$package->currency,'status'=>'requested']);
+    'fee_minor'=>$quote['fee_minor'],'currency'=>$quote['currency'],'status'=>'requested']);
   });
   $booking->creator->user->notify(new BookingUpdate($booking->id,'requested'));
   return redirect()->route('bookings.show',$booking);
