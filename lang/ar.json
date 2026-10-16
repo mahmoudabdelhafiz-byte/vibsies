@@ -109,5 +109,10 @@
   "Tell the creator about your brand, audience, video format and deadline": "اشرح لصانع المحتوى علامتك التجارية وجمهورك وشكل الفيديو والموعد المطلوب",
   "Request booking": "اطلب الحجز",
   "You cannot book your own package.": "لا يمكنك حجز باقتك الخاصة.",
-  "Log in to request booking": "سجّل الدخول لطلب الحجز"
+  "Log in to request booking": "سجّل الدخول لطلب الحجز",
+  "Booking notifications": "إشعارات الحجوزات",
+  "No notifications yet": "لا توجد إشعارات بعد",
+  "requested": "مطلوب",
+  "accepted": "مقبول",
+  "declined": "مرفوض"
 }
