@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Delivery;
 use App\Models\Dispute;
+use App\Models\User;
+use App\Notifications\BookingUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +58,7 @@ class FulfillmentController extends Controller {
    Storage::disk($disk)->delete($stored);
    throw $e;
   }
+  User::findOrFail($booking->customer_id)->notify(new BookingUpdate($booking->id,'video_submitted'));
   return redirect()->route('bookings.fulfillment',$booking);
  }
  public function preview(Request $r,Booking $booking,Delivery $delivery) {
@@ -96,6 +99,8 @@ class FulfillmentController extends Controller {
    $v->update(['status'=>$d['decision']]);
    $b->update(['status'=>$d['decision']==='accepted'?'delivery_approved':'revisions_requested']);
   });
+  $booking->load('creator');
+  $booking->creator->user->notify(new BookingUpdate($booking->id,$d['decision']==='accepted'?'video_approved':'revisions_requested'));
   return redirect()->route('bookings.fulfillment',$booking);
  }
  public function dispute(Request $r,Booking $booking) {
@@ -108,6 +113,9 @@ class FulfillmentController extends Controller {
    Dispute::create(['booking_id'=>$b->id,'raised_by'=>$r->user()->id,'reason'=>$d['reason']]);
    $b->update(['status'=>'disputed']);
   });
+  $booking->load('creator');
+  $recipientId=$booking->customer_id===$r->user()->id?$booking->creator->user_id:$booking->customer_id;
+  User::findOrFail($recipientId)->notify(new BookingUpdate($booking->id,'dispute_opened'));
   return redirect()->route('bookings.fulfillment',$booking);
  }
 }
