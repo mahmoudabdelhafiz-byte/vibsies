@@ -41,3 +41,7 @@ Run `php artisan vibsies:audit-finance --limit=500` to inspect journal balance a
 ## Offline sandbox settlement comparison
 
 Run `php artisan vibsies:compare-settlement /path/to/sandbox-export.csv` to compare a manually supplied CSV against locally stored payment intent references. Required exact header: `provider_reference,currency,amount_minor,status`. The comparison is read-only, rejects duplicate references and malformed records, and limits input to 10,000 rows. It does not verify that the CSV originated from a payment provider or that funds settled. It also reports locally recorded provider references absent from the supplied CSV; ensure the CSV covers the intended full provider period to avoid misleading results. Use **test/sandbox exports only** and keep them outside the public web root.
+
+### Reconciliation window
+
+The offline comparator now requires `--from=YYYY-MM-DD --to=YYYY-MM-DD` (inclusive UTC dates) and restricts the **internal missing-from-CSV check** to payment intents created in that window. Example: `php artisan vibsies:compare-settlement sandbox.csv --from=2026-10-01 --to=2026-10-15`. CSV rows are not date-filtered because the current CSV schema has no transaction date, so export the corresponding provider period before comparing. Internal creation time is not the provider's settlement date; this is still an imperfect sandbox tool, not actual settlement reconciliation.
