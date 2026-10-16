@@ -166,5 +166,8 @@
   "superseded": "تم استبداله",
   "Notifications": "الإشعارات",
   "Verification renewal reminder": "تذكير بتجديد التحقق",
-  "Notification": "إشعار"
+  "Notification": "إشعار",
+  "Mark all as read": "تحديد الكل كمقروء",
+  "Mark as read": "تحديد كمقروء",
+  "Read": "مقروء"
 }
