@@ -104,5 +104,10 @@
   "Verify": "تحقق",
   "No pending verifications": "لا توجد طلبات تحقق معلقة",
   "Rejected packages — revise and resubmit": "الباقات المرفوضة — تعديل وإعادة تقديم",
-  "Resubmit package": "إعادة تقديم الباقة"
+  "Resubmit package": "إعادة تقديم الباقة",
+  "Describe your video requirements": "صف متطلبات الفيديو",
+  "Tell the creator about your brand, audience, video format and deadline": "اشرح لصانع المحتوى علامتك التجارية وجمهورك وشكل الفيديو والموعد المطلوب",
+  "Request booking": "اطلب الحجز",
+  "You cannot book your own package.": "لا يمكنك حجز باقتك الخاصة.",
+  "Log in to request booking": "سجّل الدخول لطلب الحجز"
 }
