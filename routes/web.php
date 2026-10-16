@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\OrderWorkflowController;
+use App\Http\Controllers\FulfillmentController;
 use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
 Route::middleware('guest')->group(function(){
@@ -25,6 +26,10 @@ Route::middleware('auth')->group(function(){
  Route::post('/bookings/{booking}/decision',[OrderWorkflowController::class,'decide'])->name('bookings.decision');
  Route::get('/bookings/{booking}/agreement',[OrderWorkflowController::class,'agreement'])->name('bookings.agreement');
  Route::post('/bookings/{booking}/agreement',[OrderWorkflowController::class,'accept'])->name('bookings.accept-agreement');
+ Route::get('/bookings/{booking}/fulfillment',[FulfillmentController::class,'show'])->name('bookings.fulfillment');
+ Route::post('/bookings/{booking}/deliveries',[FulfillmentController::class,'deliver'])->name('deliveries.store');
+ Route::post('/bookings/{booking}/deliveries/{delivery}/review',[FulfillmentController::class,'review'])->name('deliveries.review');
+ Route::post('/bookings/{booking}/disputes',[FulfillmentController::class,'dispute'])->name('disputes.store');
  Route::post('/bookings',[BookingController::class,'store'])->name('bookings.store');
  Route::get('/bookings/{booking}',[BookingController::class,'show'])->name('bookings.show');
 });
