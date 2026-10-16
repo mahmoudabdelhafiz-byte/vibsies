@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function(){
  Route::post('/admin/verifications/{verification}/review',[VerificationController::class,'review'])->name('admin.verifications.review');
  Route::post('/logout',[AuthController::class,'logout'])->name('logout');
  Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
+ Route::post('/notifications/read-all',[NotificationController::class,'markAllRead'])->name('notifications.read-all');
+ Route::post('/notifications/{notification}/read',[NotificationController::class,'markRead'])->name('notifications.read');
  Route::get('/creator',[CreatorController::class,'setup'])->name('creator.setup');
  Route::post('/creator',[CreatorController::class,'store'])->name('creator.store');
  Route::post('/creator/packages',[CreatorController::class,'package'])->name('creator.package');
