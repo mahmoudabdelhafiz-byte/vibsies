@@ -145,5 +145,12 @@
   "Review external video": "مراجعة الفيديو الخارجي",
   "No portfolio samples awaiting review": "لا توجد نماذج أعمال بانتظار المراجعة",
   "Save and resubmit for review": "حفظ وإعادة الإرسال للمراجعة",
-  "Remove sample": "حذف النموذج"
+  "Remove sample": "حذف النموذج",
+  "Verified checks": "إجراءات التحقق المكتملة",
+  "Identity reviewed": "تمت مراجعة الهوية",
+  "Social profile reviewed": "تمت مراجعة الحساب الاجتماعي",
+  "Advertising license reviewed": "تمت مراجعة الترخيص الإعلاني",
+  "Reviewed verification": "تمت مراجعة التحقق",
+  "Verification reflects reviewed evidence, not a guarantee of a transaction or endorsement.": "يعكس التحقق مراجعة الأدلة المقدمة ولا يُعد ضمانًا لأي معاملة أو توصية.",
+  "No current verification checks displayed.": "لا توجد إجراءات تحقق سارية معروضة."
 }
