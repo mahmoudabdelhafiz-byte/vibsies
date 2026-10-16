@@ -10,6 +10,7 @@
 <p>{{ __('Version') }} {{ $delivery->version }}: {{ $delivery->status }}</p>
 <p>{{ $delivery->note }}</p>
 @if($delivery->storage_path)
+<div><video controls preload="metadata" playsinline style="width:100%;max-width:720px;aspect-ratio:16/9;background:#1c1530;border-radius:10px" controlsList="nodownload" aria-label="{{ __('Private video preview') }}"><source src="{{ route('deliveries.preview',[$booking,$delivery]) }}" type="{{ $delivery->mime_type }}">{{ __('Your browser cannot play this video.') }}</video></div>
 <a href="{{ route('deliveries.download',[$booking,$delivery]) }}">{{ __('Download private video') }}</a>
 @else
 <span>{{ __('Legacy external delivery is unavailable here') }}</span>
