@@ -1,0 +1,1 @@
+<h1>Login</h1>@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach<form method="post" action="{{ route('login.submit') }}">@csrf<input name="email" type="email" required><input name="password" type="password" required><button>Log in</button></form>
