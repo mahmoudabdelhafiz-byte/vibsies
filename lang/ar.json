@@ -169,5 +169,6 @@
   "Notification": "إشعار",
   "Mark all as read": "تحديد الكل كمقروء",
   "Mark as read": "تحديد كمقروء",
-  "Read": "مقروء"
+  "Read": "مقروء",
+  "unread": "غير مقروء"
 }
