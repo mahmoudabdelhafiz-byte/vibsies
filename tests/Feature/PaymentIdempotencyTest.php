@@ -19,6 +19,10 @@ class PaymentIdempotencyTest extends TestCase {
   $this->expectException(LogicException::class);
   $service->reserve('checkout','booking-test-0002','{"total_minor":30000}');
  }
+ public function test_empty_request_cannot_reserve_a_key():void {
+  $this->expectException(\InvalidArgumentException::class);
+  (new PaymentIdempotency())->reserve('checkout','booking-test-empty','');
+ }
  public function test_same_key_can_be_scoped_to_different_operations():void {
   $service=new PaymentIdempotency();
   $this->assertTrue($service->reserve('checkout','booking-test-0003','payload'));
