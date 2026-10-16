@@ -22,6 +22,7 @@ class VerificationController extends Controller {
   DB::transaction(function()use($request,$verification,$data){
    $v=CreatorVerification::whereKey($verification->id)->lockForUpdate()->firstOrFail();
    abort_unless($v->status==='pending',409,'Already reviewed.');
+   abort_unless($data['decision']!=='verified' || $v->creator->status==='approved',409,'Creator profile must be approved before verification.');
    $v->update(['status'=>$data['decision'],'reviewed_by'=>$request->user()->id,'reviewed_at'=>now(),'expires_at'=>$data['decision']==='verified'?($data['expires_at']??null):null]);
    DB::table('moderation_actions')->insert(['id'=>(string)Str::uuid(),'actor_id'=>$request->user()->id,'target_type'=>'creator_verification','target_id'=>$v->id,'action'=>$data['decision'],'reason'=>$data['reason'],'created_at'=>now(),'updated_at'=>now()]);
   });
