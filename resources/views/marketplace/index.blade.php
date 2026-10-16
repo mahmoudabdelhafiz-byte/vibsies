@@ -6,8 +6,8 @@
 <section class="grid">
 @forelse($packages as $package)
 <article class="card"><h2>{{ $package->creator->display_name }}</h2><p>{{ $package->title }}</p><p>{{ $package->description }}</p><strong>{{ number_format($package->price_minor/100,2) }} {{ $package->currency }}</strong>
-<p>{{ __('Estimated platform fee') }}: {{ number_format(intdiv($package->price_minor*15+50,100)/100,2) }} {{ $package->currency }}</p>
-<p><strong>{{ __('Estimated customer total') }}: {{ number_format(($package->price_minor+intdiv($package->price_minor*15+50,100))/100,2) }} {{ $package->currency }}</strong></p><p>{{ __('Bookings require an account. Payments are disabled during development.') }}</p>
+<p>{{ __('Estimated platform fee') }}: {{ number_format($quotes[$package->id]['fee_minor']/100,2) }} {{ $package->currency }}</p>
+<p><strong>{{ __('Estimated customer total') }}: {{ number_format($quotes[$package->id]['total_minor']/100,2) }} {{ $package->currency }}</strong></p><p>{{ __('Bookings require an account. Payments are disabled during development.') }}</p>
 @auth
 @if(auth()->id() !== $package->creator->user_id)
 <form method="post" action="{{ route('bookings.store') }}">
