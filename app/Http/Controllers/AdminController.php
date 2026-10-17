@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\CreatorPackage;
+use App\Services\Agreements\AgreementIntegrity;
 use App\Models\CreatorPortfolioSample;
 use App\Models\CreatorProfile;
 use App\Models\Dispute;
@@ -98,10 +99,13 @@ class AdminController extends Controller {
      'accepted'=>'delivery_approved',
      default=>'accepted'
     };
-    // An accepted order may resume only if there is an actual immutable agreement.
-    // Older inconsistent orders require manual remediation instead of bypassing consent.
-    if($resume==='accepted')
-     abort_unless($booking->agreement,409,'Agreement missing; manual remediation required.');
+    // Never re-enable delivery or consent from an unverified or incomplete agreement.
+    $agreement=$booking->agreement;
+    abort_unless($agreement && AgreementIntegrity::verify($agreement->terms,$agreement->terms_sha256),
+     409,'Agreement missing or modified; manual remediation required.');
+    if(in_array($resume,['in_review','revisions_requested','delivery_approved'],true))
+     abort_unless($agreement->customer_accepted_at && $agreement->creator_accepted_at,
+      409,'Both parties must accept before resuming delivered work.');
     $booking->update(['status'=>$resume]);
    }
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'dispute','target_id'=>$dispute->id,'action'=>$d['decision'],'reason'=>$d['reason'],'created_at'=>now(),'updated_at'=>now()]);
