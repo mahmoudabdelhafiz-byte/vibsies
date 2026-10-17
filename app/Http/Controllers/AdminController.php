@@ -84,7 +84,20 @@ class AdminController extends Controller {
   DB::transaction(function()use($r,$dispute,$d){
    $dispute=Dispute::whereKey($dispute->id)->lockForUpdate()->firstOrFail();
    abort_unless($dispute->status==='open',409);
+   $booking=Booking::whereKey($dispute->booking_id)->lockForUpdate()->firstOrFail();
+   abort_unless($booking->status==='disputed',409,'Booking is not in a disputed state.');
    $dispute->update(['status'=>$d['decision']]);
+   if($d['decision']==='resolved'){
+    // Restore an actionable state based on the most recent recorded delivery.
+    $last=Delivery::where('booking_id',$booking->id)->orderByDesc('version')->first();
+    $resume=match($last?->status){
+     'submitted'=>'in_review',
+     'revisions_requested'=>'revisions_requested',
+     'accepted'=>'delivery_approved',
+     default=>'accepted'
+    };
+    $booking->update(['status'=>$resume]);
+   }
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'dispute','target_id'=>$dispute->id,'action'=>$d['decision'],'reason'=>$d['reason'],'created_at'=>now(),'updated_at'=>now()]);
   });
   return redirect()->route('admin.index');
