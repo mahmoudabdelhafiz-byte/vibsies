@@ -43,4 +43,20 @@ class DisputeResolutionLifecycleTest extends TestCase {
   $this->assertSame('open',$dispute->fresh()->status);
   $this->assertSame('disputed',$booking->fresh()->status);
  }
+ public function test_escalated_dispute_can_be_resolved_but_not_escalated_twice():void {
+  [$booking,$customer]=$this->booking('disputed');
+  $terms=['version'=>1,'booking_id'=>$booking->id,'customer_id'=>$customer->id];
+  Agreement::create(['booking_id'=>$booking->id,'terms'=>$terms,'terms_sha256'=>AgreementIntegrity::digest($terms)]);
+  $dispute=Dispute::create(['booking_id'=>$booking->id,'raised_by'=>$customer->id,
+   'reason'=>'Unresolved delivery disagreements','status'=>'escalated']);
+  $admin=User::factory()->create(['is_admin'=>true]);
+  $this->actingAs($admin)->post(route('admin.disputes.decide',$dispute),[
+   'decision'=>'escalated','reason'=>'Duplicate escalation is not allowed'
+  ])->assertStatus(409);
+  $this->actingAs($admin)->post(route('admin.disputes.decide',$dispute),[
+   'decision'=>'resolved','reason'=>'Escalated dispute reviewed and resolved'
+  ])->assertRedirect();
+  $this->assertSame('resolved',$dispute->fresh()->status);
+  $this->assertSame('accepted',$booking->fresh()->status);
+ }
 }
