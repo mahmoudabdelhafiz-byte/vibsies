@@ -109,6 +109,10 @@ class FulfillmentController extends Controller {
    $v=Delivery::whereKey($delivery->id)->lockForUpdate()->firstOrFail();
    abort_unless($v->booking_id===$b->id && $b->status==='in_review' && $v->status==='submitted',409);
    abort_unless($v->version===(int)Delivery::where('booking_id',$b->id)->max('version'),409,'Only the latest delivery may be reviewed.');
+   $agreement=$b->agreement;
+   abort_unless($agreement && AgreementIntegrity::verify($agreement->terms,$agreement->terms_sha256)
+    && $agreement->customer_accepted_at && $agreement->creator_accepted_at,
+    409,'A valid mutually accepted agreement is required before reviewing delivery.');
    if($d['decision']==='revisions_requested'){
     $limit=(int)($b->agreement?->terms['revision_limit'] ?? \App\Models\CreatorPackage::findOrFail($b->creator_package_id)->revision_limit);
     $used=Delivery::where('booking_id',$b->id)->where('status','revisions_requested')->count();
