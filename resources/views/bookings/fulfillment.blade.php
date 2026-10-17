@@ -18,7 +18,15 @@
 @if($booking->customer_id===auth()->id() && $delivery->status==='submitted' && $booking->status==='in_review' && $delivery->version===$deliveries->max('version'))
 <form method="post" action="{{ route('deliveries.review',[$booking,$delivery]) }}">@csrf
 <button name="decision" value="accepted">{{ __('Approve') }}</button>
+@php
+$allowedRevisions=(int)($booking->agreement?->terms['revision_limit'] ?? $booking->package?->revision_limit ?? \App\Models\CreatorPackage::find($booking->creator_package_id)?->revision_limit ?? 0);
+$usedRevisions=$deliveries->where('status','revisions_requested')->count();
+@endphp
+@if($usedRevisions < $allowedRevisions)
 <button name="decision" value="revisions_requested">{{ __('Request changes') }}</button>
+@else
+<p>{{ __('Revision allowance exhausted. You may approve the delivery or open a dispute.') }}</p>
+@endif
 </form>
 @endif
 </article>
@@ -32,7 +40,7 @@
 @endif
 <h2>{{ __('Disputes') }}</h2>
 @forelse($disputes as $dispute)<article class="card">{{ $dispute->status }}: {{ $dispute->reason }}</article>@empty<p>{{ __('No disputes') }}</p>@endforelse
-@if(!in_array($booking->status,['completed','declined','disputed']))
+@if(in_array($booking->status,['accepted','in_review','revisions_requested','delivery_approved'],true))
 <form method="post" action="{{ route('disputes.store',$booking) }}">@csrf
 <label>{{ __('Dispute reason') }}<textarea name="reason" minlength="15" maxlength="2000" required></textarea></label>
 <button>{{ __('Open dispute') }}</button></form>
