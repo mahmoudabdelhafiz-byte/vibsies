@@ -6,6 +6,7 @@ use App\Services\Agreements\AgreementIntegrity;
 use App\Models\CreatorPackage;
 use App\Models\CreatorProfile;
 use App\Models\Dispute;
+use App\Models\Delivery;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -58,5 +59,20 @@ class DisputeResolutionLifecycleTest extends TestCase {
   ])->assertRedirect();
   $this->assertSame('resolved',$dispute->fresh()->status);
   $this->assertSame('accepted',$booking->fresh()->status);
+ }
+ public function test_delivered_dispute_cannot_resume_without_both_signatures():void {
+  [$booking,$customer]=$this->booking('disputed');
+  $terms=['version'=>1,'booking_id'=>$booking->id,'customer_id'=>$customer->id];
+  Agreement::create(['booking_id'=>$booking->id,'terms'=>$terms,'terms_sha256'=>AgreementIntegrity::digest($terms)]);
+  Delivery::create(['booking_id'=>$booking->id,'creator_user_id'=>$booking->creator->user_id,
+   'version'=>1,'media_url'=>'','status'=>'submitted']);
+  $dispute=Dispute::create(['booking_id'=>$booking->id,'raised_by'=>$customer->id,
+   'reason'=>'Submitted work must not bypass consent','status'=>'open']);
+  $admin=User::factory()->create(['is_admin'=>true]);
+  $this->actingAs($admin)->post(route('admin.disputes.decide',$dispute),[
+   'decision'=>'resolved','reason'=>'Attempted resolution without signed agreement'
+  ])->assertStatus(409);
+  $this->assertSame('disputed',$booking->fresh()->status);
+  $this->assertSame('open',$dispute->fresh()->status);
  }
 }
