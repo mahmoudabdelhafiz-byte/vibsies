@@ -46,13 +46,13 @@
 <button name="decision" value="approved">{{ __('Approve') }}</button>
 <button name="decision" value="rejected">{{ __('Reject') }}</button></form></article>
 @empty<p>{{ __('No portfolio samples awaiting review') }}</p>@endforelse
-<h2>{{ __('Open disputes') }}</h2>
+<h2>{{ __('Open and escalated disputes') }}</h2>
 @forelse($disputes as $dispute)
-<article class="card"><p>{{ $dispute->reason }}</p>
+<article class="card"><p>{{ __('Status') }}: {{ $dispute->status }}</p><p>{{ $dispute->reason }}</p>
 <form method="post" action="{{ route('admin.disputes.decide',$dispute) }}">@csrf
 <label>{{ __('Document review and outcome') }}<textarea name="reason" minlength="10" maxlength="2000" required></textarea></label>
 <button name="decision" value="resolved">{{ __('Resolve') }}</button>
-<button name="decision" value="escalated">{{ __('Escalate') }}</button></form></article>
+@if($dispute->status==='open')<button name="decision" value="escalated">{{ __('Escalate') }}</button>@endif</form></article>
 @empty<p>{{ __('No open disputes') }}</p>@endforelse
 <h2>{{ __('Pending verification requests') }}</h2>
 @forelse($verifications as $verification)
