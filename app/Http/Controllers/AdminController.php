@@ -34,7 +34,7 @@ class AdminController extends Controller {
    'creators'=>CreatorProfile::where('status','pending')->limit(30)->get(),
    'packages'=>CreatorPackage::where('moderation_status','pending')->limit(30)->get(),
    'samples'=>CreatorPortfolioSample::with('creator')->where('moderation_status','pending')->limit(30)->get(),
-   'disputes'=>Dispute::where('status','open')->limit(30)->get(),
+   'disputes'=>Dispute::whereIn('status',['open','escalated'])->limit(30)->get(),
    'verifications'=>CreatorVerification::with('creator')->where('status','pending')->limit(30)->get()
   ]);
  }
@@ -85,7 +85,8 @@ class AdminController extends Controller {
    // Lock the parent booking before its dispute, matching the customer dispute path.
    $booking=Booking::whereKey($dispute->booking_id)->lockForUpdate()->firstOrFail();
    $dispute=Dispute::whereKey($dispute->id)->lockForUpdate()->firstOrFail();
-   abort_unless($dispute->booking_id===$booking->id && $dispute->status==='open',409);
+   abort_unless($dispute->booking_id===$booking->id && in_array($dispute->status,['open','escalated'],true),409);
+   abort_unless($dispute->status==='open' || $d['decision']==='resolved',409,'Escalated disputes may only be resolved.');
    abort_unless($booking->status==='disputed',409,'Booking is not in a disputed state.');
    $dispute->update(['status'=>$d['decision']]);
    if($d['decision']==='resolved'){
