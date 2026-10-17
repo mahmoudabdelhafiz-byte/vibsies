@@ -24,7 +24,7 @@ class OrderWorkflowController extends Controller {
    if($data['decision']==='accepted'){
     $terms=['version'=>1,'booking_id'=>$locked->id,'customer_id'=>$locked->customer_id,
       'creator_profile_id'=>$locked->creator_profile_id,'brief'=>$locked->brief,'price_minor'=>$locked->price_minor,
-      'fee_minor'=>$locked->fee_minor,'currency'=>$locked->currency,'payment_enabled'=>false];
+      'fee_minor'=>$locked->fee_minor,'currency'=>$locked->currency,'revision_limit'=>$locked->package?->revision_limit ?? \App\Models\CreatorPackage::findOrFail($locked->creator_package_id)->revision_limit,'payment_enabled'=>false];
     Agreement::create(['booking_id'=>$locked->id,'terms'=>$terms,'terms_sha256'=>AgreementIntegrity::digest($terms)]);
    }
   });
