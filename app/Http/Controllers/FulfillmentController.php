@@ -121,7 +121,7 @@ class FulfillmentController extends Controller {
   $d=$r->validate(['reason'=>'required|string|min:15|max:2000']);
   DB::transaction(function()use($booking,$r,$d){
    $b=Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
-   abort_if(in_array($b->status,['declined','completed','disputed'],true),409);
+   abort_unless(in_array($b->status,['accepted','in_review','revisions_requested','delivery_approved'],true),409,'Dispute cannot be opened in this booking state.');
    abort_if(Dispute::where('booking_id',$b->id)->where('status','open')->exists(),409);
    Dispute::create(['booking_id'=>$b->id,'raised_by'=>$r->user()->id,'reason'=>$d['reason']]);
    $b->update(['status'=>'disputed']);
