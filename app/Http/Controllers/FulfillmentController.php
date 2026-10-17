@@ -109,6 +109,11 @@ class FulfillmentController extends Controller {
    $v=Delivery::whereKey($delivery->id)->lockForUpdate()->firstOrFail();
    abort_unless($v->booking_id===$b->id && $b->status==='in_review' && $v->status==='submitted',409);
    abort_unless($v->version===(int)Delivery::where('booking_id',$b->id)->max('version'),409,'Only the latest delivery may be reviewed.');
+   if($d['decision']==='revisions_requested'){
+    $limit=(int)($b->agreement?->terms['revision_limit'] ?? \App\Models\CreatorPackage::findOrFail($b->creator_package_id)->revision_limit);
+    $used=Delivery::where('booking_id',$b->id)->where('status','revisions_requested')->count();
+    abort_unless($used<$limit,409,'The purchased revision allowance has been used.');
+   }
    $v->update(['status'=>$d['decision']]);
    $b->update(['status'=>$d['decision']==='accepted'?'delivery_approved':'revisions_requested']);
   });
