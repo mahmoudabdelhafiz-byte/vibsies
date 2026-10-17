@@ -82,9 +82,10 @@ class AdminController extends Controller {
  public function dispute(Request $r,Dispute $dispute){
   $this->guard($r);$d=$r->validate(['decision'=>'required|in:resolved,escalated','reason'=>'required|string|min:10|max:2000']);
   DB::transaction(function()use($r,$dispute,$d){
-   $dispute=Dispute::whereKey($dispute->id)->lockForUpdate()->firstOrFail();
-   abort_unless($dispute->status==='open',409);
+   // Lock the parent booking before its dispute, matching the customer dispute path.
    $booking=Booking::whereKey($dispute->booking_id)->lockForUpdate()->firstOrFail();
+   $dispute=Dispute::whereKey($dispute->id)->lockForUpdate()->firstOrFail();
+   abort_unless($dispute->booking_id===$booking->id && $dispute->status==='open',409);
    abort_unless($booking->status==='disputed',409,'Booking is not in a disputed state.');
    $dispute->update(['status'=>$d['decision']]);
    if($d['decision']==='resolved'){
@@ -96,6 +97,10 @@ class AdminController extends Controller {
      'accepted'=>'delivery_approved',
      default=>'accepted'
     };
+    // An accepted order may resume only if there is an actual immutable agreement.
+    // Older inconsistent orders require manual remediation instead of bypassing consent.
+    if($resume==='accepted')
+     abort_unless($booking->agreement,409,'Agreement missing; manual remediation required.');
     $booking->update(['status'=>$resume]);
    }
    DB::table('moderation_actions')->insert(['id'=>Str::uuid(),'actor_id'=>$r->user()->id,'target_type'=>'dispute','target_id'=>$dispute->id,'action'=>$d['decision'],'reason'=>$d['reason'],'created_at'=>now(),'updated_at'=>now()]);
