@@ -93,12 +93,15 @@ class FulfillmentController extends Controller {
  public function download(Request $r,Booking $booking,Delivery $delivery) {
   $this->authorizeParty($r,$booking);
   abort_unless($delivery->booking_id===$booking->id && $delivery->storage_disk==='local' && $delivery->storage_path,404);
+  abort_unless(in_array($delivery->mime_type,['video/mp4','video/quicktime','video/webm'],true),415);
   abort_unless(str_starts_with($delivery->storage_path,'private-deliveries/'.$booking->id.'/') && !str_contains($delivery->storage_path,'..'),404);
   $disk=Storage::disk('local');
   abort_unless($disk->exists($delivery->storage_path),404);
   return $disk->download($delivery->storage_path,'vibsies-delivery-'.$delivery->version.'.'.match($delivery->mime_type){
    'video/mp4'=>'mp4','video/quicktime'=>'mov','video/webm'=>'webm',default=>'bin'
-  },['Content-Type'=>$delivery->mime_type,'X-Content-Type-Options'=>'nosniff']);
+  },['Content-Type'=>$delivery->mime_type,'X-Content-Type-Options'=>'nosniff',
+   'Cache-Control'=>'private, no-store, max-age=0','X-Frame-Options'=>'DENY',
+   'Referrer-Policy'=>'no-referrer']);
  }
  public function review(Request $r,Booking $booking,Delivery $delivery) {
   $this->authorizeParty($r,$booking);
