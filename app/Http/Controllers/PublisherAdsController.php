@@ -90,11 +90,11 @@ class PublisherAdsController extends Controller
             'decision' => ['required', Rule::in(['verified', 'rejected'])],
             'note' => 'nullable|string|max:2000',
         ]);
-        $property->update([
+        $property->forceFill([
             'verification_status' => $data['decision'],
             'verification_note' => $data['note'] ?? null,
             'verified_at' => $data['decision'] === 'verified' ? now() : null,
-        ]);
+        ])->save();
         return back()->with('notice', 'Publisher review saved.');
     }
 
@@ -107,11 +107,11 @@ class PublisherAdsController extends Controller
             'note' => 'nullable|string|max:2000',
         ]);
         abort_unless($promotion->property->verification_status === 'verified', 409, 'Publisher must be verified.');
-        $promotion->update([
+        $promotion->forceFill([
             'status' => $data['decision'],
             'review_note' => $data['note'] ?? null,
             'reviewed_at' => now(),
-        ]);
+        ])->save();
         // Rewards are deliberately not credited here: financial ledger integration is pending.
         return back()->with('notice', 'Promotion review saved; no financial rewards have been credited.');
     }
