@@ -39,6 +39,8 @@ class PublisherAdsController extends Controller
             'city' => 'nullable|string|max:120',
             'reported_followers' => 'nullable|integer|min:0|max:2000000000',
             'description' => 'nullable|string|max:2000',
+            'ownership_evidence_url' => 'nullable|url|max:2048',
+            'ownership_evidence_note' => 'nullable|string|max:2000',
         ]);
         $allowed = $data['platform'] === 'facebook'
             ? ['page', 'group', 'professional_profile']
@@ -47,7 +49,13 @@ class PublisherAdsController extends Controller
             throw ValidationException::withMessages(['property_type' => 'This account type does not match the platform.']);
         }
         $this->ensurePlatformUrl($data['profile_url'], $data['platform']);
-        $property = PublisherProperty::create($data + ['user_id' => $request->user()->id]);
+        if (!empty($data['ownership_evidence_url'])) {
+            $this->ensurePlatformUrl($data['ownership_evidence_url'], $data['platform']);
+        }
+        $property = PublisherProperty::create($data + [
+            'user_id' => $request->user()->id,
+            'verification_token' => Str::upper(Str::random(16)),
+        ]);
         return redirect()->route('ads.publisher.index')->with('notice', 'Property submitted for manual verification. No public post is required.');
     }
 
@@ -90,6 +98,7 @@ class PublisherAdsController extends Controller
             'decision' => ['required', Rule::in(['verified', 'rejected'])],
             'note' => 'nullable|string|max:2000',
         ]);
+        abort_if(empty($property->ownership_evidence_url) && empty($property->ownership_evidence_note), 409, 'Ownership evidence is required before approval.');
         $property->forceFill([
             'verification_status' => $data['decision'],
             'verification_note' => $data['note'] ?? null,
