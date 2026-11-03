@@ -6,7 +6,7 @@
 @foreach($properties as $property)
 <article style="border-bottom:1px solid #ddd;padding:1rem 0"><strong>{{ $property->display_name }}</strong> — {{ $property->platform }} / {{ $property->property_type }} / {{ $property->verification_status }}
 <a href="{{ $property->profile_url }}" target="_blank" rel="noopener noreferrer">Review public URL</a>
-<p>Self-reported audience: {{ $property->reported_followers ?? 'Unknown' }} · {{ $property->category }} · {{ $property->city }}</p>
+<p>Ownership evidence: {{ $property->ownership_evidence_note ?: "Not provided" }} @if($property->ownership_evidence_url)<a target="_blank" rel="noopener noreferrer" href="{{ $property->ownership_evidence_url }}">Inspect evidence</a>@endif</p><p>Self-reported audience: {{ $property->reported_followers ?? 'Unknown' }} · {{ $property->category }} · {{ $property->city }}</p>
 <form method="post" action="{{ route('ads.admin.verify', $property) }}">@csrf
 <textarea name="note" placeholder="Ownership review evidence / rejection reason" maxlength="2000"></textarea>
 <button name="decision" value="verified">Verify ownership</button><button name="decision" value="rejected">Reject</button></form></article>
