@@ -21,6 +21,9 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->string('verification_status', 25)->default('pending');
             $table->text('verification_note')->nullable();
+            $table->string('verification_token', 24)->unique();
+            $table->string('ownership_evidence_url', 2048)->nullable();
+            $table->text('ownership_evidence_note')->nullable();
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();
             $table->index(['country_code', 'category', 'verification_status']);
