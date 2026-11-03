@@ -17,7 +17,7 @@
 <label>City<input name="city" maxlength="120" value="{{ old('city') }}"></label>
 <label>Reported followers / members<input name="reported_followers" type="number" min="0" value="{{ old('reported_followers') }}"></label>
 <label>Description<textarea name="description" maxlength="2000">{{ old('description') }}</textarea></label>
-<small>Audience figures are self-reported until verified. Do not share account passwords.</small>
+<label>Ownership evidence URL (optional)<input name="ownership_evidence_url" type="url" value="{{ old('ownership_evidence_url') }}" placeholder="https://www.facebook.com/..."></label><label>Ownership evidence details (optional)<textarea name="ownership_evidence_note" maxlength="2000" placeholder="Explain how the administrator can verify account control. Do not share passwords.">{{ old('ownership_evidence_note') }}</textarea></label><small>Audience figures are self-reported until verified. Do not share account passwords.</small>
 <button type="submit">Submit property for review</button>
 </form></section>
 <h2>My properties</h2>
