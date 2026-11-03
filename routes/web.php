@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PublisherAdsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
@@ -32,6 +33,13 @@ Route::middleware('auth')->group(function(){
  Route::post('/admin/verifications/{verification}/review',[VerificationController::class,'review'])->name('admin.verifications.review');
  Route::post('/logout',[AuthController::class,'logout'])->name('logout');
  Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
+ Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
+ Route::post('/ads/publisher/properties',[PublisherAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.publisher.store');
+ Route::post('/ads/publisher/properties/{property}/promotions',[PublisherAdsController::class,'promotion'])->middleware('throttle:5,1')->name('ads.publisher.promotion');
+ Route::get('/admin/ads',[PublisherAdsController::class,'admin'])->name('ads.admin.index');
+ Route::post('/admin/ads/properties/{property}/verify',[PublisherAdsController::class,'verify'])->name('ads.admin.verify');
+ Route::post('/admin/ads/promotions/{promotion}/review',[PublisherAdsController::class,'reviewPromotion'])->name('ads.admin.promotion');
+
  Route::post('/notifications/read-all',[NotificationController::class,'markAllRead'])->name('notifications.read-all');
  Route::post('/notifications/{notification}/read',[NotificationController::class,'markRead'])->name('notifications.read');
  Route::get('/creator',[CreatorController::class,'setup'])->name('creator.setup');
