@@ -90,6 +90,15 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - **Verified Phase 8B green CI:** GitHub Actions run 41915553129, SQLite **143 tests / 392 assertions passed**, PostgreSQL 16 **143 tests / 392 assertions passed**, migrations passed on both.
 - CI passing is not production readiness approval.
 
+## Phase 8C: publisher challenge and claim-abuse safeguards (2026-11-05)
+- Each new publisher property has a randomly generated 16-character code and seven-day challenge expiry. Owners can submit a public, same-platform evidence URL; the public code should appear on the controlled property bio/post.
+- Admin approval requires evidence submitted within the challenge validity window and an explicit attestation that the exact code was independently checked. A public Vibsies promotional post is never a verification requirement.
+- Review decisions and evidence submissions are recorded in `publisher_verification_events` with actor, action and timestamp. These are application audit records, not yet tamper-proof external logging.
+- New registrations normalize common mobile/www host variants into a unique SHA-256 social-property URL fingerprint. Existing/legacy records have nullable fingerprints; backfill and conflict review are required before any production rollout.
+- Owner-only evidence submission is rate-limited and cannot modify another publisher's account. No passwords, account access tokens or automated social posting are requested.
+- New challenge and duplicate-account tests have been added. Latest CI run should be checked before release.
+- Still pending: challenge renewal support, staff audit log access controls and retention, social proof authenticity beyond manual inspection, multi-account referral ring detection and privacy review.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
