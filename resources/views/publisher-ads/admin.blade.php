@@ -16,6 +16,18 @@
 <button name="decision" value="verified">{{ __('ads.verify_evidence') }}</button><button name="decision" value="rejected">{{ __('ads.reject') }}</button>
 </form></article>
 @empty<p>{{ __('ads.no_pending_reports') }}</p>@endforelse
+<h2>{{ __('ads.rating_appeals') }}</h2>
+@forelse($ratingAppeals as $appeal)
+<article>
+<strong>{{ $appeal->review->property->display_name }}</strong> — {{ $appeal->review->offer->campaign->title }}
+<p>{{ __('ads.appeal_reason') }}: {{ $appeal->reason }}</p>
+<p>{{ __('ads.rating_overall') }}: {{ $appeal->review->overall_rating }}/5</p>
+<form method="post" action="{{ route('ads.admin.review.appeal.resolve',$appeal) }}">@csrf
+<label>{{ __('ads.review_reason') }}<textarea name="note" minlength="12" maxlength="2000" required></textarea></label>
+<button name="decision" value="upheld">{{ __('ads.uphold_appeal') }}</button>
+<button name="decision" value="dismissed">{{ __('ads.dismiss_appeal') }}</button>
+</form></article>
+@empty<p>{{ __('ads.no_pending_appeals') }}</p>@endforelse
 <h2>{{ __('ads.pending_ratings') }}</h2>
 @forelse($ratingReviews as $rating)
 <article><strong>{{ $rating->property->display_name }}</strong>
