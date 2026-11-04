@@ -52,7 +52,17 @@ class PublisherAdsController extends Controller
         if (!empty($data['ownership_evidence_url'])) {
             $this->ensurePlatformUrl($data['ownership_evidence_url'], $data['platform']);
         }
+        $parsed=parse_url($data['profile_url']);
+        $host=strtolower($parsed['host'] ?? '');
+        $host=preg_replace('/^(www\\.|m\\.)/','',$host);
+        $path=strtolower(rtrim($parsed['path'] ?? '/', '/'));
+        // Prevent duplicate claims using URL variants of the same social property.
+        $fingerprint=hash('sha256',$data['platform'].':'.$host.$path);
+        if(PublisherProperty::where('profile_url_fingerprint',$fingerprint)->exists()) {
+            throw ValidationException::withMessages(['profile_url'=>'This social account has already been registered for review.']);
+        }
         $property = PublisherProperty::create($data + [
+            'profile_url_fingerprint' => $fingerprint,
             'user_id' => $request->user()->id,
             'verification_token' => Str::upper(Str::random(16)),
             'verification_expires_at' => now()->addDays(7),
