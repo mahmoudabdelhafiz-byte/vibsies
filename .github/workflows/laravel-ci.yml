@@ -51,4 +51,4 @@ jobs:
           APP_ENV: testing
           VIBSIES_ADS_ENABLED: 'false'
           VIBSIES_ADS_FINANCE_POSTING_ENABLED: 'false'
-        run: ./vendor/bin/phpunit --stop-on-failure
+        run: ./vendor/bin/phpunit
