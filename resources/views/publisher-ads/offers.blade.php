@@ -33,6 +33,19 @@
 <a href="{{ $offer->published_url }}" rel="noopener noreferrer" target="_blank">{{ __('ads.published_content') }}</a>
 @endif
 @if($offer->review_note)<p>{{ __('ads.review_note_short') }}: {{ $offer->review_note }}</p>@endif
+@if(in_array($offer->status,['submitted','confirmed','resolved_confirmed'],true) && !$offer->performanceReport)
+<form method="post" action="{{ route('ads.offer.performance',$offer) }}">@csrf
+<h3>{{ __('ads.report_campaign_performance') }}</h3>
+<p>{{ __('ads.self_reported_warning') }}</p>
+<label>{{ __('ads.measurement_date') }}<input type="date" name="measured_on" max="{{ now()->format('Y-m-d') }}" required></label>
+@foreach(['views','reach','clicks','interactions'] as $metric)
+<label>{{ __('ads.'.$metric) }}<input type="number" name="{{ $metric }}" min="0"></label>
+@endforeach
+<label>{{ __('ads.public_evidence_url') }}<input type="url" name="evidence_url"></label>
+<button type="submit">{{ __('ads.submit_performance') }}</button>
+</form>
+@endif
+@if($offer->performanceReport)<p>{{ __('ads.report_pending_verification') }}</p>@endif
 </section>
 @empty<p>{{ __('ads.no_offers_received') }}</p>@endforelse
 {{ $offers->links() }}
