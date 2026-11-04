@@ -82,6 +82,13 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - No credentials, real data or production databases were used. PostgreSQL-specific schema compatibility is verified by CI, but production migration/rollback, permissions, workload and concurrency still require environment-specific review.
 - Provider signatures, refunds, financial provider reconciliation, privacy/abuse review, bilingual UX, and final readiness signoff remain open. Both feature flags remain OFF.
 
+## Phase 8B: authorization and release-readiness hardening (2026-11-05)
+- Normalize new account email addresses before uniqueness validation on PostgreSQL; block case-variant duplicate registrations and attempted self-referral.
+- Manual publisher review is transactional and rejects repeat approval under concurrent requests. Require a written administrator review note; allow rejecting spam applications without ownership proof, while approval still requires ownership evidence.
+- Added four regression tests for account normalization, rejection without evidence, self-referral isolation, and foreign-property authorization.
+- Added `docs/VIBSIES_ADS_RELEASE_READINESS.md` with controlled deployment, backup/restore, rollback and business/legal release gates.
+- CI status must be checked on the latest feature branch before release; passing tests are not a production readiness approval.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
