@@ -13,6 +13,8 @@ class AdCampaignOffer extends Model {
     }
     public function campaign() { return $this->belongsTo(AdCampaign::class,'ad_campaign_id'); }
     public function package() { return $this->belongsTo(PublisherAdPackage::class,'publisher_ad_package_id'); }
+    public function campaignReview(){return $this->hasOne(PublisherCampaignReview::class,'ad_campaign_offer_id');}
+    public function performanceReport(){return $this->hasOne(PublisherCampaignPerformanceReport::class,'ad_campaign_offer_id');}
     public function events(){return $this->hasMany(AdOfferEvent::class,'ad_campaign_offer_id');}
     public function publisher() { return $this->belongsTo(User::class,'publisher_user_id'); }
 }
