@@ -35,9 +35,9 @@
 @foreach($properties as $property)
 <article style="border-bottom:1px solid #ddd;padding:1rem 0"><strong>{{ $property->display_name }}</strong> — {{ $property->platform }} / {{ $property->property_type }} / {{ $property->verification_status }}
 <a href="{{ $property->profile_url }}" target="_blank" rel="noopener noreferrer">Review public URL</a>
-<p>Ownership evidence: {{ $property->ownership_evidence_note ?: "Not provided" }} @if($property->ownership_evidence_url)<a target="_blank" rel="noopener noreferrer" href="{{ $property->ownership_evidence_url }}">Inspect evidence</a>@endif</p><p>Self-reported audience: {{ $property->reported_followers ?? 'Unknown' }} · {{ $property->category }} · {{ $property->city }}</p>
+<p>Challenge code: {{ $property->verification_token }} · Expires {{ $property->verification_expires_at?->format("Y-m-d H:i") ?? "Not issued" }} UTC · Evidence submitted: {{ $property->challenge_submitted_at?->format("Y-m-d H:i") ?? "No" }}. Ownership evidence: {{ $property->ownership_evidence_note ?: "Not provided" }} @if($property->ownership_evidence_url)<a target="_blank" rel="noopener noreferrer" href="{{ $property->ownership_evidence_url }}">Inspect evidence</a>@endif</p><p>Self-reported audience: {{ $property->reported_followers ?? 'Unknown' }} · {{ $property->category }} · {{ $property->city }}</p>
 <form method="post" action="{{ route('ads.admin.verify', $property) }}">@csrf
-<textarea name="note" placeholder="Ownership review evidence / rejection reason" maxlength="2000"></textarea>
+<textarea name="note" required minlength="12" placeholder="Document code review or rejection" maxlength="2000"></textarea><label><input type="checkbox" name="challenge_checked" value="1"> I checked the current challenge code on the linked social property</label>
 <button name="decision" value="verified">Verify ownership</button><button name="decision" value="rejected">Reject</button></form></article>
 @endforeach
 <h2>Optional Vibsies promotions</h2>
