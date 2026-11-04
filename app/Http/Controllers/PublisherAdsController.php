@@ -71,12 +71,22 @@ class PublisherAdsController extends Controller
         ]);
         $this->ensurePlatformUrl($data['post_url'], $property->platform);
         abort_if($property->promotions()->whereIn('status', ['pending', 'approved'])->exists(), 409, 'A promotion is already pending or approved.');
-        $property->promotions()->create([
-            'post_url' => $data['post_url'],
-            'post_format' => $data['post_format'],
-            'disclosure_confirmed' => true,
-            'referral_code' => Str::upper(Str::random(12)),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function() use($property,$data) {
+            $existing=PublisherPromotion::where('publisher_property_id',$property->id)
+                ->where('status','draft')->lockForUpdate()->first();
+            if($existing) {
+                $existing->forceFill([
+                    'post_url'=>$data['post_url'],'post_format'=>$data['post_format'],
+                    'disclosure_confirmed'=>true,'status'=>'pending',
+                ])->save();
+            } else {
+                $property->promotions()->create([
+                    'post_url'=>$data['post_url'],'post_format'=>$data['post_format'],
+                    'disclosure_confirmed'=>true,'referral_code'=>Str::upper(Str::random(12)),
+                    'status'=>'pending',
+                ]);
+            }
+        });
         return redirect()->route('ads.publisher.index')->with('notice', 'Promotion submitted for review. Rewards are not active until approved.');
     }
 
@@ -89,7 +99,7 @@ class PublisherAdsController extends Controller
             'campaigns' => \App\Models\AdCampaign::where('status','pending_review')->latest()->limit(100)->get(),
             'disputedOffers' => \App\Models\AdCampaignOffer::with(['campaign','package.property'])->where('status','disputed')->latest()->limit(100)->get(),
             'expiredCandidates' => \App\Models\AdCampaignOffer::with(['campaign','package.property'])->where('status','offered')->where('expires_at','<=',now())->latest()->limit(100)->get(),
-            'promotions' => PublisherPromotion::with('property')->latest()->limit(100)->get(),
+            'promotions' => PublisherPromotion::with('property')->where('status','!=','draft')->latest()->limit(100)->get(),
             'packages' => \App\Models\PublisherAdPackage::with('property')->latest()->limit(100)->get(),
             'metrics' => \App\Models\PublisherMetricSnapshot::with('property')->latest()->limit(100)->get(),
         ]);
@@ -109,6 +119,12 @@ class PublisherAdsController extends Controller
             'verification_note' => $data['note'] ?? null,
             'verified_at' => $data['decision'] === 'verified' ? now() : null,
         ])->save();
+        if($data['decision']==='verified' && !$property->promotions()->exists()) {
+            $property->promotions()->create([
+                'referral_code'=>Str::upper(Str::random(12)),
+                'post_format'=>'post',
+            ]);
+        }
         return back()->with('notice', 'Publisher review saved.');
     }
 
@@ -121,6 +137,7 @@ class PublisherAdsController extends Controller
             'note' => 'nullable|string|max:2000',
         ]);
         abort_unless($promotion->property->verification_status === 'verified', 409, 'Publisher must be verified.');
+        abort_unless($promotion->post_url && $promotion->disclosure_confirmed,409,'The promotional post and disclosure must be submitted.');
         \Illuminate\Support\Facades\DB::transaction(function () use ($promotion,$data) {
             $locked=PublisherPromotion::with('property')->whereKey($promotion->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->status==='pending',409,'Only pending promotions can be reviewed.');
