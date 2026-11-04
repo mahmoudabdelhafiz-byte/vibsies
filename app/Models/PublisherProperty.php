@@ -12,7 +12,7 @@ class PublisherProperty extends Model
     protected $fillable = [
         'user_id', 'platform', 'property_type', 'display_name', 'profile_url',
         'category', 'country_code', 'city', 'reported_followers', 'description',
-        'ownership_evidence_url', 'ownership_evidence_note', 'verification_token',
+        'ownership_evidence_url', 'ownership_evidence_note', 'verification_token', 'verification_expires_at',
     ];
 
     protected function casts(): array
