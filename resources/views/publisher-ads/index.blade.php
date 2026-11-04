@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vibsies Ads — Publisher</title>
 <style>body{font:16px system-ui,sans-serif;max-width:850px;margin:2rem auto;padding:0 1rem;color:#172b4d}section{border:1px solid #ddd;border-radius:12px;padding:1.2rem;margin:1rem 0}input,select,textarea,button{display:block;max-width:100%;padding:.6rem;margin:.5rem 0 1rem}button{background:#116cbd;color:white;border:0;border-radius:8px;cursor:pointer}label{font-weight:600}small{color:#555}</style></head><body>
 <nav><a href="{{ route('dashboard') }}">Dashboard</a> · <a href="{{ route('home') }}">Marketplace</a></nav>
-<h1>Vibsies Ads — Your publisher properties</h1>
+<h1>Vibsies Ads — Your publisher properties</h1><p><a href="{{ route('ads.publisher.offers') }}">View incoming advertising offers</a></p>
 <p>Register Facebook pages, groups, professional profiles or Instagram creator accounts. Ownership review is required. Promoting Vibsies is entirely optional.</p>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
 @if($errors->any())<section role="alert"><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></section>@endif
