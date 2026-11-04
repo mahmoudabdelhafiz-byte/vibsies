@@ -29,6 +29,8 @@ class PublisherProperty extends Model
 
     public function metricSnapshots() { return $this->hasMany(PublisherMetricSnapshot::class); }
 
+    public function rewardEntitlement(){return $this->hasOne(PublisherRewardEntitlement::class);}
+
     public function promotions()
     {
         return $this->hasMany(PublisherPromotion::class);
