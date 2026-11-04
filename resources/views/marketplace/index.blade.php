@@ -3,6 +3,9 @@
 @section('seo_description',__('Discover approved content creators, compare available packages and request collaborations on Vibsies.'))
 @section('content')
 <h1>{{ __('Find a creator for your next video') }}</h1>
+@if(config('vibsies_ads.enabled'))
+<p><a href="{{ route('seo.publishers') }}">{{ app()->getLocale()==='ar' ? 'التعرف على الإعلان عبر الناشرين' : 'Explore advertising with publishers' }}</a></p>
+@endif
 <form method="get" action="{{ route('home') }}"><input name="q" aria-label="{{ __('Search creators') }}" placeholder="{{ __('Search creators') }}" value="{{ request('q') }}"><label for="category">{{ __('Category') }}</label><select name="category" id="category"><option value="">{{ __('All categories') }}</option>@foreach($categories as $category)<option value="{{ $category }}" @selected(request('category')===$category)>{{ $category }}</option>@endforeach</select><button>{{ __('Search') }}</button></form>
 <section class="grid">
 @forelse($packages as $package)
