@@ -19,6 +19,10 @@ class PublisherPromotion extends Model
         return ['disclosure_confirmed' => 'boolean', 'reviewed_at' => 'datetime'];
     }
 
+    public function referrals() { return $this->hasMany(PublisherReferral::class); }
+
+    public function entitlement() { return $this->hasOne(PublisherRewardEntitlement::class); }
+
     public function property()
     {
         return $this->belongsTo(PublisherProperty::class, 'publisher_property_id');
