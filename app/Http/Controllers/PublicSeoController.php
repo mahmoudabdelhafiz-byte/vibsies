@@ -10,6 +10,7 @@ class PublicSeoController extends Controller
     public function sitemap()
     {
         $urls=[route('home')];
+        if(config('vibsies_ads.enabled')) $urls[]=route('seo.publishers');
         CreatorProfile::query()->where('status','approved')
             ->whereHas('packages',fn($q)=>$q->where('is_active',true)->where('moderation_status','approved'))
             ->orderBy('id')->chunk(250,function($creators)use(&$urls){
