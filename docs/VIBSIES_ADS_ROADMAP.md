@@ -172,6 +172,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Public bilingual educational page `/advertise-with-publishers` explains social publisher suitability, transparent evidence and the current pilot/no-payment limitations. The page is feature-gated and appears in the sitemap only when Ads is enabled.
 - Includes regression tests for report review access, missing evidence, rejection, and conditional public landing-page visibility.
 - **Still pending:** publisher right of reply and disputes, independent evidence authenticity audit, external anti-fraud/independence check, human Arabic proofreading, semantic structured data, search console, and public ratings release approval.
+- **Verified GitHub Actions CI** run 41923362974: **180 tests and 1,478 assertions passed** on each of SQLite and PostgreSQL 16, including fresh migrations.
 - Feature and payment flags remain disabled; no external campaign or publisher payout has been initiated.
 
 ## Remaining (implement sequentially)
