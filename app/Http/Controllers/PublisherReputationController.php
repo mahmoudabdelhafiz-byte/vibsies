@@ -88,4 +88,34 @@ class PublisherReputationController extends Controller
         });
         return back()->with('notice','Advertiser feedback moderation saved.');
     }
+    public function moderatePerformance(Request $request,PublisherCampaignPerformanceReport $report)
+    {
+        $this->enabled();
+        abort_unless((bool)$request->user()->is_admin,403);
+        $data=$request->validate([
+            'decision'=>['required',Rule::in(['verified','rejected'])],
+            'source_type'=>['required_if:decision,verified',Rule::in(['reviewed_export','verified_platform'])],
+            'note'=>'required|string|min:12|max:2000',
+        ]);
+        DB::transaction(function() use($report,$data,$request) {
+            $locked=PublisherCampaignPerformanceReport::with('offer')->whereKey($report->id)
+                ->lockForUpdate()->firstOrFail();
+            abort_unless($locked->verification_status==='unverified',409,'Report already reviewed.');
+            abort_unless(in_array($locked->offer->status,['confirmed','resolved_confirmed'],true),409,
+                'Performance evidence cannot be certified before accepted delivery.');
+            if($data['decision']==='verified') {
+                abort_unless($locked->evidence_url,409,
+                    'Independent performance evidence URL is required before verification.');
+            }
+            $locked->forceFill([
+                'verification_status'=>$data['decision'],
+                'evidence_source'=>$data['decision']==='verified'?$data['source_type']:'self_reported',
+                'review_note'=>$data['note'],
+                'verified_at'=>$data['decision']==='verified'?now():null,
+                'verified_by_user_id'=>$request->user()->id,
+            ])->save();
+        });
+        return back()->with('notice','Performance evidence decision saved; no financial reward issued.');
+    }
+
 }
