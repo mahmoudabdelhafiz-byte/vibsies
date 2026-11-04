@@ -26,6 +26,7 @@
 <a href="{{ $property->profile_url }}" rel="noopener noreferrer" target="_blank">View property</a>
 @if($property->verification_status === 'verified')
 <h4>Optional: Founding Promoter</h4>
+<p>Use the referral link shown below in your Vibsies post or video, then submit your published URL for review. Referral registrations do not qualify for incentives before approval.</p>
 <p>Publish a clear disclosure about your Vibsies partnership on your account, then submit the post link. Participation is not required to receive advertiser bookings. Rewards only apply once approved and enabled by the finance workflow.</p>
 @if($property->promotions->whereIn('status',['pending','approved'])->isEmpty())
 <form method="post" action="{{ route('ads.publisher.promotion', $property) }}">@csrf
@@ -70,9 +71,9 @@
 @endforeach
 @foreach($property->promotions as $promotion)
 <p>Vibsies promotion: {{ $promotion->status }}</p>
-@if($promotion->status === 'approved')
+@if(in_array($promotion->status,['draft','pending','approved'],true))
 <p>Share your referral URL: <a href="{{ route('ads.referral.visit',$promotion->referral_code) }}">{{ route('ads.referral.visit',$promotion->referral_code) }}</a></p>
-<p>Referral registrations: {{ $promotion->referrals()->count() }} (registration only, not qualified sales)</p>
+<p>Referral registrations: {{ $promotion->referrals()->count() }} (registration only; referrals are not qualified or payable)</p>
 @endif
 @endforeach
 @if($property->rewardEntitlement)
