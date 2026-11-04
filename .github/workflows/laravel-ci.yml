@@ -1,0 +1,52 @@
+name: Laravel CI
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/**
+  pull_request:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, pdo_pgsql, bcmath, xml, curl
+          coverage: none
+          tools: composer:v2
+      - name: Validate Composer manifest
+        run: composer validate --no-check-publish
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: PHP syntax check
+        run: |
+          find app database routes tests config bootstrap -type f -name '*.php' -print0 | xargs -0 -n 1 php -l
+      - name: Run migrations against isolated SQLite database
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          VIBSIES_ADS_ENABLED: 'false'
+          VIBSIES_ADS_FINANCE_POSTING_ENABLED: 'false'
+        run: php artisan migrate --force
+      - name: Run Laravel tests
+        env:
+          APP_ENV: testing
+          VIBSIES_ADS_ENABLED: 'false'
+          VIBSIES_ADS_FINANCE_POSTING_ENABLED: 'false'
+        run: php artisan test --stop-on-failure
