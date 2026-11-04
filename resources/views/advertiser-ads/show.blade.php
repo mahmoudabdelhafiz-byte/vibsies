@@ -34,6 +34,12 @@
 @if(in_array($offer->status,['confirmed','resolved_confirmed'],true))
 @if($offer->campaignReview)
 <p>{{ __('ads.rating_submitted') }}: {{ $offer->campaignReview->moderation_status }}</p>
+@if($offer->campaignReview->publisher_response)
+<p>{{ __('ads.publisher_response') }}: {{ $offer->campaignReview->publisher_response }}</p>
+@endif
+@if($offer->campaignReview->appeal)
+<p>{{ __('ads.appeal_status') }}: {{ $offer->campaignReview->appeal->status }}</p>
+@endif
 @else
 <form method="post" action="{{ route('ads.offer.rating',$offer) }}">@csrf
 <h3>{{ __('ads.rate_publisher') }}</h3>
