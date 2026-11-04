@@ -113,4 +113,34 @@ class PublisherReputationTest extends TestCase
         $this->assertNull($result['average_overall']);
         $this->assertSame(1,$result['review_count']);
     }
+    public function test_admin_requires_independent_evidence_to_verify_completed_report():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $payload=['measured_on'=>now()->toDateString(),'views'=>500];
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),$payload)->assertRedirect();
+        $report=\App\Models\PublisherCampaignPerformanceReport::firstOrFail();
+        $approval=['decision'=>'verified','source_type'=>'reviewed_export','note'=>'Checked data from independent publisher export.'];
+        $this->actingAs($publisher)->post(route('ads.admin.performance.moderate',$report),$approval)->assertForbidden();
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$approval)->assertStatus(409);
+        $this->assertSame('unverified',$report->fresh()->verification_status);
+    }
+
+    public function test_admin_may_reject_unverifiable_report_without_financial_effect():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),[
+            'measured_on'=>now()->toDateString(),'reach'=>1200,
+        ])->assertRedirect();
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $report=\App\Models\PublisherCampaignPerformanceReport::firstOrFail();
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),[
+            'decision'=>'rejected','note'=>'No reliable evidence could be independently located.',
+        ])->assertRedirect();
+        $this->assertSame('rejected',$report->fresh()->verification_status);
+        $this->assertDatabaseCount('ad_ledger_batches',0);
+    }
+
 }
