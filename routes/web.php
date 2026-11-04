@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function(){
  Route::post('/admin/ads/campaigns/{campaign}/review',[AdCampaignWorkflowController::class,'reviewCampaign'])->name('ads.admin.campaign.review');
  Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
  Route::post('/ads/publisher/properties',[PublisherAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.publisher.store');
+ Route::post('/ads/publisher/properties/{property}/ownership-evidence',[PublisherAdsController::class,'submitOwnershipEvidence'])->middleware('throttle:5,1')->name('ads.publisher.evidence');
  Route::post('/ads/publisher/properties/{property}/promotions',[PublisherAdsController::class,'promotion'])->middleware('throttle:5,1')->name('ads.publisher.promotion');
  Route::post('/ads/publisher/properties/{property}/packages',[PublisherInventoryController::class,'storePackage'])->middleware('throttle:10,1')->name('ads.publisher.packages.store');
  Route::post('/ads/publisher/properties/{property}/metrics',[PublisherInventoryController::class,'storeMetrics'])->middleware('throttle:10,1')->name('ads.publisher.metrics.store');
