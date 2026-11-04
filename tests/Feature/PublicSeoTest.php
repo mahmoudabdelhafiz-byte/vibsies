@@ -84,4 +84,17 @@ class PublicSeoTest extends TestCase
             ->assertDontSee('AggregateRating',false);
     }
 
+    public function test_region_guides_are_only_indexed_when_ads_is_enabled():void {
+        config()->set('vibsies_ads.enabled',false);
+        $this->get(route('seo.publishers.region','egypt'))->assertNotFound();
+        $this->get(route('seo.sitemap'))->assertDontSee('saudi-arabia',false);
+        config()->set('vibsies_ads.enabled',true);
+        $this->get(route('seo.publishers.region','egypt'))->assertOk()
+            ->assertSee('Facebook page and community advertising in Egypt');
+        $this->get(route('seo.publishers.region','saudi-arabia'))->assertOk()
+            ->assertSee('Social publisher advertising in Saudi Arabia');
+        $this->get(route('seo.publishers.region','other'))->assertNotFound();
+        $this->get(route('seo.sitemap'))->assertSee('saudi-arabia',false);
+    }
+
 }
