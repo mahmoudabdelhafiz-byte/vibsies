@@ -62,4 +62,12 @@ class PublicSeoTest extends TestCase
         $this->get(route('home').'?q=example')->assertOk()
             ->assertSee('name="robots" content="noindex,follow"',false);
     }
+    public function test_publisher_guide_is_hidden_until_ads_available():void {
+        config()->set('vibsies_ads.enabled',false);
+        $this->get(route('seo.publishers'))->assertNotFound();
+        config()->set('vibsies_ads.enabled',true);
+        $this->get(route('seo.publishers'))->assertOk();
+        $this->get(route('seo.sitemap'))->assertSee('advertise-with-publishers',false);
+    }
+
 }
