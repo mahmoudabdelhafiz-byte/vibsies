@@ -19,5 +19,22 @@
 <textarea name="note" placeholder="Disclosure and post review notes" maxlength="2000"></textarea>
 <button name="decision" value="approved">Approve</button><button name="decision" value="rejected">Reject</button></form>
 </article>@endforeach
+<h2>Placement packages</h2>
+@foreach($packages as $package)
+<article style="border-bottom:1px solid #ddd;padding:1rem 0">
+<strong>{{ $package->property->display_name }}</strong> — {{ $package->title }} / {{ $package->placement_type }} / {{ $package->moderation_status }}
+<p>{{ number_format($package->price_minor / 100,2) }} {{ $package->currency }} · {{ $package->delivery_days }} days to deliver</p>
+<form method="post" action="{{ route('ads.admin.packages.review', $package) }}">@csrf
+<button name="decision" value="approved">Approve</button><button name="decision" value="rejected">Reject</button></form>
+</article>@endforeach
+<h2>Audience metric snapshots</h2>
+@foreach($metrics as $snapshot)
+<article style="border-bottom:1px solid #ddd;padding:1rem 0">
+<strong>{{ $snapshot->property->display_name }}</strong> — {{ $snapshot->observed_on->format('Y-m-d') }} / {{ $snapshot->verification_status }}
+<p>Category: {{ $snapshot->content_category ?? 'General' }} · Views: {{ $snapshot->views ?? 'Unknown' }} · Reach: {{ $snapshot->reach ?? 'Unknown' }}. Source: {{ $snapshot->source_type }}</p>
+@if($snapshot->evidence_url)<a href="{{ $snapshot->evidence_url }}" target="_blank" rel="noopener noreferrer">Evidence link</a>@endif
+<form method="post" action="{{ route('ads.admin.metrics.review', $snapshot) }}">@csrf
+<button name="decision" value="verified">Verify evidence</button><button name="decision" value="rejected">Reject</button></form>
+</article>@endforeach
 <p>No rewards or payments are automatically issued from this review.</p>
 </body></html>
