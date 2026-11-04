@@ -57,6 +57,9 @@ Route::middleware('auth')->group(function(){
  Route::post('/ads/advertiser/offers/{offer}/rating',[PublisherReputationController::class,'review'])->middleware('throttle:5,1')->name('ads.offer.rating');
  Route::post('/ads/publisher/offers/{offer}/performance',[PublisherReputationController::class,'performance'])->middleware('throttle:5,1')->name('ads.offer.performance');
  Route::post('/admin/ads/performance/{report}/moderate',[PublisherReputationController::class,'moderatePerformance'])->middleware('throttle:10,1')->name('ads.admin.performance.moderate');
+ Route::post('/ads/publisher/reviews/{review}/reply',[PublisherReputationController::class,'publisherReply'])->name('ads.publisher.review.reply');
+ Route::post('/ads/publisher/reviews/{review}/appeal',[PublisherReputationController::class,'appeal'])->name('ads.publisher.review.appeal');
+ Route::post('/admin/ads/review-appeals/{appeal}/resolve',[PublisherReputationController::class,'resolveAppeal'])->name('ads.admin.review.appeal.resolve');
  Route::post('/admin/ads/reviews/{review}/moderate',[PublisherReputationController::class,'moderate'])->middleware('throttle:10,1')->name('ads.admin.review.moderate');
  Route::post('/ads/offers/{offer}/cancel',[AdOfferLifecycleController::class,'cancel'])->name('ads.offer.cancel');
  Route::post('/admin/ads/offers/{offer}/expire',[AdOfferLifecycleController::class,'expire'])->name('ads.admin.offer.expire');
