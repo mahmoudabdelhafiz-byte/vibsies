@@ -39,7 +39,7 @@
 <article><h3>{{ $result['package']->property->display_name }}</h3>
 <p>{{ $result['package']->title }} · {{ str_replace('_',' ',$result['package']->placement_type) }} · {{ number_format($result['package']->price_minor / 100,2) }} {{ $result['package']->currency }}</p>
 <p>{{ __('ads.country') }}: {{ $result['package']->property->country_code }} · {{ __('ads.city_short') }}: {{ $result['package']->property->city ?: __('ads.unspecified') }} · {{ __('ads.category_short') }}: {{ $result['package']->property->category }}</p>
-<p>{{ __('ads.relevance_points') }}: {{ $result['score'] }} / 100 (not a performance estimate)</p>
+<p>{{ __('ads.relevance_points') }}: {{ $result['score'] }} / 100 {{ __('ads.not_performance') }}</p>
 <ul>@foreach($result['reasons'] as $reason)<li>{{ $reason }}</li>@endforeach</ul>
 <a href="{{ $result['package']->property->profile_url }}" target="_blank" rel="noopener noreferrer">{{ __('ads.inspect_social') }}</a>
 @if($campaign->status === 'approved')
