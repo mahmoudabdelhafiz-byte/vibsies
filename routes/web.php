@@ -30,6 +30,11 @@ Route::get('/advertise-with-publishers',function(){
  abort_unless(config('vibsies_ads.enabled'),404);
  return view('marketplace.publisher-advertising');
 })->name('seo.publishers');
+Route::get('/advertise-with-publishers/{country}',function(string $country) {
+ abort_unless(config('vibsies_ads.enabled'),404);
+ abort_unless(in_array($country,['egypt','saudi-arabia'],true),404);
+ return view('marketplace.publisher-region',['country'=>$country]);
+})->name('seo.publishers.region');
 Route::get('/r/{code}',[PublisherReferralController::class,'visit'])->middleware('throttle:30,1')->name('ads.referral.visit');
 Route::get('/creators/{slug}',[CreatorPortfolioController::class,'show'])->name('creators.show');
 Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
