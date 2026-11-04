@@ -50,6 +50,15 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Referral and reward objects, migrations, routes, owner dashboard display and initial feature tests have been committed but NOT EXECUTED.
 - Outstanding: reliable click analytics, terms acceptance, anti-fraud review, real placement settlement, entitlement redemption under financial transactions, and campaign reconciliation.
 
+## Added in phase 6A (financial safeguards and internal ledger foundation)
+- Separate finance flag `VIBSIES_ADS_FINANCE_POSTING_ENABLED=false` by default, in addition to the main disabled Vibsies Ads flag.
+- Payment record schema tracks provider, external reference, amount, status and verification timestamp. There is NO payment provider adapter or API capable of setting verified capture.
+- One settlement batch per offer; ledger entries balance gross receivable debit to publisher payable and platform revenue credits in integer minor units.
+- Internal-only posting requires confirmed delivery and independently verified fully captured funds, rejects disputes and prevents double posting.
+- Standard publisher share 70%; optional valid/approved founding entitlement 80% for at most three placements. Redemptions occur only in a single transaction with ledger creation.
+- Amounts are preliminary *before* taxes, provider processing fees, refunds, withholding and regulatory treatment; settlement rows remain held and no payouts can occur.
+- Five unit test cases and two integration safety cases committed. These tests have NOT been executed. No funds have been captured, credited or transferred.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
@@ -58,7 +67,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 5. ~~Advertiser campaign drafts and initial matching~~ Added. Pending: creative review, campaign approvals, purchasing and fulfillment.
 6. ~~Offer, acceptance, publication evidence, cancellation, expiry and basic dispute decisions~~ Initial code added. Pending: comprehensive audit logging, scheduling, resubmission, formal agreements and financial reconciliation.
 7. ~~Referral links, registration attribution and eligibility record~~ Initial code committed. Pending: creative templates, fraud/qualification checks, click reporting and accounting-grade reward redemption.
-8. Payment gateway approval, ledger, taxes/fees, payout provider, reconciliation and dispute workflow.
+8. ~~Internal ledger schema, math and guarded posting foundation~~ Added. Still required: licensed/approved payment provider, trusted webhook verification, refunds/reversals, taxes/fees, payout reconciliation, audit and independent approval.
 9. Arabic/English translations and accessibility, security tests and integration/regression tests.
 10. Pilot with two owned Facebook pages and genuine advertising results, then controlled release.
 
@@ -67,7 +76,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Do not claim follower counts have been verified unless approved evidence supports them.
 - Promotions involving incentives require applicable disclosure. Do not create automated group/profile publishing.
 - Referral codes can attribute registrations, but do not constitute qualified or payable conversions.
-- Do not enable the feature or deploy to production until application tests, security checks and policy review pass.
+- Do not enable either Vibsies Ads or finance posting or deploy to production until migrations, application tests, provider verification, security checks and policy/legal review pass.
 
 ## Routes (when flag enabled)
 - `GET /ads/publisher`
