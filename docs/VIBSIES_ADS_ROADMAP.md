@@ -99,6 +99,14 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - **Verified green CI:** run 41916454543, **149 tests / 414 assertions** passed on SQLite and **149 tests / 414 assertions** passed on PostgreSQL 16, including fresh migrations.
 - Still pending: challenge renewal support, staff audit log access controls and retention, social proof authenticity beyond manual inspection, multi-account referral ring detection and privacy review.
 
+## Phase 8D: challenge renewal, referral review and evidence privacy (2026-11-05)
+- Owners may renew an expired, pending ownership challenge twice. The challenge rotates to a new random code, lasts another seven days, clears stale evidence and records an audit event.
+- Owners may remove pending ownership evidence; the withdrawal action is recorded without copying the underlying contents to the audit trail.
+- Referral registrations remain **unqualified** and produce no earnings. An administrator may manually review or flag a registration, with a documented reason and actor/timestamp audit event. Review is one-time to reduce tampering.
+- These controls do not assert that fraud has been eliminated. Further checks for collusive referral rings, automated abuse and identity verification are still pending.
+- Data policy still needs legal review: retention periods, export/erasure mechanics and external backups must be defined prior to launch.
+- Renewals and referrals have separate user-facing and administrator-only endpoints, protected by ownership/role checks. Both Ads and finance flags remain OFF by default.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
