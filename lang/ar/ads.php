@@ -225,4 +225,9 @@ return [
     'verified_platform' => 'بيانات موثقة بصورة مستقلة من المنصة',
     'verify_evidence' => 'التحقق من الأدلة',
     'no_pending_reports' => 'لا توجد تقارير بانتظار مراجعة الأدلة.',
+    'publisher_reputation' => 'ملخص تقييمات الناشر',
+    'unrated' => 'غير مصنف',
+    'approved_reviews' => 'تقييمات حملات معتمدة',
+    'independent_advertisers' => 'معلنين مستقلين',
+    'rating_sample_warning' => 'تحتسب التقييمات من الحملات المنجزة والمعتمدة خلال 12 شهرًا. يلزم وجود ثلاثة معلنين مستقلين لعرض المتوسط.',
 ];
