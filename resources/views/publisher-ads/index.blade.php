@@ -68,7 +68,16 @@
 @foreach($property->metricSnapshots as $snapshot)
 <p>{{ $snapshot->observed_on->format('Y-m-d') }} — {{ $snapshot->content_category ?: 'General' }} · Views: {{ $snapshot->views ?? 'Not reported' }} · {{ $snapshot->verification_status }}</p>
 @endforeach
-@foreach($property->promotions as $promotion)<p>Promotion: {{ $promotion->status }} · Referral code: {{ $promotion->referral_code }}</p>@endforeach
+@foreach($property->promotions as $promotion)
+<p>Vibsies promotion: {{ $promotion->status }}</p>
+@if($promotion->status === 'approved')
+<p>Share your referral URL: <a href="{{ route('ads.referral.visit',$promotion->referral_code) }}">{{ route('ads.referral.visit',$promotion->referral_code) }}</a></p>
+<p>Referral registrations: {{ $promotion->referrals()->count() }} (registration only, not qualified sales)</p>
+@endif
+@endforeach
+@if($property->rewardEntitlement)
+<p>Founding Publisher benefit: {{ $property->rewardEntitlement->publisher_share_percent }}% publisher share on up to {{ $property->rewardEntitlement->placement_limit }} eligible completed paid placements, subject to settlement rules. Valid until {{ $property->rewardEntitlement->expires_at->format('Y-m-d') }}. No rewards are currently payable.</p>
+@endif
 </section>
 @empty<p>No properties registered yet.</p>@endforelse
 </body></html>
