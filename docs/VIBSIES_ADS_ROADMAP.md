@@ -24,13 +24,22 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Explainable ranking uses exact category/city, recently reviewed metric evidence and price; no projected impressions or outcomes.
 - Campaign detail is restricted to its owning user. Five feature tests committed, not executed.
 
+## Added in phase 4 (campaign offer and manual publication workflow)
+- New ad campaign offers table snapshots the agreed placement amount, currency, publisher and status.
+- Advertisers submit draft campaigns for administrator approval and can send offers to eligible publisher packages after approval.
+- Publisher can accept or decline, then submit a public sponsored post URL with disclosure confirmation.
+- Advertiser can confirm or dispute the publication evidence. Disputes remain unresolved until a future moderation/settlement workflow exists.
+- Offer creation locks the campaign row and enforces its remaining nominal budget; no wallet, funds reservation, settlement or payment is implemented.
+- Six feature tests committed but NOT EXECUTED.
+- This is a feature-flagged development prototype only. Do not solicit real paid publications using it before payment, agreements and operational policies are ready.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
 3. ~~Property-specific ad package types~~ Initial inventory foundation committed. Enhance descriptions, upload evidence, revision and auditing.
 4. ~~Dated audience metrics~~ Initial snapshots and manual review committed. Add robust platform evidence validation and reporting.
 5. ~~Advertiser campaign drafts and initial matching~~ Added. Pending: creative review, campaign approvals, purchasing and fulfillment.
-6. Reservation/acceptance/cancellation and publication evidence; manual group/profile posting.
+6. ~~Offer, acceptance and initial publication evidence~~ Added. Pending: cancellation, expiry, resubmission, disputes, formal agreements and reconciliation.
 7. Founding program template library, referral redirect tracking, anti-abuse rules, expiration, optional reward entitlement (80% for first 3 approved fulfilled placements).
 8. Payment gateway approval, ledger, taxes/fees, payout provider, reconciliation and dispute workflow.
 9. Arabic/English translations and accessibility, security tests and integration/regression tests.
