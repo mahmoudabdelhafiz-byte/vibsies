@@ -24,7 +24,19 @@
 </form></section>
 <h2>{{ __('ads.my_properties') }}</h2>
 @forelse($properties as $property)
-<section><h3>{{ $property->display_name }}</h3><p>{{ ucfirst($property->platform) }} · {{ str_replace('_',' ', $property->property_type) }} · {{ $property->category }} · {{ $property->verification_status }}</p>
+<section><h3>{{ $property->display_name }}</h3>
+@php($summary=$reputationSummaries[$property->id] ?? null)
+@if($summary)
+<p>{{ __('ads.publisher_reputation') }}:
+@if($summary['status']==='rated')
+<strong>{{ number_format($summary['average_overall'],1) }} / 5</strong>
+@else
+<strong>{{ __('ads.unrated') }}</strong>
+@endif
+· {{ $summary['review_count'] }} {{ __('ads.approved_reviews') }} · {{ $summary['independent_advertisers'] }} {{ __('ads.independent_advertisers') }}</p>
+<p><small>{{ __('ads.rating_sample_warning') }}</small></p>
+@endif
+<p>{{ ucfirst($property->platform) }} · {{ str_replace('_',' ', $property->property_type) }} · {{ $property->category }} · {{ $property->verification_status }}</p>
 <a href="{{ $property->profile_url }}" rel="noopener noreferrer" target="_blank">{{ __('ads.view_property') }}</a>
 @if($property->verification_status === 'pending' && $property->verification_expires_at && $property->verification_expires_at->isPast())
 <form method="post" action="{{ route('ads.publisher.challenge.renew',$property) }}">@csrf
