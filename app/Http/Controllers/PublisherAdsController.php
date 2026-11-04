@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PublisherPromotion;
+use App\Models\PublisherCampaignPerformanceReport;
 use App\Models\PublisherProperty;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -135,6 +136,7 @@ class PublisherAdsController extends Controller
         abort_unless($request->user()->is_admin, 403);
         return view('publisher-ads.admin', [
             'properties' => PublisherProperty::latest()->limit(100)->get(),
+            'performanceQueue' => PublisherCampaignPerformanceReport::with(['offer.campaign','property'])->where('verification_status','unverified')->latest()->limit(100)->get(),
             'ratingReviews' => \App\Models\PublisherCampaignReview::with(['offer.campaign','property'])->where('moderation_status','pending')->latest()->limit(100)->get(),
             'referrals' => \App\Models\PublisherReferral::with(['promotion.property'])->where('review_status','pending')->latest()->limit(100)->get(),
             'campaigns' => \App\Models\AdCampaign::where('status','pending_review')->latest()->limit(100)->get(),
