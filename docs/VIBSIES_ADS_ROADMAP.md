@@ -33,13 +33,21 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Six feature tests committed but NOT EXECUTED.
 - This is a feature-flagged development prototype only. Do not solicit real paid publications using it before payment, agreements and operational policies are ready.
 
+## Added in phase 5A (lifecycle safeguards)
+- Preliminary offers now carry a seven-day expiry timestamp; publishers cannot accept overdue offers.
+- Advertisers may withdraw offers before acceptance; publishers may cancel pending or accepted offers before publication, with a mandatory explanation.
+- Administrators can mark overdue offers expired and resolve disputed publication submissions with recorded reasons.
+- Cancellation, expiry and dispute resolution produce append-only event records with the actor and status transition.
+- The admin and publisher dashboards expose these controls. Seven additional feature test cases committed, not run.
+- Limitations: expiry marking is admin-triggered, not yet scheduled; dispute decisions never trigger payments. Existing workflow transitions need comprehensive event logging, and formal terms are not implemented.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
 3. ~~Property-specific ad package types~~ Initial inventory foundation committed. Enhance descriptions, upload evidence, revision and auditing.
 4. ~~Dated audience metrics~~ Initial snapshots and manual review committed. Add robust platform evidence validation and reporting.
 5. ~~Advertiser campaign drafts and initial matching~~ Added. Pending: creative review, campaign approvals, purchasing and fulfillment.
-6. ~~Offer, acceptance and initial publication evidence~~ Added. Pending: cancellation, expiry, resubmission, disputes, formal agreements and reconciliation.
+6. ~~Offer, acceptance, publication evidence, cancellation, expiry and basic dispute decisions~~ Initial code added. Pending: comprehensive audit logging, scheduling, resubmission, formal agreements and financial reconciliation.
 7. Founding program template library, referral redirect tracking, anti-abuse rules, expiration, optional reward entitlement (80% for first 3 approved fulfilled placements).
 8. Payment gateway approval, ledger, taxes/fees, payout provider, reconciliation and dispute workflow.
 9. Arabic/English translations and accessibility, security tests and integration/regression tests.
