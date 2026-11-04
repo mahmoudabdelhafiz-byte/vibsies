@@ -12,10 +12,10 @@ return new class extends Migration {
             $table->uuid('publisher_property_id');
             $table->foreign('publisher_property_id')->references('id')->on('publisher_properties')->cascadeOnDelete();
             $table->string('referral_code', 32)->unique();
-            $table->string('post_url', 2048);
+            $table->string('post_url', 2048)->nullable();
             $table->string('post_format', 16);
             $table->boolean('disclosure_confirmed')->default(false);
-            $table->string('status', 25)->default('pending');
+            $table->string('status', 25)->default('draft');
             $table->text('review_note')->nullable();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
