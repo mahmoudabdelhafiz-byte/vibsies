@@ -24,7 +24,12 @@
 @forelse($properties as $property)
 <section><h3>{{ $property->display_name }}</h3><p>{{ ucfirst($property->platform) }} · {{ str_replace('_',' ', $property->property_type) }} · {{ $property->category }} · {{ $property->verification_status }}</p>
 <a href="{{ $property->profile_url }}" rel="noopener noreferrer" target="_blank">View property</a>
-@if($property->verification_status === 'pending' && $property->verification_expires_at)
+@if($property->verification_status === 'pending' && $property->verification_expires_at && $property->verification_expires_at->isPast())
+<form method="post" action="{{ route('ads.publisher.challenge.renew',$property) }}">@csrf
+<p>Ownership code expired. You can renew twice; old evidence will be cleared.</p>
+<button type="submit">Renew ownership code</button></form>
+@endif
+@if($property->verification_status === 'pending' && $property->verification_expires_at && $property->verification_expires_at->isFuture())
 <h4>Verify ownership (not a Vibsies promotion)</h4>
 <p>Temporarily place the following code in a public bio or post on this account, then share the direct public URL for manual review. Remove the code after verification. Never share a password or private access token.</p>
 <p><strong>{{ $property->verification_token }}</strong></p>
