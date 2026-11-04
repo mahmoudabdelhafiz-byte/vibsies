@@ -111,8 +111,9 @@ class PublisherAdsController extends Controller
         abort_unless($request->user()->is_admin, 403);
         $data = $request->validate([
             'decision' => ['required', Rule::in(['verified', 'rejected'])],
-            'note' => 'nullable|string|max:2000',
+            'note' => 'required|string|min:12|max:2000',
         ]);
+        abort_unless($property->verification_status === 'pending',409,'Only pending properties can be reviewed.');
         abort_if(empty($property->ownership_evidence_url) && empty($property->ownership_evidence_note), 409, 'Ownership evidence is required before approval.');
         $property->forceFill([
             'verification_status' => $data['decision'],
