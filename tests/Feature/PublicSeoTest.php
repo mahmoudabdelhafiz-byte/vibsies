@@ -13,9 +13,18 @@ class PublicSeoTest extends TestCase
     use RefreshDatabase;
 
     public function test_sitemap_only_contains_public_approved_creator_profiles():void {
-        $creator=CreatorProfile::factory()->create();
+        $creator=CreatorProfile::create([
+            'user_id'=>User::factory()->create()->id,
+            'display_name'=>'Example Creator','slug'=>'example-creator',
+            'category'=>'Lifestyle','country_code'=>'EG','status'=>'approved',
+        ]);
         $creator->forceFill(['status'=>'approved'])->save();
-        $package=CreatorPackage::factory()->create(['creator_profile_id'=>$creator->id]);
+        $package=CreatorPackage::create([
+            'creator_profile_id'=>$creator->id,'title'=>'Video campaign',
+            'description'=>'One promotional video','price_minor'=>10000,'currency'=>'EGP',
+            'turnaround_days'=>7,'revision_limit'=>1,'is_active'=>true,
+            'moderation_status'=>'approved',
+        ]);
         $package->forceFill(['is_active'=>true,'moderation_status'=>'approved'])->save();
         $this->get(route('seo.sitemap'))->assertOk()
             ->assertHeader('Content-Type','application/xml; charset=UTF-8')
