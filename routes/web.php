@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublisherAdsController;
+use App\Http\Controllers\PublisherReferralController;
 use App\Http\Controllers\PublisherInventoryController;
 use App\Http\Controllers\AdvertiserAdsController;
 use App\Http\Controllers\AdCampaignWorkflowController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
+Route::get('/r/{code}',[PublisherReferralController::class,'visit'])->middleware('throttle:30,1')->name('ads.referral.visit');
 Route::get('/creators/{slug}',[CreatorPortfolioController::class,'show'])->name('creators.show');
 Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
 Route::middleware('guest')->group(function(){
