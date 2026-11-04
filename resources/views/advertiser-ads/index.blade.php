@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-',app()- dir="{{ app()->getLocale()==='ar' ? 'rtl' : 'ltr' }}">getLocale()) }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vibsies Ads — Advertiser</title><link rel="stylesheet" href="{{ asset('css/ads-mobile.css') }}"></head><body>
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vibsies Ads — Advertiser</title><link rel="stylesheet" href="{{ asset('css/ads-mobile.css') }}"></head><body>
 @include('ads.partials.locale')
 
 <a href="{{ route('dashboard') }}">{{ __('ads.dashboard') }}</a> · <a href="{{ route('ads.publisher.index') }}">{{ __('ads.publisher') }}</a>
