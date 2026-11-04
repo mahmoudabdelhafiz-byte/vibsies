@@ -26,6 +26,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
 Route::get('/sitemap.xml',[PublicSeoController::class,'sitemap'])->name('seo.sitemap');
 Route::get('/robots.txt',[PublicSeoController::class,'robots'])->name('seo.robots');
+Route::get('/advertise-with-publishers',function(){
+ abort_unless(config('vibsies_ads.enabled'),404);
+ return view('marketplace.publisher-advertising');
+})->name('seo.publishers');
 Route::get('/r/{code}',[PublisherReferralController::class,'visit'])->middleware('throttle:30,1')->name('ads.referral.visit');
 Route::get('/creators/{slug}',[CreatorPortfolioController::class,'show'])->name('creators.show');
 Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
