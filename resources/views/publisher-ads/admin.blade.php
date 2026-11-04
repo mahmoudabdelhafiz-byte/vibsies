@@ -4,6 +4,18 @@
 
 <a href="{{ route('dashboard') }}">{{ __('ads.dashboard') }}</a><h1>{{ __('ads.admin') }}</h1>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
+<h2>{{ __('ads.performance_evidence_review') }}</h2>
+<p>{{ __('ads.performance_evidence_disclaimer') }}</p>
+@forelse($performanceQueue as $report)
+<article><strong>{{ $report->property->display_name }}</strong> · {{ $report->offer->campaign->title }}
+<p>{{ __('ads.measurement_date') }}: {{ $report->measured_on->format('Y-m-d') }} · {{ __('ads.views') }}: {{ $report->views ?? __('ads.not_reported') }} · {{ __('ads.reach') }}: {{ $report->reach ?? __('ads.not_reported') }}</p>
+@if($report->evidence_url)<a href="{{ $report->evidence_url }}" target="_blank" rel="noopener noreferrer nofollow">{{ __('ads.inspect_evidence') }}</a>@endif
+<form method="post" action="{{ route('ads.admin.performance.moderate',$report) }}">@csrf
+<label>{{ __('ads.evidence_source') }}<select name="source_type"><option value="reviewed_export">{{ __('ads.reviewed_export') }}</option><option value="verified_platform">{{ __('ads.verified_platform') }}</option></select></label>
+<label>{{ __('ads.review_reason') }}<textarea name="note" minlength="12" maxlength="2000" required></textarea></label>
+<button name="decision" value="verified">{{ __('ads.verify_evidence') }}</button><button name="decision" value="rejected">{{ __('ads.reject') }}</button>
+</form></article>
+@empty<p>{{ __('ads.no_pending_reports') }}</p>@endforelse
 <h2>{{ __('ads.pending_ratings') }}</h2>
 @forelse($ratingReviews as $rating)
 <article><strong>{{ $rating->property->display_name }}</strong>
