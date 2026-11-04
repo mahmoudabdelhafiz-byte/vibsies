@@ -170,4 +170,52 @@ class PublisherReputationTest extends TestCase
         $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$review)->assertStatus(409);
     }
 
+    public function test_publisher_may_reply_once_to_approved_feedback():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::firstOrFail();
+        $response=['response'=>'Our delivery notes are available in the campaign history.'];
+        $this->actingAs($publisher)->post(route('ads.publisher.review.reply',$review),$response)->assertStatus(409);
+        $review->forceFill(['moderation_status'=>'approved'])->save();
+        $this->actingAs($advertiser)->post(route('ads.publisher.review.reply',$review),$response)->assertForbidden();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.reply',$review),$response)->assertRedirect();
+        $this->assertSame($response['response'],$review->fresh()->publisher_response);
+        $this->actingAs($publisher)->post(route('ads.publisher.review.reply',$review),$response)->assertStatus(409);
+    }
+
+    public function test_appealed_reviews_are_not_counted_and_original_rating_remains():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'property'=>$property,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::firstOrFail();
+        $review->forceFill(['moderation_status'=>'approved'])->save();
+        $payload=['reason'=>'This report contains disputed claims and needs evidence review.'];
+        $this->actingAs($advertiser)->post(route('ads.publisher.review.appeal',$review),$payload)->assertForbidden();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.appeal',$review),$payload)->assertRedirect();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.appeal',$review),$payload)->assertStatus(409);
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $appeal=\App\Models\PublisherReviewAppeal::firstOrFail();
+        $decision=['decision'=>'upheld','note'=>'Reviewed evidence and determined the feedback was inappropriate.'];
+        $this->actingAs($advertiser)->post(route('ads.admin.review.appeal.resolve',$appeal),$decision)->assertForbidden();
+        $this->actingAs($admin)->post(route('ads.admin.review.appeal.resolve',$appeal),$decision)->assertRedirect();
+        $this->actingAs($admin)->post(route('ads.admin.review.appeal.resolve',$appeal),$decision)->assertStatus(409);
+        $this->assertSame(5,$review->fresh()->overall_rating);
+        $this->assertSame('upheld',$appeal->fresh()->status);
+        $this->assertSame(0,app(PublisherReputation::class)->summary($property)['review_count']);
+        $this->assertDatabaseCount('ad_ledger_batches',0);
+    }
+
+    public function test_appeal_requires_moderated_approved_feedback():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::firstOrFail();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.appeal',$review),[
+            'reason'=>'The message is inaccurate and the dispute should be examined.',
+        ])->assertStatus(409);
+        $this->assertDatabaseCount('publisher_review_appeals',0);
+    }
+
 }
