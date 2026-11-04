@@ -17,7 +17,7 @@ class PublisherProperty extends Model
 
     protected function casts(): array
     {
-        return ['reported_followers' => 'integer', 'verified_at' => 'datetime'];
+        return ['reported_followers' => 'integer', 'verified_at' => 'datetime', 'verification_expires_at' => 'datetime', 'challenge_submitted_at' => 'datetime'];
     }
 
     public function user()
@@ -30,6 +30,8 @@ class PublisherProperty extends Model
     public function metricSnapshots() { return $this->hasMany(PublisherMetricSnapshot::class); }
 
     public function rewardEntitlement(){return $this->hasOne(PublisherRewardEntitlement::class);}
+
+    public function verificationEvents(){ return $this->hasMany(PublisherVerificationEvent::class); }
 
     public function promotions()
     {
