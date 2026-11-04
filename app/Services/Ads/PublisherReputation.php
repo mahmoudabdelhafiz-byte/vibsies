@@ -13,6 +13,7 @@ class PublisherReputation
     public function summary(PublisherProperty $property): array {
         $reviews=$property->campaignReviews()
             ->where('moderation_status','approved')
+            ->whereDoesntHave('appeal',fn($q)=>$q->whereIn('status',['pending','upheld']))
             ->whereHas('offer',fn($q)=>$q->whereIn('status',['confirmed','resolved_confirmed']))
             ->where('created_at','>=',now()->subMonths(12))
             ->get();
