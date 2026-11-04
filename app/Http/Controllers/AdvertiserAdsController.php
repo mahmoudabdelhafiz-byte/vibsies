@@ -58,7 +58,7 @@ class AdvertiserAdsController extends Controller {
         $this->enabled();
         abort_unless($campaign->user_id===$request->user()->id,403);
         return view('advertiser-ads.show', [
-            'campaign'=>$campaign->load(['offers.package.property']),
+            'campaign'=>$campaign->load(['offers.package.property','offers.campaignReview','offers.performanceReport']),
             'recommendations'=>$matcher->recommend($campaign),
         ]);
     }
