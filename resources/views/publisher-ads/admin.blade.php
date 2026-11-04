@@ -13,6 +13,24 @@
 <button name="decision" value="rejected">Reject campaign</button></form>
 </article>
 @endforeach
+<h2>Disputed advertising publications</h2>
+@forelse($disputedOffers as $offer)
+<article style="border-bottom:1px solid #ddd;padding:1rem 0">
+<strong>{{ $offer->campaign->title }}</strong> · {{ $offer->package->property->display_name }}
+@if($offer->published_url)<p><a href="{{ $offer->published_url }}" target="_blank" rel="noopener noreferrer">Inspect publication</a></p>@endif
+<p>Advertiser note: {{ $offer->review_note }}</p>
+<form method="post" action="{{ route('ads.admin.offer.resolve',$offer) }}">@csrf
+<label>Resolution explanation<textarea name="note" minlength="10" maxlength="2000" required></textarea></label>
+<button name="decision" value="resolved_confirmed">Confirm delivery</button>
+<button name="decision" value="resolved_rejected">Reject delivery</button>
+</form></article>
+@empty<p>No disputed publications.</p>@endforelse
+<h2>Expired preliminary offers</h2>
+@foreach($expiredCandidates as $offer)
+<article><strong>{{ $offer->campaign->title }}</strong> — {{ $offer->package->title }}
+<form method="post" action="{{ route('ads.admin.offer.expire',$offer) }}">@csrf
+<button type="submit">Mark expired</button></form></article>
+@endforeach
 <h2>Publishing properties</h2>
 @foreach($properties as $property)
 <article style="border-bottom:1px solid #ddd;padding:1rem 0"><strong>{{ $property->display_name }}</strong> — {{ $property->platform }} / {{ $property->property_type }} / {{ $property->verification_status }}
