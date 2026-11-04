@@ -17,12 +17,19 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Admin-only review actions; no automatic public publishing or automatic conversion of self-reported metrics into verified claims.
 - Publisher/admin forms and six additional feature test cases (not executed in this connector session).
 
+## Added in phase 3 (advertiser drafts and matching)
+- Advertiser can create an unpaid draft with objective, category, country/city, format and budget.
+- Existing business ownership is checked before a campaign can reference an organization.
+- Publisher recommendations include only active approved packages on verified properties, within the budget, correct currency and country.
+- Explainable ranking uses exact category/city, recently reviewed metric evidence and price; no projected impressions or outcomes.
+- Campaign detail is restricted to its owning user. Five feature tests committed, not executed.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
 3. ~~Property-specific ad package types~~ Initial inventory foundation committed. Enhance descriptions, upload evidence, revision and auditing.
 4. ~~Dated audience metrics~~ Initial snapshots and manual review committed. Add robust platform evidence validation and reporting.
-5. Advertiser campaigns, budget, creative review, category/location filters and explainable relevance score.
+5. ~~Advertiser campaign drafts and initial matching~~ Added. Pending: creative review, campaign approvals, purchasing and fulfillment.
 6. Reservation/acceptance/cancellation and publication evidence; manual group/profile posting.
 7. Founding program template library, referral redirect tracking, anti-abuse rules, expiration, optional reward entitlement (80% for first 3 approved fulfilled placements).
 8. Payment gateway approval, ledger, taxes/fees, payout provider, reconciliation and dispute workflow.
