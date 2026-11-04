@@ -11,6 +11,12 @@
 <p>{{ $offer->package->property->display_name }} · {{ $offer->package->title }}</p>
 <p>Advertiser brief: {{ $offer->campaign->brief }}</p>
 <p>Offered package price: {{ number_format($offer->agreed_price_minor / 100,2) }} {{ $offer->currency }} · Status: {{ $offer->status }}</p>
+@if($offer->expires_at && $offer->status === 'offered')<p>Offer valid until {{ $offer->expires_at->format('Y-m-d H:i') }} UTC (expired offers cannot be accepted).</p>@endif
+@if($offer->status === 'offered' || $offer->status === 'accepted')
+<form method="post" action="{{ route('ads.offer.cancel',$offer) }}">@csrf
+<label>Cancellation reason<textarea required minlength="8" maxlength="1000" name="reason"></textarea></label>
+<button type="submit">Cancel preliminary offer</button></form>
+@endif
 @if($offer->status === 'offered')
 <form method="post" action="{{ route('ads.publisher.offer.decide',$offer) }}">@csrf
 <button name="decision" value="accepted">Accept preliminary offer</button>
