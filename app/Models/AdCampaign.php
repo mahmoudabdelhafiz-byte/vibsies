@@ -10,5 +10,6 @@ class AdCampaign extends Model {
     protected $fillable=['user_id','organization_id','title','brief','objective','target_category','target_country','target_city','placement_type','budget_minor','currency'];
     protected function casts(): array { return ['budget_minor'=>'integer']; }
     public function user() { return $this->belongsTo(User::class); }
+    public function offers() { return $this->hasMany(AdCampaignOffer::class); }
     public function organization() { return $this->belongsTo(Organization::class); }
 }
