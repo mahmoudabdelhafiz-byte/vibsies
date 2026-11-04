@@ -3,6 +3,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublisherAdsController;
 use App\Http\Controllers\PublisherReferralController;
 use App\Http\Controllers\PublisherTrustController;
+use App\Http\Controllers\PublisherReputationController;
 use App\Http\Controllers\PublisherInventoryController;
 use App\Http\Controllers\AdvertiserAdsController;
 use App\Http\Controllers\AdCampaignWorkflowController;
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function(){
  Route::post('/ads/advertiser/campaigns/{campaign}/submit',[AdCampaignWorkflowController::class,'submitCampaign'])->name('ads.campaign.submit');
  Route::post('/ads/advertiser/campaigns/{campaign}/offers',[AdCampaignWorkflowController::class,'offer'])->middleware('throttle:10,1')->name('ads.campaign.offer');
  Route::post('/ads/advertiser/offers/{offer}/review',[AdCampaignWorkflowController::class,'reviewPublication'])->name('ads.offer.review');
+ Route::post('/ads/advertiser/offers/{offer}/rating',[PublisherReputationController::class,'review'])->middleware('throttle:5,1')->name('ads.offer.rating');
+ Route::post('/ads/publisher/offers/{offer}/performance',[PublisherReputationController::class,'performance'])->middleware('throttle:5,1')->name('ads.offer.performance');
+ Route::post('/admin/ads/reviews/{review}/moderate',[PublisherReputationController::class,'moderate'])->middleware('throttle:10,1')->name('ads.admin.review.moderate');
  Route::post('/ads/offers/{offer}/cancel',[AdOfferLifecycleController::class,'cancel'])->name('ads.offer.cancel');
  Route::post('/admin/ads/offers/{offer}/expire',[AdOfferLifecycleController::class,'expire'])->name('ads.admin.offer.expire');
  Route::post('/admin/ads/offers/{offer}/resolve',[AdOfferLifecycleController::class,'resolve'])->name('ads.admin.offer.resolve');
