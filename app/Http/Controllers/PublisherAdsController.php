@@ -22,7 +22,7 @@ class PublisherAdsController extends Controller
         $this->ensureEnabled();
         return view('publisher-ads.index', [
             'properties' => PublisherProperty::where('user_id', $request->user()->id)
-                ->with('promotions')->latest()->get(),
+                ->with(['promotions','adPackages','metricSnapshots' => fn($q) => $q->latest('observed_on')->limit(10)])->latest()->get(),
         ]);
     }
 
@@ -87,6 +87,8 @@ class PublisherAdsController extends Controller
         return view('publisher-ads.admin', [
             'properties' => PublisherProperty::latest()->limit(100)->get(),
             'promotions' => PublisherPromotion::with('property')->latest()->limit(100)->get(),
+            'packages' => \App\Models\PublisherAdPackage::with('property')->latest()->limit(100)->get(),
+            'metrics' => \App\Models\PublisherMetricSnapshot::with('property')->latest()->limit(100)->get(),
         ]);
     }
 
