@@ -218,4 +218,11 @@ return [
     'performance_source' => 'حالة دليل الأداء',
     'pending_ratings' => 'تقييمات المعلنين بانتظار المراجعة',
     'no_pending_ratings' => 'لا توجد تقييمات معلنين بانتظار المراجعة',
+    'performance_evidence_review' => 'مراجعة أدلة أداء الحملات',
+    'performance_evidence_disclaimer' => 'الأرقام المقدمة من الناشر تحتاج إلى مراجعة مستقلة. ارفض التقارير غير القابلة للتحقق.',
+    'evidence_source' => 'مصدر الأدلة',
+    'reviewed_export' => 'تقرير مُصدّر من المنصة وتمت مراجعته',
+    'verified_platform' => 'بيانات موثقة بصورة مستقلة من المنصة',
+    'verify_evidence' => 'التحقق من الأدلة',
+    'no_pending_reports' => 'لا توجد تقارير بانتظار مراجعة الأدلة.',
 ];
