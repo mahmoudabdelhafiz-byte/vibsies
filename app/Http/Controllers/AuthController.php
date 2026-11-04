@@ -9,6 +9,10 @@ class AuthController extends Controller {
  public function registerForm(){return view('auth.register');}
  public function loginForm(){return view('auth.login');}
  public function register(Request $request){
+  // Normalize before validating uniqueness, particularly on case-sensitive PostgreSQL indexes.
+  if(is_string($request->input('email'))) {
+   $request->merge(['email'=>mb_strtolower(trim($request->input('email')))]);
+  }
   $data=$request->validate(['name'=>'required|string|max:160','email'=>'required|email|max:254|unique:users,email','password'=>['required','confirmed',Password::min(10)->mixedCase()->numbers()]]);
   $user=\Illuminate\Support\Facades\DB::transaction(function()use($request,$data) {
    $user=User::create(['name'=>$data['name'],'email'=>strtolower($data['email']),'password'=>$data['password']]);
@@ -21,7 +25,7 @@ class AuthController extends Controller {
      if($promotion && in_array($promotion->status,['draft','pending','approved'],true)
         && $promotion->property->verification_status==='verified'
         && $promotion->property->user_id !== $user->id
-        && $promotion->property->user->email !== $user->email) {
+        && mb_strtolower($promotion->property->user->email) !== $user->email) {
        \App\Models\PublisherReferral::create([
         'publisher_promotion_id'=>$promotion->id,
         'referred_user_id'=>$user->id,
