@@ -143,4 +143,31 @@ class PublisherReputationTest extends TestCase
         $this->assertDatabaseCount('ad_ledger_batches',0);
     }
 
+    public function test_admin_can_verify_supported_performance_once():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $data=[
+            'measured_on'=>now()->toDateString(),
+            'views'=>700,
+            'evidence_url'=>'https://www.facebook.com/example/posts/123',
+        ];
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),$data)->assertRedirect();
+        $report=\App\Models\PublisherCampaignPerformanceReport::firstOrFail();
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $review=[
+            'decision'=>'verified',
+            'source_type'=>'reviewed_export',
+            'note'=>'Checked the submitted report against the dated platform evidence.',
+        ];
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$review)->assertRedirect();
+        $this->assertDatabaseHas('publisher_campaign_performance_reports',[
+            'id'=>$report->id,
+            'verification_status'=>'verified',
+            'evidence_source'=>'reviewed_export',
+            'verified_by_user_id'=>$admin->id,
+        ]);
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$review)->assertStatus(409);
+    }
+
 }
