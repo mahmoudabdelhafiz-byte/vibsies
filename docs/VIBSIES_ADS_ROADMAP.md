@@ -59,6 +59,14 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Amounts are preliminary *before* taxes, provider processing fees, refunds, withholding and regulatory treatment; settlement rows remain held and no payouts can occur.
 - Five unit test cases and two integration safety cases committed. These tests have NOT been executed. No funds have been captured, credited or transferred.
 
+## Added in phase 6B (provider-neutral finance integration boundary)
+- A typed payment gateway interface and verified-event data contract define the boundary for future provider integration.
+- The default gateway categorically refuses checkout and webhook processing. No live provider, gateway keys, payment URL, payout API or public webhook endpoint has been introduced.
+- Unique provider/event IDs are reserved in a migration for idempotent future webhook processing.
+- A read-only reconciler checks existing held ledger batches for balanced entries, correct split, delivery status and payment-proof consistency. It DOES NOT validate against bank/provider settlement statements.
+- Five safety/integrity feature tests committed but NOT EXECUTED.
+- Still required before any real funds: select a supported licensed provider, independently verify signatures and payment state, process events idempotently and in order, bank/gateway statement matching, refunds/chargebacks, payout approval and reconciliation, taxes and security signoff.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
@@ -67,7 +75,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 5. ~~Advertiser campaign drafts and initial matching~~ Added. Pending: creative review, campaign approvals, purchasing and fulfillment.
 6. ~~Offer, acceptance, publication evidence, cancellation, expiry and basic dispute decisions~~ Initial code added. Pending: comprehensive audit logging, scheduling, resubmission, formal agreements and financial reconciliation.
 7. ~~Referral links, registration attribution and eligibility record~~ Initial code committed. Pending: creative templates, fraud/qualification checks, click reporting and accounting-grade reward redemption.
-8. ~~Internal ledger schema, math and guarded posting foundation~~ Added. Still required: licensed/approved payment provider, trusted webhook verification, refunds/reversals, taxes/fees, payout reconciliation, audit and independent approval.
+8. ~~Internal ledger, provider interface and read-only diagnostics~~ Added. Still required: reviewed provider implementation, signed webhooks, gateway/bank settlement data, refunds/reversals, taxes/fees, regulated payouts, reconciliation and audit approval.
 9. Arabic/English translations and accessibility, security tests and integration/regression tests.
 10. Pilot with two owned Facebook pages and genuine advertising results, then controlled release.
 
