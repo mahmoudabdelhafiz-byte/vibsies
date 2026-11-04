@@ -90,4 +90,42 @@ class PublisherAdsTest extends TestCase
             'disclosure_confirmed' => '1',
         ])->assertForbidden();
     }
+    public function test_admin_must_document_verification_and_cannot_repeat_it(): void
+    {
+        config()->set('vibsies_ads.enabled', true);
+        $owner = User::factory()->create();
+        $admin = User::factory()->create();
+        $admin->forceFill(['is_admin' => true])->save();
+        $property = PublisherProperty::create([
+            'user_id' => $owner->id,
+            'platform' => 'facebook',
+            'property_type' => 'page',
+            'display_name' => 'Example',
+            'profile_url' => 'https://www.facebook.com/example',
+            'category' => 'Community',
+            'country_code' => 'EG',
+            'verification_token' => 'DOCUMENTEDREVIEW1',
+            'ownership_evidence_note' => 'Proof of account ownership reviewed manually.',
+        ]);
+
+        $this->actingAs($admin)->post(route('ads.admin.verify', $property), [
+            'decision' => 'verified',
+        ])->assertSessionHasErrors('note');
+
+        $this->actingAs($admin)->post(route('ads.admin.verify', $property), [
+            'decision' => 'verified',
+            'note' => 'Checked evidence supplied by the owner.',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('publisher_properties', [
+            'id' => $property->id,
+            'verification_status' => 'verified',
+        ]);
+
+        $this->actingAs($admin)->post(route('ads.admin.verify', $property), [
+            'decision' => 'verified',
+            'note' => 'Repeat approval should be blocked.',
+        ])->assertStatus(409);
+    }
+
 }
