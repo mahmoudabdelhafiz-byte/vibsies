@@ -10,7 +10,29 @@ class AuthController extends Controller {
  public function loginForm(){return view('auth.login');}
  public function register(Request $request){
   $data=$request->validate(['name'=>'required|string|max:160','email'=>'required|email|max:254|unique:users,email','password'=>['required','confirmed',Password::min(10)->mixedCase()->numbers()]]);
-  $user=User::create(['name'=>$data['name'],'email'=>strtolower($data['email']),'password'=>$data['password']]);
+  $user=\Illuminate\Support\Facades\DB::transaction(function()use($request,$data) {
+   $user=User::create(['name'=>$data['name'],'email'=>strtolower($data['email']),'password'=>$data['password']]);
+   if(config('vibsies_ads.enabled')) {
+    $ref=$request->session()->get('vibsies_referral');
+    if(is_array($ref) && isset($ref['promotion_id'],$ref['captured_at'])
+       && is_numeric($ref['captured_at']) && (int)$ref['captured_at'] <= now()->timestamp
+       && (int)$ref['captured_at'] >= now()->subDays(7)->timestamp) {
+     $promotion=\App\Models\PublisherPromotion::with('property')->find($ref['promotion_id']);
+     if($promotion && $promotion->status==='approved'
+        && $promotion->property->verification_status==='verified'
+        && $promotion->property->user_id !== $user->id
+        && $promotion->property->user->email !== $user->email) {
+       \App\Models\PublisherReferral::create([
+        'publisher_promotion_id'=>$promotion->id,
+        'referred_user_id'=>$user->id,
+        'status'=>'registered','registered_at'=>now(),
+       ]);
+     }
+    }
+   }
+   return $user;
+  });
+  $request->session()->forget('vibsies_referral');
   Auth::login($user);$request->session()->regenerate();
   return redirect()->route('dashboard');
  }
