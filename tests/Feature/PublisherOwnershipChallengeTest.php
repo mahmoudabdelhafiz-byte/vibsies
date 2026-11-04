@@ -91,4 +91,21 @@ class PublisherOwnershipChallengeTest extends TestCase
             'ownership_evidence_note'=>'Incorrect social network for this property.',
         ])->assertSessionHasErrors('profile_url');
     }
+    public function test_duplicate_publisher_url_variant_cannot_be_claimed_twice(): void {
+        config()->set('vibsies_ads.enabled',true);
+        $a=User::factory()->create();
+        $b=User::factory()->create();
+        $details=[
+            'platform'=>'facebook','property_type'=>'page','display_name'=>'Community',
+            'profile_url'=>'https://www.facebook.com/example/',
+            'category'=>'Local','country_code'=>'EG',
+        ];
+        $this->actingAs($a)->post(route('ads.publisher.store'),$details)
+            ->assertRedirect(route('ads.publisher.index'));
+        $details['profile_url']='https://m.facebook.com/example';
+        $this->actingAs($b)->post(route('ads.publisher.store'),$details)
+            ->assertSessionHasErrors('profile_url');
+        $this->assertDatabaseCount('publisher_properties',1);
+    }
+
 }
