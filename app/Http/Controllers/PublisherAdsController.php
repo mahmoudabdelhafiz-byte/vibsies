@@ -22,7 +22,7 @@ class PublisherAdsController extends Controller
         $this->ensureEnabled();
         return view('publisher-ads.index', [
             'properties' => PublisherProperty::where('user_id', $request->user()->id)
-                ->with(['promotions','adPackages','metricSnapshots' => fn($q) => $q->latest('observed_on')->limit(10)])->latest()->get(),
+                ->with(['promotions','rewardEntitlement','adPackages','metricSnapshots' => fn($q) => $q->latest('observed_on')->limit(10)])->latest()->get(),
         ]);
     }
 
@@ -121,12 +121,30 @@ class PublisherAdsController extends Controller
             'note' => 'nullable|string|max:2000',
         ]);
         abort_unless($promotion->property->verification_status === 'verified', 409, 'Publisher must be verified.');
-        $promotion->forceFill([
-            'status' => $data['decision'],
-            'review_note' => $data['note'] ?? null,
-            'reviewed_at' => now(),
-        ])->save();
-        // Rewards are deliberately not credited here: financial ledger integration is pending.
+        \Illuminate\Support\Facades\DB::transaction(function () use ($promotion,$data) {
+            $locked=PublisherPromotion::with('property')->whereKey($promotion->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->status==='pending',409,'Only pending promotions can be reviewed.');
+            $locked->forceFill([
+                'status'=>$data['decision'],
+                'review_note'=>$data['note'] ?? null,
+                'reviewed_at'=>now(),
+            ])->save();
+            if($data['decision']==='approved') {
+                // An entitlement is nonfinancial and is not itself a commission or payout.
+                \App\Models\PublisherRewardEntitlement::firstOrCreate(
+                    ['publisher_property_id'=>$locked->publisher_property_id],
+                    [
+                        'publisher_promotion_id'=>$locked->id,
+                        'publisher_share_percent'=>config('vibsies_ads.founding_share_percent',80),
+                        'placement_limit'=>config('vibsies_ads.founding_placement_limit',3),
+                        'placements_used'=>0,
+                        'status'=>'eligible',
+                        'eligible_from'=>now(),
+                        'expires_at'=>now()->addDays(90),
+                    ]
+                );
+            }
+        });
         return back()->with('notice', 'Promotion review saved; no financial rewards have been credited.');
     }
 
