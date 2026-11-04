@@ -31,10 +31,11 @@ class PublisherReferralTest extends TestCase {
         return $promotion;
     }
 
-    public function test_pending_promotion_link_does_not_attribute_visitors(): void {
+    public function test_pending_promotion_link_can_open_registration_without_granting_rewards(): void {
         config()->set('vibsies_ads.enabled',true);
         $promotion=$this->promotion('pending');
-        $this->get(route('ads.referral.visit',$promotion->referral_code))->assertNotFound();
+        $this->get(route('ads.referral.visit',$promotion->referral_code))->assertRedirect(route('register'));
+        $this->assertDatabaseCount('publisher_reward_entitlements',0);
     }
 
     public function test_approved_promotion_link_sends_guest_to_registration(): void {
