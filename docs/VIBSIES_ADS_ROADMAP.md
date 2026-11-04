@@ -41,6 +41,15 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - The admin and publisher dashboards expose these controls. Seven additional feature test cases committed, not run.
 - Limitations: expiry marking is admin-triggered, not yet scheduled; dispute decisions never trigger payments. Existing workflow transitions need comprehensive event logging, and formal terms are not implemented.
 
+## Added in phase 5B (Founding Publisher referral and eligibility foundation)
+- An approved social-property owner receives a unique referral link before publishing a Vibsies promotional post or video.
+- The link opens registration with a seven-day attribution session and no IP address or device fingerprint tracking.
+- Each newly registered user may have only one recorded referral; registration attribution is not itself a qualified conversion or paid reward.
+- Publisher submits a disclosed post URL for admin moderation. Approval creates at most one nonfinancial eligibility record per publisher property.
+- Proposed eligibility: 80% publisher share on at most three future eligible paid placements, valid 90 days; no allocation or payout processing is enabled.
+- Referral and reward objects, migrations, routes, owner dashboard display and initial feature tests have been committed but NOT EXECUTED.
+- Outstanding: reliable click analytics, terms acceptance, anti-fraud review, real placement settlement, entitlement redemption under financial transactions, and campaign reconciliation.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
@@ -48,7 +57,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 4. ~~Dated audience metrics~~ Initial snapshots and manual review committed. Add robust platform evidence validation and reporting.
 5. ~~Advertiser campaign drafts and initial matching~~ Added. Pending: creative review, campaign approvals, purchasing and fulfillment.
 6. ~~Offer, acceptance, publication evidence, cancellation, expiry and basic dispute decisions~~ Initial code added. Pending: comprehensive audit logging, scheduling, resubmission, formal agreements and financial reconciliation.
-7. Founding program template library, referral redirect tracking, anti-abuse rules, expiration, optional reward entitlement (80% for first 3 approved fulfilled placements).
+7. ~~Referral links, registration attribution and eligibility record~~ Initial code committed. Pending: creative templates, fraud/qualification checks, click reporting and accounting-grade reward redemption.
 8. Payment gateway approval, ledger, taxes/fees, payout provider, reconciliation and dispute workflow.
 9. Arabic/English translations and accessibility, security tests and integration/regression tests.
 10. Pilot with two owned Facebook pages and genuine advertising results, then controlled release.
@@ -57,7 +66,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - A public post promoting Vibsies is **never required** for account verification or standard publisher access.
 - Do not claim follower counts have been verified unless approved evidence supports them.
 - Promotions involving incentives require applicable disclosure. Do not create automated group/profile publishing.
-- A referral code is an identifier, not yet an active conversion tracking or payout mechanism.
+- Referral codes can attribute registrations, but do not constitute qualified or payable conversions.
 - Do not enable the feature or deploy to production until application tests, security checks and policy review pass.
 
 ## Routes (when flag enabled)
