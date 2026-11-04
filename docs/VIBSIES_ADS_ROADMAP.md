@@ -87,7 +87,8 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Manual publisher review is transactional and rejects repeat approval under concurrent requests. Require a written administrator review note; allow rejecting spam applications without ownership proof, while approval still requires ownership evidence.
 - Added four regression tests for account normalization, rejection without evidence, self-referral isolation, and foreign-property authorization.
 - Added `docs/VIBSIES_ADS_RELEASE_READINESS.md` with controlled deployment, backup/restore, rollback and business/legal release gates.
-- CI status must be checked on the latest feature branch before release; passing tests are not a production readiness approval.
+- **Verified Phase 8B green CI:** GitHub Actions run 41915553129, SQLite **143 tests / 392 assertions passed**, PostgreSQL 16 **143 tests / 392 assertions passed**, migrations passed on both.
+- CI passing is not production readiness approval.
 
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
