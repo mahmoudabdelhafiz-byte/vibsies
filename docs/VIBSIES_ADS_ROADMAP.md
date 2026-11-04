@@ -118,6 +118,14 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - **Verified green CI:** run 41918710093: SQLite **161 tests, 461 assertions** PASS; PostgreSQL 16 **161 tests, 461 assertions** PASS; fresh migrations PASS on both.
 - Do not enable production Ads or finance posting based solely on CI. No pilot participants were contacted and no pilot executed.
 
+## Phase 9B: translation completion and interface accessibility (2026-11-05)
+- Expanded shared Arabic/English Ads catalogs to 211+ paired translation keys covering onboarding instructions, trust disclosures, advertiser/publisher review actions, statuses and key help text.
+- Replaced remaining visible high-priority English-only interface labels in publisher, advertiser, offer and admin screens. Full Arabic human proofreading and production interaction testing remain outstanding.
+- Added descriptive accessibility labels to admin review text areas and preserved explicit labels on user-facing forms; shared mobile and RTL stylesheet remains active.
+- Added automated translation parity tests checking that every Ads translation key used in five Blade views exists in both language catalogs, plus Arabic rendering assertions.
+- This is not a claim of full WCAG conformance: manual screen-reader, contrast, keyboard, narrow viewport and translation review are release gates.
+- Financial posting and Vibsies Ads feature flags remain OFF; no production deployment, public campaign or paid pilot.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
