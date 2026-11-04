@@ -29,5 +29,10 @@
     "sort-packages": true
   },
   "minimum_stability": "stable",
-  "prefer_stable": true
+  "prefer_stable": true,
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  }
 }
