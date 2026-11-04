@@ -44,6 +44,23 @@ class PublisherTrustController extends Controller
         return redirect()->route('ads.publisher.index')->with('notice','A new ownership code was issued. Previous evidence was cleared.');
     }
 
+    public function withdrawEvidence(Request $request, PublisherProperty $property)
+    {
+        $this->enabled();
+        abort_unless($property->user_id === $request->user()->id, 403);
+        DB::transaction(function () use ($property, $request) {
+            $locked = PublisherProperty::whereKey($property->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->verification_status === 'pending',409);
+            $locked->forceFill(['ownership_evidence_url'=>null,'ownership_evidence_note'=>null,'challenge_submitted_at'=>null])->save();
+            PublisherVerificationEvent::create([
+                'publisher_property_id'=>$locked->id,'actor_id'=>$request->user()->id,
+                'action'=>'evidence_withdrawn',
+                'note'=>'Pending owner evidence was withdrawn',
+            ]);
+        });
+        return redirect()->route('ads.publisher.index');
+    }
+
     public function reviewReferral(Request $request,PublisherReferral $referral)
     {
         $this->enabled();
