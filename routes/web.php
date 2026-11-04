@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublisherAdsController;
+use App\Http\Controllers\PublisherInventoryController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
@@ -36,7 +37,11 @@ Route::middleware('auth')->group(function(){
  Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
  Route::post('/ads/publisher/properties',[PublisherAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.publisher.store');
  Route::post('/ads/publisher/properties/{property}/promotions',[PublisherAdsController::class,'promotion'])->middleware('throttle:5,1')->name('ads.publisher.promotion');
+ Route::post('/ads/publisher/properties/{property}/packages',[PublisherInventoryController::class,'storePackage'])->middleware('throttle:10,1')->name('ads.publisher.packages.store');
+ Route::post('/ads/publisher/properties/{property}/metrics',[PublisherInventoryController::class,'storeMetrics'])->middleware('throttle:10,1')->name('ads.publisher.metrics.store');
  Route::get('/admin/ads',[PublisherAdsController::class,'admin'])->name('ads.admin.index');
+ Route::post('/admin/ads/packages/{package}/review',[PublisherInventoryController::class,'reviewPackage'])->name('ads.admin.packages.review');
+ Route::post('/admin/ads/metrics/{snapshot}/review',[PublisherInventoryController::class,'reviewMetrics'])->name('ads.admin.metrics.review');
  Route::post('/admin/ads/properties/{property}/verify',[PublisherAdsController::class,'verify'])->name('ads.admin.verify');
  Route::post('/admin/ads/promotions/{promotion}/review',[PublisherAdsController::class,'reviewPromotion'])->name('ads.admin.promotion');
 
