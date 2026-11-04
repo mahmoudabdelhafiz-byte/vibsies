@@ -106,6 +106,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - These controls do not assert that fraud has been eliminated. Further checks for collusive referral rings, automated abuse and identity verification are still pending.
 - Data policy still needs legal review: retention periods, export/erasure mechanics and external backups must be defined prior to launch.
 - Renewals and referrals have separate user-facing and administrator-only endpoints, protected by ownership/role checks. Both Ads and finance flags remain OFF by default.
+- **Verified dual-database CI:** run 41917463296: **155 tests, 437 assertions passed** on both SQLite and PostgreSQL 16; migrations passed.
 
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
