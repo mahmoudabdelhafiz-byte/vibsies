@@ -166,6 +166,14 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - **Verified CI:** GitHub Actions run 41921931649, **176 tests / 1,399 assertions passed** on BOTH SQLite and PostgreSQL 16; fresh migrations passed. No reported application failures.
 - Neither workstream has been deployed; Ads and financial posting remain disabled by default.
 
+## Phase 10C — evidence verification, private scorecards and bilingual SEO guide (2026-11-05)
+- Administrator queue for publisher-submitted campaign performance reports, with explicit evidence source and documented decision. Only previously accepted completed placements can have reports verified; independent supporting evidence URL is required. Review is one-time and does not create payments.
+- Publisher dashboard displays a private, transparent score summary: **Unrated** until three approved advertiser ratings from three independent advertisers during the previous twelve months. Self-reported views/reach are excluded.
+- Public bilingual educational page `/advertise-with-publishers` explains social publisher suitability, transparent evidence and the current pilot/no-payment limitations. The page is feature-gated and appears in the sitemap only when Ads is enabled.
+- Includes regression tests for report review access, missing evidence, rejection, and conditional public landing-page visibility.
+- **Still pending:** publisher right of reply and disputes, independent evidence authenticity audit, external anti-fraud/independence check, human Arabic proofreading, semantic structured data, search console, and public ratings release approval.
+- Feature and payment flags remain disabled; no external campaign or publisher payout has been initiated.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
