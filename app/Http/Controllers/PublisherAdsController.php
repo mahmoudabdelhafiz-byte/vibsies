@@ -21,9 +21,14 @@ class PublisherAdsController extends Controller
     public function index(Request $request)
     {
         $this->ensureEnabled();
-        return view('publisher-ads.index', [
-            'properties' => PublisherProperty::where('user_id', $request->user()->id)
-                ->with(['promotions','rewardEntitlement','adPackages','metricSnapshots' => fn($q) => $q->latest('observed_on')->limit(10)])->latest()->get(),
+        $properties=PublisherProperty::where('user_id',$request->user()->id)
+            ->with(['promotions','rewardEntitlement','adPackages','metricSnapshots'=>fn($q)=>$q->latest('observed_on')->limit(10)])->latest()->get();
+        $reputation=app(\App\Services\Ads\PublisherReputation::class);
+        $summaries=[];
+        foreach($properties as $property) $summaries[$property->id]=$reputation->summary($property);
+        return view('publisher-ads.index',[
+            'properties'=>$properties,
+            'reputationSummaries'=>$summaries,
         ]);
     }
 
