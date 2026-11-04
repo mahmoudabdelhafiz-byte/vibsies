@@ -10,11 +10,18 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Manual admin promotion review. Approval does **not** issue money or automatically change commissions.
 - Feature flag `VIBSIES_ADS_ENABLED=false` by default, protected authenticated routes and admin-only moderation.
 
+## Added in phase 2 (publisher inventory and metrics)
+- Verified publishers can submit placements with type, duration, delivery window, country-aligned currency and pricing in minor units.
+- New packages are inactive and pending moderation; group placements restrict formats.
+- Dated publisher metric snapshots track content category, reach/views/interactions, provenance and evidence URL; all start self-reported and unverified.
+- Admin-only review actions; no automatic public publishing or automatic conversion of self-reported metrics into verified claims.
+- Publisher/admin forms and six additional feature test cases (not executed in this connector session).
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
-3. Property-specific ad package types: feed post, story, video, group pin; category and regional targeting.
-4. Audience metrics (self-reported versus verified fields), time series and evidence provenance.
+3. ~~Property-specific ad package types~~ Initial inventory foundation committed. Enhance descriptions, upload evidence, revision and auditing.
+4. ~~Dated audience metrics~~ Initial snapshots and manual review committed. Add robust platform evidence validation and reporting.
 5. Advertiser campaigns, budget, creative review, category/location filters and explainable relevance score.
 6. Reservation/acceptance/cancellation and publication evidence; manual group/profile posting.
 7. Founding program template library, referral redirect tracking, anti-abuse rules, expiration, optional reward entitlement (80% for first 3 approved fulfilled placements).
