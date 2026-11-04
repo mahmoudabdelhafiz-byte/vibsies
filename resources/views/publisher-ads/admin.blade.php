@@ -5,15 +5,15 @@
 <a href="{{ route('dashboard') }}">{{ __('ads.dashboard') }}</a><h1>{{ __('ads.admin') }}</h1>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
 <h2>{{ __('ads.referral_review') }}</h2>
-<p>Registration attribution is not a paid conversion. Review does not qualify a commission or release payment.</p>
+<p>{{ __('ads.referral_notice') }}</p>
 @foreach($referrals as $referral)
 <article>
 <strong>{{ $referral->promotion->property->display_name }}</strong> · referral {{ $referral->id }}
 <p>Registered {{ $referral->registered_at?->format('Y-m-d') }} · {{ $referral->review_status }}</p>
 <form method="post" action="{{ route('ads.admin.referral.review',$referral) }}">@csrf
-<label>Review reason<textarea name="note" minlength="12" maxlength="2000" required></textarea></label>
-<button name="decision" value="reviewed">Mark manually reviewed</button>
-<button name="decision" value="flagged">Flag suspicious referral</button>
+<label>{{ __('ads.review_reason') }}<textarea name="note" minlength="12" maxlength="2000" required></textarea></label>
+<button name="decision" value="reviewed">{{ __('ads.manual_reviewed') }}</button>
+<button name="decision" value="flagged">{{ __('ads.flag_referral') }}</button>
 </form></article>
 @endforeach
 <h2>{{ __('ads.pending_campaigns') }}</h2>
@@ -23,8 +23,8 @@
 <p>{{ $campaign->brief }}</p>
 <p>Target: {{ $campaign->target_country }} · {{ $campaign->target_city }} · {{ $campaign->target_category }}. Budget: {{ number_format($campaign->budget_minor/100,2) }} {{ $campaign->currency }}</p>
 <form method="post" action="{{ route('ads.admin.campaign.review',$campaign) }}">@csrf
-<button name="decision" value="approved">Approve campaign</button>
-<button name="decision" value="rejected">Reject campaign</button></form>
+<button name="decision" value="approved">{{ __('ads.approve') }} campaign</button>
+<button name="decision" value="rejected">{{ __('ads.reject') }} campaign</button></form>
 </article>
 @endforeach
 <h2>Disputed advertising publications</h2>
@@ -34,33 +34,33 @@
 @if($offer->published_url)<p><a href="{{ $offer->published_url }}" target="_blank" rel="noopener noreferrer">Inspect publication</a></p>@endif
 <p>Advertiser note: {{ $offer->review_note }}</p>
 <form method="post" action="{{ route('ads.admin.offer.resolve',$offer) }}">@csrf
-<label>Resolution explanation<textarea name="note" minlength="10" maxlength="2000" required></textarea></label>
-<button name="decision" value="resolved_confirmed">Confirm delivery</button>
-<button name="decision" value="resolved_rejected">Reject delivery</button>
+<label>{{ __('ads.admin_review_explanation') }}<textarea name="note" aria-label="{{ __('ads.admin_review_explanation') }}" minlength="10" maxlength="2000" required></textarea></label>
+<button name="decision" value="resolved_confirmed">{{ __('ads.confirm_delivery') }}</button>
+<button name="decision" value="resolved_rejected">{{ __('ads.reject_delivery') }}</button>
 </form></article>
-@empty<p>No disputed publications.</p>@endforelse
+@empty<p>{{ __('ads.no_disputes') }}</p>@endforelse
 <h2>{{ __('ads.expired_offers') }}</h2>
 @foreach($expiredCandidates as $offer)
 <article><strong>{{ $offer->campaign->title }}</strong> — {{ $offer->package->title }}
 <form method="post" action="{{ route('ads.admin.offer.expire',$offer) }}">@csrf
-<button type="submit">Mark expired</button></form></article>
+<button type="submit">{{ __('ads.mark_expired') }}</button></form></article>
 @endforeach
 <h2>{{ __('ads.review_properties') }}</h2>
 @foreach($properties as $property)
 <article><strong>{{ $property->display_name }}</strong> — {{ $property->platform }} / {{ $property->property_type }} / {{ $property->verification_status }}
-<a href="{{ $property->profile_url }}" target="_blank" rel="noopener noreferrer">Review public URL</a>
-<p>Challenge code: {{ $property->verification_token }} · Expires {{ $property->verification_expires_at?->format("Y-m-d H:i") ?? "Not issued" }} UTC · Evidence submitted: {{ $property->challenge_submitted_at?->format("Y-m-d H:i") ?? "No" }}. Ownership evidence: {{ $property->ownership_evidence_note ?: "Not provided" }} @if($property->ownership_evidence_url)<a target="_blank" rel="noopener noreferrer" href="{{ $property->ownership_evidence_url }}">Inspect evidence</a>@endif</p><p>Self-reported audience: {{ $property->reported_followers ?? 'Unknown' }} · {{ $property->category }} · {{ $property->city }}</p>
+<a href="{{ $property->profile_url }}" target="_blank" rel="noopener noreferrer">{{ __('ads.review_public_url') }}</a>
+<p>Challenge code: {{ $property->verification_token }} · {{ __('ads.challenge_expires') }} {{ $property->verification_expires_at?->format("Y-m-d H:i") ?? "Not issued" }} UTC · Evidence submitted: {{ $property->challenge_submitted_at?->format("Y-m-d H:i") ?? "No" }}. Ownership evidence: {{ $property->ownership_evidence_note ?: "Not provided" }} @if($property->ownership_evidence_url)<a target="_blank" rel="noopener noreferrer" href="{{ $property->ownership_evidence_url }}">{{ __('ads.inspect_evidence') }}</a>@endif</p><p>Self-reported audience: {{ $property->reported_followers ?? 'Unknown' }} · {{ $property->category }} · {{ $property->city }}</p>
 <form method="post" action="{{ route('ads.admin.verify', $property) }}">@csrf
-<textarea name="note" required minlength="12" placeholder="Document code review or rejection" maxlength="2000"></textarea><label><input type="checkbox" name="challenge_checked" value="1"> I checked the current challenge code on the linked social property</label>
-<button name="decision" value="verified">Verify ownership</button><button name="decision" value="rejected">Reject</button></form></article>
+<textarea name="note" aria-label="{{ __('ads.review_reason') }}" required minlength="12" placeholder="Document code review or rejection" maxlength="2000"></textarea><label><input type="checkbox" name="challenge_checked" value="1"> I checked the current challenge code on the linked social property</label>
+<button name="decision" value="verified">{{ __('ads.verify_owner') }}</button><button name="decision" value="rejected">{{ __('ads.reject') }}</button></form></article>
 @endforeach
 <h2>{{ __('ads.review_promotions') }}</h2>
 @foreach($promotions as $promotion)
 <article><strong>{{ $promotion->property->display_name }}</strong> — {{ $promotion->status }} · {{ $promotion->post_format }}
-<a href="{{ $promotion->post_url }}" target="_blank" rel="noopener noreferrer">Inspect sponsored post</a>
+<a href="{{ $promotion->post_url }}" target="_blank" rel="noopener noreferrer">{{ __('ads.inspect_post') }}</a>
 <form method="post" action="{{ route('ads.admin.promotion', $promotion) }}">@csrf
-<textarea name="note" placeholder="Disclosure and post review notes" maxlength="2000"></textarea>
-<button name="decision" value="approved">Approve</button><button name="decision" value="rejected">Reject</button></form>
+<textarea name="note" aria-label="{{ __('ads.admin_promotional_notes') }}" placeholder="Disclosure and post review notes" maxlength="2000"></textarea>
+<button name="decision" value="approved">{{ __('ads.approve') }}</button><button name="decision" value="rejected">{{ __('ads.reject') }}</button></form>
 </article>@endforeach
 <h2>{{ __('ads.review_packages') }}</h2>
 @foreach($packages as $package)
@@ -68,16 +68,16 @@
 <strong>{{ $package->property->display_name }}</strong> — {{ $package->title }} / {{ $package->placement_type }} / {{ $package->moderation_status }}
 <p>{{ number_format($package->price_minor / 100,2) }} {{ $package->currency }} · {{ $package->delivery_days }} days to deliver</p>
 <form method="post" action="{{ route('ads.admin.packages.review', $package) }}">@csrf
-<button name="decision" value="approved">Approve</button><button name="decision" value="rejected">Reject</button></form>
+<button name="decision" value="approved">{{ __('ads.approve') }}</button><button name="decision" value="rejected">{{ __('ads.reject') }}</button></form>
 </article>@endforeach
 <h2>{{ __('ads.review_metrics') }}</h2>
 @foreach($metrics as $snapshot)
 <article>
 <strong>{{ $snapshot->property->display_name }}</strong> — {{ $snapshot->observed_on->format('Y-m-d') }} / {{ $snapshot->verification_status }}
-<p>Category: {{ $snapshot->content_category ?? 'General' }} · Views: {{ $snapshot->views ?? 'Unknown' }} · Reach: {{ $snapshot->reach ?? 'Unknown' }}. Source: {{ $snapshot->source_type }}</p>
-@if($snapshot->evidence_url)<a href="{{ $snapshot->evidence_url }}" target="_blank" rel="noopener noreferrer">Evidence link</a>@endif
+<p>{{ __('ads.category_short') }}: {{ $snapshot->content_category ?? 'General' }} · {{ __('ads.views') }}: {{ $snapshot->views ?? 'Unknown' }} · {{ __('ads.reach') }}: {{ $snapshot->reach ?? 'Unknown' }}. Source: {{ $snapshot->source_type }}</p>
+@if($snapshot->evidence_url)<a href="{{ $snapshot->evidence_url }}" target="_blank" rel="noopener noreferrer">{{ __('ads.evidence_link') }}</a>@endif
 <form method="post" action="{{ route('ads.admin.metrics.review', $snapshot) }}">@csrf
-<button name="decision" value="verified">Verify evidence</button><button name="decision" value="rejected">Reject</button></form>
+<button name="decision" value="verified">Verify evidence</button><button name="decision" value="rejected">{{ __('ads.reject') }}</button></form>
 </article>@endforeach
-<p>No rewards or payments are automatically issued from this review.</p>
+<p>{{ __('ads.no_admin_rewards') }}</p>
 </body></html>
