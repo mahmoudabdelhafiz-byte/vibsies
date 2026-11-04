@@ -18,7 +18,7 @@ class AuthController extends Controller {
        && is_numeric($ref['captured_at']) && (int)$ref['captured_at'] <= now()->timestamp
        && (int)$ref['captured_at'] >= now()->subDays(7)->timestamp) {
      $promotion=\App\Models\PublisherPromotion::with('property')->find($ref['promotion_id']);
-     if($promotion && $promotion->status==='approved'
+     if($promotion && in_array($promotion->status,['draft','pending','approved'],true)
         && $promotion->property->verification_status==='verified'
         && $promotion->property->user_id !== $user->id
         && $promotion->property->user->email !== $user->email) {
