@@ -34,7 +34,11 @@ class PublicSeoTest extends TestCase
     }
 
     public function test_sitemap_excludes_unapproved_profiles():void {
-        $creator=CreatorProfile::factory()->create();
+        $creator=CreatorProfile::create([
+            'user_id'=>User::factory()->create()->id,
+            'display_name'=>'Unapproved Creator','slug'=>'unapproved-creator',
+            'category'=>'Lifestyle','country_code'=>'EG','status'=>'pending',
+        ]);
         $creator->forceFill(['status'=>'pending'])->save();
         $this->get(route('seo.sitemap'))->assertOk()
             ->assertDontSee(route('creators.show',$creator->slug),false);
