@@ -218,4 +218,11 @@ return  [
     'performance_source' => 'Performance evidence status',
     'pending_ratings' => 'Advertiser feedback awaiting review',
     'no_pending_ratings' => 'No advertiser ratings awaiting review.',
+    'performance_evidence_review' => 'Campaign performance evidence review',
+    'performance_evidence_disclaimer' => 'Self-reported measurements require independent review. Reject unverifiable reports; do not infer reach.',
+    'evidence_source' => 'Evidence source',
+    'reviewed_export' => 'Manually reviewed platform export',
+    'verified_platform' => 'Independently verified platform data',
+    'verify_evidence' => 'Verify supporting evidence',
+    'no_pending_reports' => 'No reports awaiting evidence review.',
 ];
