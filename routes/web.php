@@ -2,6 +2,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublisherAdsController;
 use App\Http\Controllers\PublisherReferralController;
+use App\Http\Controllers\PublisherTrustController;
 use App\Http\Controllers\PublisherInventoryController;
 use App\Http\Controllers\AdvertiserAdsController;
 use App\Http\Controllers\AdCampaignWorkflowController;
@@ -52,6 +53,8 @@ Route::middleware('auth')->group(function(){
  Route::post('/ads/publisher/offers/{offer}/decision',[AdCampaignWorkflowController::class,'decide'])->name('ads.publisher.offer.decide');
  Route::post('/ads/publisher/offers/{offer}/publication',[AdCampaignWorkflowController::class,'submitPublication'])->middleware('throttle:5,1')->name('ads.publisher.offer.publish');
  Route::post('/admin/ads/campaigns/{campaign}/review',[AdCampaignWorkflowController::class,'reviewCampaign'])->name('ads.admin.campaign.review');
+ Route::post('/ads/publisher/challenges/{property}/renew',[PublisherTrustController::class,'renewChallenge'])->name('ads.publisher.challenge.renew');
+ Route::post('/admin/ads/referrals/{referral}/review',[PublisherTrustController::class,'reviewReferral'])->name('ads.admin.referral.review');
  Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
  Route::post('/ads/publisher/properties',[PublisherAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.publisher.store');
  Route::post('/ads/publisher/properties/{property}/ownership-evidence',[PublisherAdsController::class,'submitOwnershipEvidence'])->middleware('throttle:5,1')->name('ads.publisher.evidence');
