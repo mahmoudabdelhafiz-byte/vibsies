@@ -73,7 +73,7 @@ class AdCampaignWorkflowController extends Controller
         $this->enabled();
         return view('publisher-ads.offers',[
             'offers'=>AdCampaignOffer::where('publisher_user_id',$request->user()->id)
-                ->with(['campaign','package.property'])->latest()->paginate(20),
+                ->with(['campaign','package.property','performanceReport'])->latest()->paginate(20),
         ]);
     }
 
