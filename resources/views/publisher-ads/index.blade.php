@@ -24,6 +24,16 @@
 @forelse($properties as $property)
 <section><h3>{{ $property->display_name }}</h3><p>{{ ucfirst($property->platform) }} · {{ str_replace('_',' ', $property->property_type) }} · {{ $property->category }} · {{ $property->verification_status }}</p>
 <a href="{{ $property->profile_url }}" rel="noopener noreferrer" target="_blank">View property</a>
+@if($property->verification_status === 'pending' && $property->verification_expires_at)
+<h4>Verify ownership (not a Vibsies promotion)</h4>
+<p>Temporarily place the following code in a public bio or post on this account, then share the direct public URL for manual review. Remove the code after verification. Never share a password or private access token.</p>
+<p><strong>{{ $property->verification_token }}</strong></p>
+<p>Expires {{ $property->verification_expires_at->format('Y-m-d H:i') }} UTC.</p>
+<form method="post" action="{{ route('ads.publisher.evidence',$property) }}">@csrf
+<label>Public proof URL<input type="url" name="ownership_evidence_url" required placeholder="https://www.facebook.com/..."></label>
+<label>Evidence explanation<textarea name="ownership_evidence_note" minlength="12" maxlength="2000" required placeholder="Where the administrator can see the code"></textarea></label>
+<button type="submit">Submit ownership evidence</button></form>
+@endif
 @if($property->verification_status === 'verified')
 <h4>Optional: Founding Promoter</h4>
 <p>Use the referral link shown below in your Vibsies post or video, then submit your published URL for review. Referral registrations do not qualify for incentives before approval.</p>
