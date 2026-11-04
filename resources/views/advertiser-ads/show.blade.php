@@ -15,6 +15,11 @@
 @forelse($campaign->offers as $offer)
 <article><strong>{{ $offer->package->property->display_name }}</strong> · {{ $offer->status }}
 · {{ number_format($offer->agreed_price_minor/100,2) }} {{ $offer->currency }}
+@if($offer->status === 'offered')
+<form method="post" action="{{ route('ads.offer.cancel',$offer) }}">@csrf
+<label>Withdrawal reason<textarea name="reason" minlength="8" maxlength="1000" required></textarea></label>
+<button type="submit">Withdraw preliminary offer</button></form>
+@endif
 @if($offer->published_url)
 <p><a href="{{ $offer->published_url }}" target="_blank" rel="noopener noreferrer">Review publication</a></p>
 @endif
