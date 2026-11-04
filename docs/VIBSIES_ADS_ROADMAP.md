@@ -115,6 +115,7 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Added six feature tests checking Arabic RTL page rendering, translated key controls, English LTR fallback, administrator authorization and safe language return.
 - Added `docs/VIBSIES_ADS_PILOT_PLAN.md` for a consent-based, nonfinancial staging pilot focused on city/category relevance rather than follower-count claims.
 - Remaining UI work: translate secondary descriptions and validation notices, complete accessibility/manual screen-reader checks, locale-aware number/date formatting and Arabic proofreading. Do not claim full bilingual parity yet.
+- **Verified green CI:** run 41918710093: SQLite **161 tests, 461 assertions** PASS; PostgreSQL 16 **161 tests, 461 assertions** PASS; fresh migrations PASS on both.
 - Do not enable production Ads or finance posting based solely on CI. No pilot participants were contacted and no pilot executed.
 
 ## Remaining (implement sequentially)
