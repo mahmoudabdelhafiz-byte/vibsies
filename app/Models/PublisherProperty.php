@@ -25,6 +25,10 @@ class PublisherProperty extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function adPackages() { return $this->hasMany(PublisherAdPackage::class); }
+
+    public function metricSnapshots() { return $this->hasMany(PublisherMetricSnapshot::class); }
+
     public function promotions()
     {
         return $this->hasMany(PublisherPromotion::class);
