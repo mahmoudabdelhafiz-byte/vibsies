@@ -67,6 +67,14 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Five safety/integrity feature tests committed but NOT EXECUTED.
 - Still required before any real funds: select a supported licensed provider, independently verify signatures and payment state, process events idempotently and in order, bank/gateway statement matching, refunds/chargebacks, payout approval and reconciliation, taxes and security signoff.
 
+## Phase 7: GitHub Actions test baseline (2026-11-04)
+- Added `.github/workflows/laravel-ci.yml` for PHP 8.3, Composer validation/install, PHP syntax lint, fresh isolated SQLite migrations, and full PHPUnit execution.
+- Fixed existing PHP namespace syntax in `CompareSandboxSettlement.php`, created writable Laravel directories in CI, added `Tests\\` PSR-4 autoload and missing Mockery/Faker dev dependencies.
+- Corrected incorrect legacy test fixtures (15% fee rounding and YouTube watch URLs) without loosening production validation.
+- **Verified green CI:** GitHub Actions run 41897344566 on feature branch; **138 tests, 373 assertions passed**, plus PHP syntax and SQLite migrations.
+- PostgreSQL migration/integration, concurrent payment/settlement cases, external payment provider flows, security review, bilingual UX, and production cutover are still unverified. No merge or deployment has occurred.
+- The Ads and finance posting flags remain disabled by default.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
