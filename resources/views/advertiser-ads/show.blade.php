@@ -31,6 +31,28 @@
 <button name="decision" value="confirmed">{{ __('ads.confirm_evidence') }}</button>
 <button name="decision" value="disputed">{{ __('ads.dispute') }}</button></form>
 @endif
+@if(in_array($offer->status,['confirmed','resolved_confirmed'],true))
+@if($offer->campaignReview)
+<p>{{ __('ads.rating_submitted') }}: {{ $offer->campaignReview->moderation_status }}</p>
+@else
+<form method="post" action="{{ route('ads.offer.rating',$offer) }}">@csrf
+<h3>{{ __('ads.rate_publisher') }}</h3>
+@foreach(['overall_rating'=>'rating_overall','communication_rating'=>'rating_communication','timeliness_rating'=>'rating_timeliness','quality_rating'=>'rating_quality'] as $field=>$label)
+<label>{{ __('ads.'.$label) }}<select name="{{ $field }}" required>
+<option value="">{{ __('ads.choose_rating') }}</option>
+@for($i=1;$i<=5;$i++)<option value="{{ $i }}">{{ $i }} / 5</option>@endfor
+</select></label>
+@endforeach
+<label>{{ __('ads.rating_comment') }}<textarea name="comment" maxlength="2000"></textarea></label>
+<button type="submit">{{ __('ads.submit_rating') }}</button>
+</form>
+@endif
+@endif
+@if($offer->performanceReport)
+<p>{{ __('ads.performance_source') }}: {{ $offer->performanceReport->verification_status }} ({{ $offer->performanceReport->evidence_source }}).
+{{ __('ads.views') }}: {{ $offer->performanceReport->views ?? __('ads.not_reported') }}.
+{{ __('ads.reach') }}: {{ $offer->performanceReport->reach ?? __('ads.not_reported') }}.</p>
+@endif
 </article>
 @empty<p>{{ __('ads.no_offers_sent') }}</p>@endforelse
 <h2>{{ __('ads.recommendations') }}</h2>
