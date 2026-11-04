@@ -2,6 +2,17 @@
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vibsies Ads Admin</title></head><body style="max-width:900px;margin:2rem auto;font:16px system-ui">
 <a href="{{ route('dashboard') }}">Dashboard</a><h1>Vibsies Ads — Review Queue</h1>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
+<h2>Pending advertiser campaigns</h2>
+@foreach($campaigns as $campaign)
+<article style="border-bottom:1px solid #ddd;padding:1rem 0">
+<strong>{{ $campaign->title }}</strong> — {{ $campaign->objective }}
+<p>{{ $campaign->brief }}</p>
+<p>Target: {{ $campaign->target_country }} · {{ $campaign->target_city }} · {{ $campaign->target_category }}. Budget: {{ number_format($campaign->budget_minor/100,2) }} {{ $campaign->currency }}</p>
+<form method="post" action="{{ route('ads.admin.campaign.review',$campaign) }}">@csrf
+<button name="decision" value="approved">Approve campaign</button>
+<button name="decision" value="rejected">Reject campaign</button></form>
+</article>
+@endforeach
 <h2>Publishing properties</h2>
 @foreach($properties as $property)
 <article style="border-bottom:1px solid #ddd;padding:1rem 0"><strong>{{ $property->display_name }}</strong> — {{ $property->platform }} / {{ $property->property_type }} / {{ $property->verification_status }}
