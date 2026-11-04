@@ -142,6 +142,7 @@ class PublisherAdsController extends Controller
         return view('publisher-ads.admin', [
             'properties' => PublisherProperty::latest()->limit(100)->get(),
             'performanceQueue' => PublisherCampaignPerformanceReport::with(['offer.campaign','property'])->where('verification_status','unverified')->latest()->limit(100)->get(),
+            'ratingAppeals' => \App\Models\PublisherReviewAppeal::with(['review.property','review.offer.campaign'])->where('status','pending')->latest()->limit(100)->get(),
             'ratingReviews' => \App\Models\PublisherCampaignReview::with(['offer.campaign','property'])->where('moderation_status','pending')->latest()->limit(100)->get(),
             'referrals' => \App\Models\PublisherReferral::with(['promotion.property'])->where('review_status','pending')->latest()->limit(100)->get(),
             'campaigns' => \App\Models\AdCampaign::where('status','pending_review')->latest()->limit(100)->get(),
