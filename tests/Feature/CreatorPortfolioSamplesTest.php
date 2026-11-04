@@ -12,7 +12,7 @@ class CreatorPortfolioSamplesTest extends TestCase {
   $owner=User::factory()->create();
   $creator=CreatorProfile::create(['user_id'=>$owner->id,'display_name'=>'Sample Creator','slug'=>'sample-creator','category'=>'UGC','country_code'=>'EG','status'=>'approved']);
   CreatorPackage::create(['creator_profile_id'=>$creator->id,'title'=>'Promo','price_minor'=>10000,'currency'=>'EGP','is_active'=>true,'moderation_status'=>'approved']);
-  $this->actingAs($owner)->post(route('creator.samples.store'),['title'=>'Product reel','video_url'=>'https://www.youtube.com/watch?v=abc123'])->assertRedirect();
+  $this->actingAs($owner)->post(route('creator.samples.store'),['title'=>'Product reel','video_url'=>'https://www.youtube.com/watch?v=abc123def45'])->assertRedirect();
   $sample=CreatorPortfolioSample::firstOrFail();
   $this->assertSame('pending',$sample->moderation_status);
   $this->get(route('creators.show',$creator->slug))->assertDontSee('Product reel');
