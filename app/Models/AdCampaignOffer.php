@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdCampaignOffer extends Model {
     use HasUuids;
-    protected $fillable=['ad_campaign_id','publisher_ad_package_id','publisher_user_id','agreed_price_minor','currency'];
+    protected $fillable=['ad_campaign_id','publisher_ad_package_id','publisher_user_id','agreed_price_minor','currency','expires_at'];
     protected function casts(): array {
         return ['agreed_price_minor'=>'integer','accepted_at'=>'datetime','submitted_at'=>'datetime','reviewed_at'=>'datetime','expires_at'=>'datetime','cancelled_at'=>'datetime','resolved_at'=>'datetime'];
     }
