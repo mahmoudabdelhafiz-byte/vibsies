@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AdCampaignOffer;
 use App\Models\PublisherCampaignReview;
+use App\Models\PublisherReviewAppeal;
 use App\Models\PublisherCampaignPerformanceReport;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -116,6 +117,59 @@ class PublisherReputationController extends Controller
             ])->save();
         });
         return back()->with('notice','Performance evidence decision saved; no financial reward issued.');
+    }
+
+    public function publisherReply(Request $request,PublisherCampaignReview $review)
+    {
+        $this->enabled();
+        abort_unless($review->property->user_id===$request->user()->id,403);
+        $data=$request->validate(['response'=>'required|string|min:10|max:2000']);
+        DB::transaction(function()use($review,$data){
+            $locked=PublisherCampaignReview::whereKey($review->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->moderation_status==='approved',409,'Only approved feedback may receive a response.');
+            abort_unless(!$locked->publisher_responded_at,409,'Already responded.');
+            $locked->forceFill(['publisher_response'=>$data['response'],'publisher_responded_at'=>now()])->save();
+        });
+        return back()->with('notice','Publisher reply saved separately from the advertiser rating.');
+    }
+
+    public function appeal(Request $request,PublisherCampaignReview $review)
+    {
+        $this->enabled();
+        abort_unless($review->property->user_id===$request->user()->id,403);
+        $data=$request->validate(['reason'=>'required|string|min:20|max:2000']);
+        DB::transaction(function()use($review,$data,$request){
+            $locked=PublisherCampaignReview::whereKey($review->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->moderation_status==='approved',409,'Only approved feedback can be appealed.');
+            abort_unless(!PublisherReviewAppeal::where('publisher_campaign_review_id',$locked->id)->exists(),409,'Review already appealed.');
+            PublisherReviewAppeal::create([
+                'publisher_campaign_review_id'=>$locked->id,
+                'publisher_user_id'=>$request->user()->id,
+                'reason'=>$data['reason'],
+            ]);
+        });
+        return back()->with('notice','Rating appeal submitted for moderator review.');
+    }
+
+    public function resolveAppeal(Request $request,PublisherReviewAppeal $appeal)
+    {
+        $this->enabled();
+        abort_unless((bool)$request->user()->is_admin,403);
+        $data=$request->validate([
+            'decision'=>['required',Rule::in(['upheld','dismissed'])],
+            'note'=>'required|string|min:12|max:2000',
+        ]);
+        DB::transaction(function()use($appeal,$data,$request){
+            $locked=PublisherReviewAppeal::with('review')->whereKey($appeal->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->status==='pending',409,'Appeal already resolved.');
+            $locked->forceFill([
+                'status'=>$data['decision'],
+                'resolution_note'=>$data['note'],
+                'resolved_by_user_id'=>$request->user()->id,
+                'resolved_at'=>now(),
+            ])->save();
+        });
+        return back()->with('notice','Appeal decision recorded without rewriting original feedback.');
     }
 
 }
