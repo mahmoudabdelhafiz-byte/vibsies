@@ -116,4 +116,14 @@ class PublisherTrustTest extends TestCase {
         $this->assertDatabaseCount('publisher_referral_review_events',1);
         $this->assertDatabaseHas('publisher_referrals',['id'=>$referral->id,'status'=>'registered']);
     }
+
+    public function test_owner_may_withdraw_pending_evidence(): void {
+        config()->set('vibsies_ads.enabled',true);
+        $owner=User::factory()->create();
+        $property=$this->pendingProperty($owner);
+        $property->forceFill(['ownership_evidence_url'=>'https://www.facebook.com/example','challenge_submitted_at'=>now()])->save();
+        $this->actingAs($owner)->post(route('ads.publisher.evidence.withdraw',$property))->assertRedirect();
+        $this->assertNull($property->fresh()->ownership_evidence_url);
+        $this->assertDatabaseHas('publisher_verification_events',['publisher_property_id'=>$property->id,'action'=>'evidence_withdrawn']);
+    }
 }
