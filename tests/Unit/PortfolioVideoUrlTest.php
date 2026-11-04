@@ -10,7 +10,7 @@ class PortfolioVideoUrlTest extends TestCase {
  }
  public function test_misleading_and_non_video_links_are_rejected():void {
   foreach(['https://youtube.com.evil.test/watch?v=AbCdEf123_-','http://youtu.be/AbCdEf123_-',
-   'https://youtube.com/@creator','https://youtu.be/not-a-video',
+   'https://youtube.com/@creator','https://youtu.be/too-short',
    'https://vimeo.com/channels/staffpicks','https://user:pass@vimeo.com/123456789',
    'https://vimeo.com:8443/123456789','https://youtu.be/AbCdEf123_-#section'] as $url)
    $this->assertFalse(PortfolioVideoUrl::valid($url),$url);
