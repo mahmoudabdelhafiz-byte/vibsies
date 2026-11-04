@@ -2,6 +2,18 @@
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vibsies Ads Admin</title></head><body style="max-width:900px;margin:2rem auto;font:16px system-ui">
 <a href="{{ route('dashboard') }}">Dashboard</a><h1>Vibsies Ads — Review Queue</h1>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
+<h2>Referral risk review</h2>
+<p>Registration attribution is not a paid conversion. Review does not qualify a commission or release payment.</p>
+@foreach($referrals as $referral)
+<article style="border-bottom:1px solid #ddd;padding:1rem 0">
+<strong>{{ $referral->promotion->property->display_name }}</strong> · referral {{ $referral->id }}
+<p>Registered {{ $referral->registered_at?->format('Y-m-d') }} · {{ $referral->review_status }}</p>
+<form method="post" action="{{ route('ads.admin.referral.review',$referral) }}">@csrf
+<label>Review reason<textarea name="note" minlength="12" maxlength="2000" required></textarea></label>
+<button name="decision" value="reviewed">Mark manually reviewed</button>
+<button name="decision" value="flagged">Flag suspicious referral</button>
+</form></article>
+@endforeach
 <h2>Pending advertiser campaigns</h2>
 @foreach($campaigns as $campaign)
 <article style="border-bottom:1px solid #ddd;padding:1rem 0">
