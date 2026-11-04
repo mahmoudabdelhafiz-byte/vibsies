@@ -14,7 +14,11 @@ class AdsTranslationCoverageTest extends TestCase
     {
         $en = require base_path('lang/en/ads.php');
         $ar = require base_path('lang/ar/ads.php');
-        $this->assertSame(array_keys($en), array_keys($ar));
+        $enKeys=array_keys($en);
+        $arKeys=array_keys($ar);
+        sort($enKeys);
+        sort($arKeys);
+        $this->assertSame($enKeys,$arKeys);
         foreach ($en as $key => $english) {
             $this->assertNotSame('', trim($english), $key);
             $this->assertNotSame('', trim($ar[$key]), $key);
