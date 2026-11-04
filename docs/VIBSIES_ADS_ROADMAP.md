@@ -108,6 +108,15 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - Renewals and referrals have separate user-facing and administrator-only endpoints, protected by ownership/role checks. Both Ads and finance flags remain OFF by default.
 - **Verified dual-database CI:** run 41917463296: **155 tests, 437 assertions passed** on both SQLite and PostgreSQL 16; migrations passed.
 
+## Phase 9A: Arabic/English Ads UI and nonfinancial pilot preparation (2026-11-05)
+- Added `lang/en/ads.php` and `lang/ar/ads.php` catalogs and applied translated key controls to advertiser campaign, recommendations, publisher, offers and administrator screens.
+- Added shared responsive Ads styling with mobile-friendly form controls, visible focus outlines, responsive sections and RTL-aware direction.
+- Language switching preserves the same-origin previous page rather than returning to the homepage; cross-domain referrers continue to fall back to the homepage.
+- Added six feature tests checking Arabic RTL page rendering, translated key controls, English LTR fallback, administrator authorization and safe language return.
+- Added `docs/VIBSIES_ADS_PILOT_PLAN.md` for a consent-based, nonfinancial staging pilot focused on city/category relevance rather than follower-count claims.
+- Remaining UI work: translate secondary descriptions and validation notices, complete accessibility/manual screen-reader checks, locale-aware number/date formatting and Arabic proofreading. Do not claim full bilingual parity yet.
+- Do not enable production Ads or finance posting based solely on CI. No pilot participants were contacted and no pilot executed.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
