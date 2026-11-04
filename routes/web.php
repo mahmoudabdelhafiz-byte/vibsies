@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function(){
  Route::post('/ads/publisher/offers/{offer}/decision',[AdCampaignWorkflowController::class,'decide'])->name('ads.publisher.offer.decide');
  Route::post('/ads/publisher/offers/{offer}/publication',[AdCampaignWorkflowController::class,'submitPublication'])->middleware('throttle:5,1')->name('ads.publisher.offer.publish');
  Route::post('/admin/ads/campaigns/{campaign}/review',[AdCampaignWorkflowController::class,'reviewCampaign'])->name('ads.admin.campaign.review');
+ Route::post('/ads/publisher/evidence/{property}/withdraw',[PublisherTrustController::class,'withdrawEvidence'])->name('ads.publisher.evidence.withdraw');
  Route::post('/ads/publisher/challenges/{property}/renew',[PublisherTrustController::class,'renewChallenge'])->name('ads.publisher.challenge.renew');
  Route::post('/admin/ads/referrals/{referral}/review',[PublisherTrustController::class,'reviewReferral'])->name('ads.admin.referral.review');
  Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
