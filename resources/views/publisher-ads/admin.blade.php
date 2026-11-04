@@ -4,6 +4,17 @@
 
 <a href="{{ route('dashboard') }}">{{ __('ads.dashboard') }}</a><h1>{{ __('ads.admin') }}</h1>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
+<h2>{{ __('ads.pending_ratings') }}</h2>
+@forelse($ratingReviews as $rating)
+<article><strong>{{ $rating->property->display_name }}</strong>
+<p>{{ $rating->offer->campaign->title }} · {{ __('ads.rating_overall') }} {{ $rating->overall_rating }}/5</p>
+<p>{{ $rating->comment }}</p>
+<form method="post" action="{{ route('ads.admin.review.moderate',$rating) }}">@csrf
+<label>{{ __('ads.review_reason') }}<textarea name="note" minlength="12" maxlength="2000" required></textarea></label>
+<button name="decision" value="approved">{{ __('ads.approve') }}</button>
+<button name="decision" value="rejected">{{ __('ads.reject') }}</button>
+</form></article>
+@empty<p>{{ __('ads.no_pending_ratings') }}</p>@endforelse
 <h2>{{ __('ads.referral_review') }}</h2>
 <p>{{ __('ads.referral_notice') }}</p>
 @foreach($referrals as $referral)
