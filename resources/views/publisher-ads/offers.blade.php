@@ -45,6 +45,24 @@
 <button type="submit">{{ __('ads.submit_performance') }}</button>
 </form>
 @endif
+@if($offer->campaignReview && $offer->campaignReview->moderation_status==='approved')
+<h3>{{ __('ads.advertiser_feedback') }} — {{ $offer->campaignReview->overall_rating }}/5</h3>
+<p>{{ $offer->campaignReview->comment }}</p>
+@if($offer->campaignReview->publisher_response)
+<p>{{ __('ads.publisher_response') }}: {{ $offer->campaignReview->publisher_response }}</p>
+@else
+<form method="post" action="{{ route('ads.publisher.review.reply',$offer->campaignReview) }}">@csrf
+<label>{{ __('ads.publisher_response') }}<textarea name="response" required minlength="10" maxlength="2000"></textarea></label>
+<button>{{ __('ads.submit_reply') }}</button></form>
+@endif
+@if($offer->campaignReview->appeal)
+<p>{{ __('ads.appeal_status') }}: {{ $offer->campaignReview->appeal->status }}</p>
+@else
+<form method="post" action="{{ route('ads.publisher.review.appeal',$offer->campaignReview) }}">@csrf
+<label>{{ __('ads.appeal_reason') }}<textarea name="reason" required minlength="20" maxlength="2000"></textarea></label>
+<button>{{ __('ads.request_appeal') }}</button></form>
+@endif
+@endif
 @if($offer->performanceReport)<p>{{ __('ads.report_pending_verification') }}</p>@endif
 </section>
 @empty<p>{{ __('ads.no_offers_received') }}</p>@endforelse
