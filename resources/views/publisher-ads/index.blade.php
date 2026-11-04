@@ -35,6 +35,39 @@
 <button type="submit">Submit promotion for review</button></form>
 @endif
 @endif
+@if($property->verification_status === 'verified')
+<h4>Offer advertising placements</h4>
+<form method="post" action="{{ route('ads.publisher.packages.store', $property) }}">@csrf
+<label>Package title<input name="title" maxlength="160" required placeholder="Sponsored New Cairo post"></label>
+<label>Placement type<select name="placement_type"><option value="feed_post">Feed post</option><option value="story">Story</option><option value="reel">Reel</option><option value="video">Video</option><option value="group_post">Group post</option><option value="pinned_post">Pinned group post</option></select></label>
+<label>Price<input name="price" type="number" step="0.01" min="1" required></label>
+<label>Currency<select name="currency"><option value="EGP">EGP</option><option value="SAR">SAR</option></select></label>
+<label>Days to deliver<input name="delivery_days" type="number" min="1" max="90" value="7" required></label>
+<label>Optional display duration (hours)<input name="duration_hours" type="number" min="1" max="720"></label>
+<label>Description<textarea name="description" maxlength="2000"></textarea></label>
+<button type="submit">Submit placement package</button>
+</form>
+@endif
+@foreach($property->adPackages as $package)
+<p>Placement: {{ $package->title }} ({{ $package->placement_type }}) — {{ number_format($package->price_minor / 100, 2) }} {{ $package->currency }} · {{ $package->moderation_status }}</p>
+@endforeach
+<h4>Audience and content performance</h4>
+<p>Provide dated measurements with available public evidence. Self-reported figures are not presented as verified reach.</p>
+<form method="post" action="{{ route('ads.publisher.metrics.store', $property) }}">@csrf
+<label>Measurement date<input name="observed_on" type="date" max="{{ now()->format('Y-m-d') }}" required></label>
+<label>Content category<input name="content_category" maxlength="120" placeholder="Local news"></label>
+<label>Followers<input name="follower_count" type="number" min="0"></label>
+<label>Views<input name="views" type="number" min="0"></label>
+<label>Reach<input name="reach" type="number" min="0"></label>
+<label>Reactions<input name="reactions" type="number" min="0"></label>
+<label>Comments<input name="comments" type="number" min="0"></label>
+<label>Shares<input name="shares" type="number" min="0"></label>
+<label>Public evidence URL<input name="evidence_url" type="url" placeholder="https://www.facebook.com/..."></label>
+<button type="submit">Save self-reported metrics</button>
+</form>
+@foreach($property->metricSnapshots as $snapshot)
+<p>{{ $snapshot->observed_on->format('Y-m-d') }} — {{ $snapshot->content_category ?: 'General' }} · Views: {{ $snapshot->views ?? 'Not reported' }} · {{ $snapshot->verification_status }}</p>
+@endforeach
 @foreach($property->promotions as $promotion)<p>Promotion: {{ $promotion->status }} · Referral code: {{ $promotion->referral_code }}</p>@endforeach
 </section>
 @empty<p>No properties registered yet.</p>@endforelse
