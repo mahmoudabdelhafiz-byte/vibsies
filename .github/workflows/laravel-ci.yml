@@ -26,6 +26,8 @@ jobs:
           extensions: mbstring, pdo_sqlite, pdo_pgsql, bcmath, xml, curl
           coverage: none
           tools: composer:v2
+      - name: Prepare Laravel writable directories
+        run: mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
       - name: Validate Composer manifest
         run: composer validate --no-check-publish
       - name: Install PHP dependencies
