@@ -225,4 +225,9 @@ return  [
     'verified_platform' => 'Independently verified platform data',
     'verify_evidence' => 'Verify supporting evidence',
     'no_pending_reports' => 'No reports awaiting evidence review.',
+    'publisher_reputation' => 'Publisher feedback summary',
+    'unrated' => 'Unrated',
+    'approved_reviews' => 'approved campaign reviews',
+    'independent_advertisers' => 'independent advertisers',
+    'rating_sample_warning' => 'Ratings only use approved completed campaigns in the past 12 months. Three independent advertisers are required to display an average.',
 ];
