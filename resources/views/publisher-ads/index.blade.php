@@ -50,7 +50,7 @@
 <form method="post" action="{{ route('ads.publisher.promotion', $property) }}">@csrf
 <label>{{ __('ads.promo_url') }}<input name="post_url" type="url" required placeholder="https://www.facebook.com/..."></label>
 <label>{{ __('ads.format') }}<select name="post_format"><option value="post">{{ __('ads.feed_post') }}</option><option value="video">{{ __('ads.video') }}</option></select></label>
-<label><input type="checkbox" name="disclosure_confirmed" value="1" required> I clearly disclosed my commercial relationship or incentive as applicable.</label>
+<label><input type="checkbox" name="disclosure_confirmed" value="1" required> {{ __('ads.sponsored_disclosure') }}</label>
 <button type="submit">{{ __('ads.submit_promotion') }}</button></form>
 @endif
 @endif
@@ -62,7 +62,7 @@
 <label>{{ __('ads.price') }}<input name="price" type="number" step="0.01" min="1" required></label>
 <label>{{ __('ads.currency') }}<select name="currency"><option value="EGP">EGP</option><option value="SAR">SAR</option></select></label>
 <label>{{ __('ads.delivery_days') }}<input name="delivery_days" type="number" min="1" max="90" value="7" required></label>
-<label>Optional display duration (hours)<input name="duration_hours" type="number" min="1" max="720"></label>
+<label>{{ __('ads.duration') }}<input name="duration_hours" type="number" min="1" max="720"></label>
 <label>{{ __('ads.description') }}<textarea name="description" maxlength="2000"></textarea></label>
 <button type="submit">{{ __('ads.submit_package') }}</button>
 </form>
@@ -95,7 +95,7 @@
 @endif
 @endforeach
 @if($property->rewardEntitlement)
-<p>{{ __('ads.founding_benefit') }}: {{ $property->rewardEntitlement->publisher_share_percent }}% publisher share on up to {{ $property->rewardEntitlement->placement_limit }} eligible completed paid placements, subject to settlement rules. Valid until {{ $property->rewardEntitlement->expires_at->format('Y-m-d') }}. No rewards are currently payable.</p>
+<p>{{ __('ads.founding_benefit') }}: {{ $property->rewardEntitlement->publisher_share_percent }}% publisher share on up to {{ $property->rewardEntitlement->placement_limit }} eligible completed paid placements, subject to settlement rules. Valid until {{ $property->rewardEntitlement->expires_at->format('Y-m-d') }}. {{ __('ads.footer_zero_reward') }}</p>
 @endif
 </section>
 @empty<p>{{ __('ads.no_properties') }}</p>@endforelse
