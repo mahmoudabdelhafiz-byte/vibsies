@@ -135,6 +135,7 @@ class PublisherAdsController extends Controller
         abort_unless($request->user()->is_admin, 403);
         return view('publisher-ads.admin', [
             'properties' => PublisherProperty::latest()->limit(100)->get(),
+            'ratingReviews' => \App\Models\PublisherCampaignReview::with(['offer.campaign','property'])->where('moderation_status','pending')->latest()->limit(100)->get(),
             'referrals' => \App\Models\PublisherReferral::with(['promotion.property'])->where('review_status','pending')->latest()->limit(100)->get(),
             'campaigns' => \App\Models\AdCampaign::where('status','pending_review')->latest()->limit(100)->get(),
             'disputedOffers' => \App\Models\AdCampaignOffer::with(['campaign','package.property'])->where('status','disputed')->latest()->limit(100)->get(),
