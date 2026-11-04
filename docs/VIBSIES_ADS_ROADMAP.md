@@ -149,6 +149,22 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 
 **Sequence:** implement SEO technical fundamentals alongside release stabilization; implement publisher review storage/workflow next; defer public ranking influence and review markup until enough authenticated post-campaign data exists. Preserve disabled Ads/finance flags and draft PR isolation.
 
+## Phase 10A initial implementation — advertiser feedback and performance evidence (2026-11-05)
+- Added `publisher_campaign_reviews` and `publisher_campaign_performance_reports` schema, with one review/report per campaign offer, publisher linkage, advertiser identity and moderation/provenance fields.
+- Only the campaign-owning advertiser can submit ratings after a `confirmed` or `resolved_confirmed` placement; duplicate reviews and publisher self-reviews are denied.
+- Publisher can submit one dated performance report after posting; reach/views/clicks/interactions remain `self_reported` and `unverified` until independent review, not public claims.
+- Administrators may approve/reject advertiser feedback only once, with a reason. Moderation does not issue compensation.
+- Initial reputation service shows **Unrated** until at least three approved completed offer reviews from three independent advertisers in the past twelve months. No public 5-star default, score-derived matchmaking or publisher public AggregateRating schema.
+- Added Arabic/English advertiser rating and publisher metrics forms plus admin review queue, with feature tests for eligibility, duplicate review and unverified reports.
+- Still needed: evidence authentication, performance review/admin provenance workflow, public scorecard thresholds, appeal process, scoring weight validation and fraud controls.
+
+## Phase 10B initial implementation — technical SEO foundation (2026-11-05)
+- Added public `/sitemap.xml` generated from homepage and approved active creator profiles only, and `/robots.txt` with sitemap discovery and exclusions for private/Ads/referral paths.
+- Shared public layout now has title, description, canonical, Open Graph tags and filtered-search noindex. Marketplace and eligible creator portfolio pages have distinct meta descriptions.
+- Added tests for sitemap inclusion/exclusion, robots, canonical and filtered listing index rules.
+- Still needed: verify production host/HTTPS canonical rules, sitemap size limits/caching, SEO locale URL/hreflang design, richer public pages, structured data when eligible, Search Console and production crawl audits.
+- Neither workstream has been deployed; Ads and financial posting remain disabled by default.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
