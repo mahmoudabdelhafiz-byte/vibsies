@@ -13,7 +13,7 @@
 <p>{{ $offer->package->property->display_name }} · {{ $offer->package->title }}</p>
 <p>{{ __('ads.ad_brief') }}: {{ $offer->campaign->brief }}</p>
 <p>{{ __('ads.offered_price') }}: {{ number_format($offer->agreed_price_minor / 100,2) }} {{ $offer->currency }} · {{ __('ads.status') }}: {{ $offer->status }}</p>
-@if($offer->expires_at && $offer->status === 'offered')<p>Offer valid until {{ $offer->expires_at->format('Y-m-d H:i') }} UTC (expired offers cannot be accepted).</p>@endif
+@if($offer->expires_at && $offer->status === 'offered')<p>{{ __('ads.offer_valid_until') }} {{ $offer->expires_at->format('Y-m-d H:i') }} UTC {{ __('ads.offer_expiry_warning') }}</p>@endif
 @if($offer->status === 'offered' || $offer->status === 'accepted')
 <form method="post" action="{{ route('ads.offer.cancel',$offer) }}">@csrf
 <label>{{ __('ads.cancellation_reason') }}<textarea required minlength="8" maxlength="1000" name="reason"></textarea></label>
@@ -27,7 +27,7 @@
 <form method="post" action="{{ route('ads.publisher.offer.publish',$offer) }}">@csrf
 <label>{{ __('ads.sponsored_post_url') }}<input type="url" name="published_url" required placeholder="https://www.facebook.com/..."></label>
 <label>{{ __('ads.publication_notes') }}<textarea name="publisher_note" maxlength="2000"></textarea></label>
-<label><input type="checkbox" name="disclosure_confirmed" value="1" required> I disclosed the sponsored relationship as required by the platform and applicable law.</label>
+<label><input type="checkbox" name="disclosure_confirmed" value="1" required> {{ __('ads.publication_disclosure') }}</label>
 <button type="submit">{{ __('ads.submit_publication') }}</button></form>
 @elseif($offer->published_url)
 <a href="{{ $offer->published_url }}" rel="noopener noreferrer" target="_blank">{{ __('ads.published_content') }}</a>
