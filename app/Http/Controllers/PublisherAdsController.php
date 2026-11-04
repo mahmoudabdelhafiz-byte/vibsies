@@ -55,8 +55,37 @@ class PublisherAdsController extends Controller
         $property = PublisherProperty::create($data + [
             'user_id' => $request->user()->id,
             'verification_token' => Str::upper(Str::random(16)),
+            'verification_expires_at' => now()->addDays(7),
         ]);
         return redirect()->route('ads.publisher.index')->with('notice', 'Property submitted for manual verification. No public post is required.');
+    }
+
+    public function submitOwnershipEvidence(Request $request, PublisherProperty $property)
+    {
+        $this->ensureEnabled();
+        abort_unless($property->user_id === $request->user()->id,403);
+        $data=$request->validate([
+            'ownership_evidence_url'=>'required|url|max:2048',
+            'ownership_evidence_note'=>'required|string|min:12|max:2000',
+        ]);
+        $this->ensurePlatformUrl($data['ownership_evidence_url'],$property->platform);
+        \Illuminate\Support\Facades\DB::transaction(function() use($property,$data,$request) {
+            $locked=PublisherProperty::whereKey($property->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->verification_status==='pending',409,'Property is no longer pending review.');
+            abort_unless($locked->verification_expires_at && $locked->verification_expires_at->isFuture(),409,'Ownership challenge expired. Contact support for a fresh challenge.');
+            $locked->forceFill([
+                'ownership_evidence_url'=>$data['ownership_evidence_url'],
+                'ownership_evidence_note'=>$data['ownership_evidence_note'],
+                'challenge_submitted_at'=>now(),
+            ])->save();
+            \App\Models\PublisherVerificationEvent::create([
+                'publisher_property_id'=>$locked->id,
+                'actor_id'=>$request->user()->id,
+                'action'=>'evidence_submitted',
+                'note'=>'Owner submitted platform link for manual code verification',
+            ]);
+        });
+        return redirect()->route('ads.publisher.index')->with('notice','Evidence submitted. An administrator must independently check the code at the social URL.');
     }
 
     public function promotion(Request $request, PublisherProperty $property)
@@ -115,16 +144,25 @@ class PublisherAdsController extends Controller
         ]);
         abort_unless($property->verification_status === 'pending',409,'Only pending properties can be reviewed.');
         if($data['decision'] === 'verified') {
-            abort_if(empty($property->ownership_evidence_url) && empty($property->ownership_evidence_note), 409, 'Ownership evidence is required before approval.');
+            abort_unless($request->boolean('challenge_checked'),422,'Administrator must attest that the challenge code was seen on the social property.');
         }
-        \Illuminate\Support\Facades\DB::transaction(function() use ($property,$data) {
+        \Illuminate\Support\Facades\DB::transaction(function() use ($property,$data,$request) {
             $locked=PublisherProperty::whereKey($property->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->verification_status === 'pending',409,'Property already reviewed.');
+            if($data['decision']==='verified') {
+                abort_unless($locked->verification_expires_at && $locked->verification_expires_at->isFuture(),409,'Ownership challenge expired.');
+                abort_unless($locked->challenge_submitted_at && $locked->ownership_evidence_url,409,'Owner must submit evidence linking the challenge to the social property.');
+            }
             $locked->forceFill([
             'verification_status' => $data['decision'],
             'verification_note' => $data['note'] ?? null,
             'verified_at' => $data['decision'] === 'verified' ? now() : null,
+            'verified_by_user_id' => $request->user()->id,
             ])->save();
+            \App\Models\PublisherVerificationEvent::create([
+                'publisher_property_id'=>$locked->id,'actor_id'=>$request->user()->id,
+                'action'=>'reviewed','decision'=>$data['decision'],'note'=>$data['note'],
+            ]);
             if($data['decision']==='verified' && !$locked->promotions()->exists()) {
                 $locked->promotions()->create([
                 'referral_code'=>Str::upper(Str::random(12)),
