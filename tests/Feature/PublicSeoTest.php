@@ -70,4 +70,18 @@ class PublicSeoTest extends TestCase
         $this->get(route('seo.sitemap'))->assertSee('advertise-with-publishers',false);
     }
 
+    public function test_public_home_has_truthful_website_structured_data():void {
+        $this->get(route('home'))->assertOk()
+            ->assertSee('application/ld+json',false)
+            ->assertSee('https://schema.org',false)
+            ->assertDontSee('AggregateRating',false);
+    }
+
+    public function test_private_dashboard_does_not_publish_rating_structured_data():void {
+        config()->set('vibsies_ads.enabled',true);
+        $this->actingAs(\App\Models\User::factory()->create())
+            ->get(route('ads.publisher.index'))->assertOk()
+            ->assertDontSee('AggregateRating',false);
+    }
+
 }
