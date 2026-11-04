@@ -75,6 +75,13 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - PostgreSQL migration/integration, concurrent payment/settlement cases, external payment provider flows, security review, bilingual UX, and production cutover are still unverified. No merge or deployment has occurred.
 - The Ads and finance posting flags remain disabled by default.
 
+## Phase 8A: PostgreSQL and verification security (2026-11-05)
+- Added PostgreSQL 16 service-based CI and consolidated it with the SQLite Laravel workflow.
+- **Verified green CI:** GitHub Actions run 41914827737: **139 tests and 378 assertions PASS** against SQLite, and **139 tests and 378 assertions PASS** against PostgreSQL 16. Fresh migrations PASS on both engines.
+- Publisher property administrator approval now requires a documented review explanation (minimum 12 characters), and repeated verification of an already reviewed property is rejected. A dedicated security regression test was added.
+- No credentials, real data or production databases were used. PostgreSQL-specific schema compatibility is verified by CI, but production migration/rollback, permissions, workload and concurrency still require environment-specific review.
+- Provider signatures, refunds, financial provider reconciliation, privacy/abuse review, bilingual UX, and final readiness signoff remain open. Both feature flags remain OFF.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
