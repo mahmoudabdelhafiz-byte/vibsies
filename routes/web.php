@@ -4,6 +4,7 @@ use App\Http\Controllers\PublisherAdsController;
 use App\Http\Controllers\PublisherInventoryController;
 use App\Http\Controllers\AdvertiserAdsController;
 use App\Http\Controllers\AdCampaignWorkflowController;
+use App\Http\Controllers\AdOfferLifecycleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
@@ -42,6 +43,9 @@ Route::middleware('auth')->group(function(){
  Route::post('/ads/advertiser/campaigns/{campaign}/submit',[AdCampaignWorkflowController::class,'submitCampaign'])->name('ads.campaign.submit');
  Route::post('/ads/advertiser/campaigns/{campaign}/offers',[AdCampaignWorkflowController::class,'offer'])->middleware('throttle:10,1')->name('ads.campaign.offer');
  Route::post('/ads/advertiser/offers/{offer}/review',[AdCampaignWorkflowController::class,'reviewPublication'])->name('ads.offer.review');
+ Route::post('/ads/offers/{offer}/cancel',[AdOfferLifecycleController::class,'cancel'])->name('ads.offer.cancel');
+ Route::post('/admin/ads/offers/{offer}/expire',[AdOfferLifecycleController::class,'expire'])->name('ads.admin.offer.expire');
+ Route::post('/admin/ads/offers/{offer}/resolve',[AdOfferLifecycleController::class,'resolve'])->name('ads.admin.offer.resolve');
  Route::get('/ads/publisher/offers',[AdCampaignWorkflowController::class,'publisherOffers'])->name('ads.publisher.offers');
  Route::post('/ads/publisher/offers/{offer}/decision',[AdCampaignWorkflowController::class,'decide'])->name('ads.publisher.offer.decide');
  Route::post('/ads/publisher/offers/{offer}/publication',[AdCampaignWorkflowController::class,'submitPublication'])->middleware('throttle:5,1')->name('ads.publisher.offer.publish');
