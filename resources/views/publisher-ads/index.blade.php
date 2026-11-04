@@ -31,6 +31,7 @@
 @endif
 @if($property->verification_status === 'pending' && $property->verification_expires_at && $property->verification_expires_at->isFuture())
 <h4>Verify ownership (not a Vibsies promotion)</h4>
+@if($property->challenge_submitted_at)<form method="post" action="{{ route('ads.publisher.evidence.withdraw',$property) }}">@csrf<button type="submit">Withdraw submitted evidence</button></form>@endif
 <p>Temporarily place the following code in a public bio or post on this account, then share the direct public URL for manual review. Remove the code after verification. Never share a password or private access token.</p>
 <p><strong>{{ $property->verification_token }}</strong></p>
 <p>Expires {{ $property->verification_expires_at->format('Y-m-d H:i') }} UTC.</p>
