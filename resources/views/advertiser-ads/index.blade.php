@@ -11,7 +11,7 @@
 <label>{{ __('ads.campaign_title') }}<input name="title" required maxlength="160" value="{{ old('title') }}"></label>
 <label>{{ __('ads.campaign_brief') }}<textarea name="brief" required minlength="15" maxlength="5000">{{ old('brief') }}</textarea></label>
 <label>{{ __('ads.objective') }}<select name="objective"><option value="awareness">{{ __('ads.awareness') }}</option><option value="website_visits">{{ __('ads.website_visits') }}</option><option value="leads">{{ __('ads.leads') }}</option></select></label>
-<label>Desired content category<input name="target_category" maxlength="120" required placeholder="Local community" value="{{ old('target_category') }}"></label>
+<label>{{ __('ads.category') }}<input name="target_category" maxlength="120" required placeholder="Local community" value="{{ old('target_category') }}"></label>
 <label>{{ __('ads.country') }}<select name="target_country"><option value="EG">{{ __('ads.egypt') }}</option><option value="SA">{{ __('ads.saudi') }}</option></select></label>
 <label>{{ __('ads.city') }}<input name="target_city" maxlength="120" placeholder="New Cairo" value="{{ old('target_city') }}"></label>
 <label>{{ __('ads.placement') }}<select name="placement_type"><option value="">{{ __('ads.any_placement') }}</option><option value="feed_post">{{ __('ads.feed_post') }}</option><option value="story">{{ __('ads.story') }}</option><option value="reel">{{ __('ads.reel') }}</option><option value="video">{{ __('ads.video') }}</option><option value="group_post">{{ __('ads.group_post') }}</option><option value="pinned_post">{{ __('ads.pinned_group_post') }}</option></select></label>
