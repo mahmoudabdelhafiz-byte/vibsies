@@ -11,8 +11,8 @@
 <section>
 <h2>{{ $offer->campaign->title }}</h2>
 <p>{{ $offer->package->property->display_name }} · {{ $offer->package->title }}</p>
-<p>Advertiser brief: {{ $offer->campaign->brief }}</p>
-<p>Offered package price: {{ number_format($offer->agreed_price_minor / 100,2) }} {{ $offer->currency }} · Status: {{ $offer->status }}</p>
+<p>{{ __('ads.ad_brief') }}: {{ $offer->campaign->brief }}</p>
+<p>{{ __('ads.offered_price') }}: {{ number_format($offer->agreed_price_minor / 100,2) }} {{ $offer->currency }} · {{ __('ads.status') }}: {{ $offer->status }}</p>
 @if($offer->expires_at && $offer->status === 'offered')<p>Offer valid until {{ $offer->expires_at->format('Y-m-d H:i') }} UTC (expired offers cannot be accepted).</p>@endif
 @if($offer->status === 'offered' || $offer->status === 'accepted')
 <form method="post" action="{{ route('ads.offer.cancel',$offer) }}">@csrf
@@ -25,14 +25,14 @@
 <button name="decision" value="declined">{{ __('ads.decline_offer') }}</button></form>
 @elseif($offer->status === 'accepted')
 <form method="post" action="{{ route('ads.publisher.offer.publish',$offer) }}">@csrf
-<label>Public sponsored post URL<input type="url" name="published_url" required placeholder="https://www.facebook.com/..."></label>
+<label>{{ __('ads.sponsored_post_url') }}<input type="url" name="published_url" required placeholder="https://www.facebook.com/..."></label>
 <label>{{ __('ads.publication_notes') }}<textarea name="publisher_note" maxlength="2000"></textarea></label>
 <label><input type="checkbox" name="disclosure_confirmed" value="1" required> I disclosed the sponsored relationship as required by the platform and applicable law.</label>
 <button type="submit">{{ __('ads.submit_publication') }}</button></form>
 @elseif($offer->published_url)
 <a href="{{ $offer->published_url }}" rel="noopener noreferrer" target="_blank">{{ __('ads.published_content') }}</a>
 @endif
-@if($offer->review_note)<p>Review note: {{ $offer->review_note }}</p>@endif
+@if($offer->review_note)<p>{{ __('ads.review_note_short') }}: {{ $offer->review_note }}</p>@endif
 </section>
 @empty<p>{{ __('ads.no_offers_received') }}</p>@endforelse
 {{ $offers->links() }}
