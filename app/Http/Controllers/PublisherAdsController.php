@@ -87,6 +87,8 @@ class PublisherAdsController extends Controller
         return view('publisher-ads.admin', [
             'properties' => PublisherProperty::latest()->limit(100)->get(),
             'campaigns' => \App\Models\AdCampaign::where('status','pending_review')->latest()->limit(100)->get(),
+            'disputedOffers' => \App\Models\AdCampaignOffer::with(['campaign','package.property'])->where('status','disputed')->latest()->limit(100)->get(),
+            'expiredCandidates' => \App\Models\AdCampaignOffer::with(['campaign','package.property'])->where('status','offered')->where('expires_at','<=',now())->latest()->limit(100)->get(),
             'promotions' => PublisherPromotion::with('property')->latest()->limit(100)->get(),
             'packages' => \App\Models\PublisherAdPackage::with('property')->latest()->limit(100)->get(),
             'metrics' => \App\Models\PublisherMetricSnapshot::with('property')->latest()->limit(100)->get(),
