@@ -9,7 +9,8 @@ class BookingQuoteTest extends TestCase {
   $this->assertSame(['price_minor'=>10000,'fee_minor'=>1500,'total_minor'=>11500,'currency'=>'EGP','payment_status'=>'disabled'],$q);
  }
  public function test_fee_rounds_half_up_in_minor_units():void {
-  $this->assertSame(1,(new BookingQuote())->calculate(3,'SAR')['fee_minor']);
+  $this->assertSame(0,(new BookingQuote())->calculate(3,'SAR')['fee_minor']);
+  $this->assertSame(1,(new BookingQuote())->calculate(4,'SAR')['fee_minor']);
  }
  public function test_rejects_unsupported_amounts():void {
   $this->expectException(InvalidArgumentException::class);
