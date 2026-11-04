@@ -52,7 +52,7 @@ class LedgerPosting {
                 'status'=>'held',
             ]);
             foreach([
-                ['receivable','debit',$amount['gross_minor']],
+                ['settlement_clearing','debit',$amount['gross_minor']],
                 ['publisher_payable','credit',$amount['publisher_minor']],
                 ['platform_revenue','credit',$amount['platform_minor']],
             ] as [$account,$direction,$minor]) {
