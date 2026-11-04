@@ -106,14 +106,21 @@ class PublisherAdsTest extends TestCase
             'country_code' => 'EG',
             'verification_token' => 'DOCUMENTEDREVIEW1',
             'ownership_evidence_note' => 'Proof of account ownership reviewed manually.',
+            'verification_expires_at' => now()->addDays(7),
         ]);
 
         $this->actingAs($admin)->post(route('ads.admin.verify', $property), [
             'decision' => 'verified',
         ])->assertSessionHasErrors('note');
 
+        $this->actingAs($owner)->post(route('ads.publisher.evidence',$property), [
+            'ownership_evidence_url'=>'https://www.facebook.com/example/posts/789',
+            'ownership_evidence_note'=>'The current ownership challenge code is on my public post.',
+        ])->assertRedirect();
+
         $this->actingAs($admin)->post(route('ads.admin.verify', $property), [
             'decision' => 'verified',
+            'challenge_checked' => '1',
             'note' => 'Checked evidence supplied by the owner.',
         ])->assertRedirect();
 
