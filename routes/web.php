@@ -2,6 +2,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublisherAdsController;
 use App\Http\Controllers\PublisherInventoryController;
+use App\Http\Controllers\AdvertiserAdsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
@@ -34,6 +35,9 @@ Route::middleware('auth')->group(function(){
  Route::post('/admin/verifications/{verification}/review',[VerificationController::class,'review'])->name('admin.verifications.review');
  Route::post('/logout',[AuthController::class,'logout'])->name('logout');
  Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
+ Route::get('/ads/advertiser',[AdvertiserAdsController::class,'index'])->name('ads.advertiser.index');
+ Route::post('/ads/advertiser/campaigns',[AdvertiserAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.advertiser.store');
+ Route::get('/ads/advertiser/campaigns/{campaign}',[AdvertiserAdsController::class,'show'])->name('ads.advertiser.show');
  Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
  Route::post('/ads/publisher/properties',[PublisherAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.publisher.store');
  Route::post('/ads/publisher/properties/{property}/promotions',[PublisherAdsController::class,'promotion'])->middleware('throttle:5,1')->name('ads.publisher.promotion');
