@@ -17,7 +17,7 @@ class PublisherProperty extends Model
 
     protected function casts(): array
     {
-        return ['reported_followers' => 'integer', 'verified_at' => 'datetime', 'verification_expires_at' => 'datetime', 'challenge_submitted_at' => 'datetime'];
+        return ['reported_followers' => 'integer', 'verified_at' => 'datetime', 'verification_expires_at' => 'datetime', 'challenge_submitted_at' => 'datetime', 'challenge_last_renewed_at' => 'datetime', 'challenge_renewal_count' => 'integer'];
     }
 
     public function user()
