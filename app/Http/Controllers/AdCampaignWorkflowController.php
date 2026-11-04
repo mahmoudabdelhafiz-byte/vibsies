@@ -56,13 +56,14 @@ class AdCampaignWorkflowController extends Controller
             abort_unless(!$locked->placement_type || $package->placement_type === $locked->placement_type,409,'Placement format mismatch.');
             abort_unless($property->user_id !== $locked->user_id,409,'You cannot offer a campaign to yourself in this pilot.');
             abort_unless(!$locked->offers()->where('publisher_ad_package_id',$package->id)->exists(),409,'An offer for this package already exists.');
-            $spent=(int)$locked->offers()->whereNotIn('status',['declined','cancelled'])->sum('agreed_price_minor');
+            $spent=(int)$locked->offers()->whereNotIn('status',['declined','cancelled','expired'])->sum('agreed_price_minor');
             abort_unless($spent + $package->price_minor <= $locked->budget_minor,409,'Offers exceed campaign budget.');
             $locked->offers()->create([
                 'publisher_ad_package_id'=>$package->id,
                 'publisher_user_id'=>$property->user_id,
                 'agreed_price_minor'=>$package->price_minor,
                 'currency'=>$package->currency,
+                'expires_at'=>now()->addDays(7),
             ]);
         });
         return back()->with('notice','Offer sent for publisher consideration. No payment has been collected or reserved.');
@@ -82,6 +83,7 @@ class AdCampaignWorkflowController extends Controller
         DB::transaction(function() use($offer,$data) {
             $locked=AdCampaignOffer::whereKey($offer->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->status === 'offered',409,'This offer is no longer pending.');
+            abort_if($locked->expires_at && $locked->expires_at->isPast(),409,'Offer has expired.');
             $locked->forceFill([
                 'status'=>$data['decision'],
                 'accepted_at'=>$data['decision']==='accepted'?now():null,
