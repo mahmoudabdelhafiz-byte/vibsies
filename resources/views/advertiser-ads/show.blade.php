@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-',app()->getLocale()) }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vibsies Ads — Recommendations</title><style>body{max-width:900px;margin:2rem auto;padding:0 1rem;font:16px system-ui;color:#17324a}article{border:1px solid #ddd;border-radius:12px;padding:1rem;margin:1rem 0}</style></head><body>
-<a href="{{ route('ads.advertiser.index') }}">All campaigns</a>
+<html lang="{{ str_replace('_','-',app()- dir="{{ app()->getLocale()==='ar' ? 'rtl' : 'ltr' }}">getLocale()) }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vibsies Ads — Recommendations</title><link rel="stylesheet" href="{{ asset('css/ads-mobile.css') }}"></head><body>
+@include('ads.partials.locale')
+
+<a href="{{ route('ads.advertiser.index') }}">{{ __('ads.all_campaigns') }}</a>
 <h1>{{ $campaign->title }}</h1><p>{{ $campaign->brief }}</p><p>Budget: {{ number_format($campaign->budget_minor / 100,2) }} {{ $campaign->currency }} · {{ $campaign->target_country }} · {{ $campaign->target_city ?: 'Any city' }} · {{ $campaign->target_category }}</p>
 <p><strong>Status:</strong> {{ $campaign->status }} — no bookings, payments or guaranteed impressions are available at this stage.</p>
 @if(session('notice'))<p role="status">{{ session('notice') }}</p>@endif
@@ -9,29 +11,29 @@
 <form action="{{ route('ads.campaign.submit',$campaign) }}" method="post">@csrf
 <button type="submit">Submit campaign for admin review</button></form>
 @elseif($campaign->status === 'pending_review')
-<p>Waiting for campaign approval.</p>
+<p>{{ __('ads.waiting_review') }}</p>
 @endif
-<h2>Sent offers</h2>
+<h2>{{ __('ads.sent_offers') }}</h2>
 @forelse($campaign->offers as $offer)
 <article><strong>{{ $offer->package->property->display_name }}</strong> · {{ $offer->status }}
 · {{ number_format($offer->agreed_price_minor/100,2) }} {{ $offer->currency }}
 @if($offer->status === 'offered')
 <form method="post" action="{{ route('ads.offer.cancel',$offer) }}">@csrf
-<label>Withdrawal reason<textarea name="reason" minlength="8" maxlength="1000" required></textarea></label>
-<button type="submit">Withdraw preliminary offer</button></form>
+<label>{{ __('ads.withdrawal_reason') }}<textarea name="reason" minlength="8" maxlength="1000" required></textarea></label>
+<button type="submit">{{ __('ads.withdraw_offer') }}</button></form>
 @endif
 @if($offer->published_url)
-<p><a href="{{ $offer->published_url }}" target="_blank" rel="noopener noreferrer">Review publication</a></p>
+<p><a href="{{ $offer->published_url }}" target="_blank" rel="noopener noreferrer">{{ __('ads.review_publication') }}</a></p>
 @endif
 @if($offer->status === 'submitted')
 <form method="post" action="{{ route('ads.offer.review',$offer) }}">@csrf
-<label>Review notes<textarea name="review_note" maxlength="2000"></textarea></label>
-<button name="decision" value="confirmed">Confirm publication evidence</button>
-<button name="decision" value="disputed">Dispute publication</button></form>
+<label>{{ __('ads.review_notes') }}<textarea name="review_note" maxlength="2000"></textarea></label>
+<button name="decision" value="confirmed">{{ __('ads.confirm_evidence') }}</button>
+<button name="decision" value="disputed">{{ __('ads.dispute') }}</button></form>
 @endif
 </article>
-@empty<p>No offers sent yet.</p>@endforelse
-<h2>Publisher recommendations</h2>
+@empty<p>{{ __('ads.no_offers_sent') }}</p>@endforelse
+<h2>{{ __('ads.recommendations') }}</h2>
 <p>Rankings consider category, exact city, verified recent evidence and price. They do not predict actual reach, clicks or sales. Missing evidence reduces confidence.</p>
 @forelse($recommendations as $result)
 <article><h3>{{ $result['package']->property->display_name }}</h3>
@@ -43,7 +45,7 @@
 @if($campaign->status === 'approved')
 <form action="{{ route('ads.campaign.offer',$campaign) }}" method="post">@csrf
 <input type="hidden" name="package_id" value="{{ $result['package']->id }}">
-<button type="submit">Send preliminary offer</button></form>
+<button type="submit">{{ __('ads.send_offer') }}</button></form>
 @endif
 </article>
 @empty<p>No verified and approved publisher packages currently match the country, price and placement requirements. Try a different budget or target.</p>@endforelse
