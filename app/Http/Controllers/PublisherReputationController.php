@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdCampaignOffer;
+use App\Models\PublisherProperty;
 use App\Models\PublisherCampaignReview;
 use App\Models\PublisherReviewAppeal;
 use App\Models\PublisherCampaignPerformanceReport;
@@ -170,6 +171,15 @@ class PublisherReputationController extends Controller
             ])->save();
         });
         return back()->with('notice','Appeal decision recorded without rewriting original feedback.');
+    }
+
+    public function publicScorecard(PublisherProperty $property,\App\Services\Ads\PublisherReputation $reputation)
+    {
+        abort_unless(config('vibsies_ads.enabled') && config('vibsies_ads.public_ratings_enabled'),404);
+        abort_unless($property->verification_status==='verified',404);
+        $summary=$reputation->summary($property);
+        abort_unless($summary['status']==='rated',404);
+        return view('marketplace.publisher-rating',['property'=>$property,'summary'=>$summary]);
     }
 
 }
