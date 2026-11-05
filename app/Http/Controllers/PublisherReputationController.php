@@ -82,6 +82,7 @@ class PublisherReputationController extends Controller
         DB::transaction(function()use($review,$request,$data){
             $locked=PublisherCampaignReview::whereKey($review->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->moderation_status==='pending',409,'Review already moderated.');
+            abort_unless($request->user()->id !== $locked->advertiser_user_id && $request->user()->id !== $locked->property->user_id,403,'Conflict of interest.');
             abort_unless(in_array($locked->offer->status,['confirmed','resolved_confirmed'],true),409);
             $locked->forceFill([
                 'moderation_status'=>$data['decision'],'moderation_note'=>$data['note'],
@@ -163,6 +164,7 @@ class PublisherReputationController extends Controller
         DB::transaction(function()use($appeal,$data,$request){
             $locked=PublisherReviewAppeal::with('review')->whereKey($appeal->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->status==='pending',409,'Appeal already resolved.');
+            abort_unless($request->user()->id !== $locked->publisher_user_id && $request->user()->id !== $locked->review->advertiser_user_id,403,'Conflict of interest.');
             $locked->forceFill([
                 'status'=>$data['decision'],
                 'resolution_note'=>$data['note'],
