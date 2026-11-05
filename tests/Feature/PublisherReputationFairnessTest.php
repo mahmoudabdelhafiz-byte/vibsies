@@ -28,5 +28,9 @@ class PublisherReputationFairnessTest extends TestCase {
   $this->assertSame(6,$summary['review_count']);
   $this->assertSame(3,$summary['independent_advertisers']);
   $this->assertEquals(3.0,$summary['average_overall']);
+  $property->forceFill(['verification_status'=>'verified'])->save();
+  config()->set('vibsies_ads.enabled',true);
+  config()->set('vibsies_ads.public_ratings_enabled',true);
+  $this->get(route('seo.publisher.rating',$property))->assertOk();
  }
 }
