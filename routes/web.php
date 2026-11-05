@@ -36,6 +36,7 @@ Route::get('/advertise-with-publishers/{country}',function(string $country) {
  return view('marketplace.publisher-region',['country'=>$country]);
 })->name('seo.publishers.region');
 Route::get('/r/{code}',[PublisherReferralController::class,'visit'])->middleware('throttle:30,1')->name('ads.referral.visit');
+Route::get('/publisher-reputation/{property}',[PublisherReputationController::class,'publicScorecard'])->name('seo.publisher.rating');
 Route::get('/creators/{slug}',[CreatorPortfolioController::class,'show'])->name('creators.show');
 Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
 Route::middleware('guest')->group(function(){
