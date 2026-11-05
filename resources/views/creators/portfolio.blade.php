@@ -1,5 +1,6 @@
 @extends('layouts.public')
 @section('title', $creator->display_name.' — Vibsies')
+@section('seo_description', \Illuminate\Support\Str::limit(strip_tags($creator->bio ?: ($creator->display_name.' — '.$creator->category.' creator on Vibsies')),155))
 @section('content')
 <article class="card">
  <h1>{{ $creator->display_name }}</h1>

@@ -12,7 +12,7 @@ class CompareSandboxSettlement extends Command {
  protected $description='Read-only comparison of sandbox settlement rows against payment intent references';
  private static function validDate(mixed $date):bool {
   if(!is_string($date) || !preg_match('/^\\d{4}-\\d{2}-\\d{2}$/',$date))return false;
-  $parsed=\\DateTimeImmutable::createFromFormat('!Y-m-d',$date,new \\DateTimeZone('UTC'));
+  $parsed=\DateTimeImmutable::createFromFormat('!Y-m-d',$date,new \DateTimeZone('UTC'));
   return $parsed!==false && $parsed->format('Y-m-d')===$date;
  }
  public function handle():int {

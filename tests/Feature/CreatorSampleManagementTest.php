@@ -10,12 +10,12 @@ class CreatorSampleManagementTest extends TestCase {
  private function sample(User $owner):CreatorPortfolioSample {
   $creator=CreatorProfile::create(['user_id'=>$owner->id,'display_name'=>'Sample Owner','slug'=>'sample-owner','category'=>'UGC','country_code'=>'EG','status'=>'approved']);
   return CreatorPortfolioSample::create(['creator_profile_id'=>$creator->id,'title'=>'Original sample',
-   'video_url'=>'https://youtu.be/abc123','moderation_status'=>'approved']);
+   'video_url'=>'https://youtu.be/abc123def45','moderation_status'=>'approved']);
  }
  public function test_edit_forces_approved_sample_back_to_review():void {
   $owner=User::factory()->create();$sample=$this->sample($owner);
   $this->actingAs($owner)->put(route('creator.samples.update',$sample),[
-   'title'=>'Updated sample','video_url'=>'https://www.youtube.com/watch?v=xyz123'
+   'title'=>'Updated sample','video_url'=>'https://www.youtube.com/watch?v=xyz123abc45'
   ])->assertRedirect();
   $this->assertDatabaseHas('creator_portfolio_samples',['id'=>$sample->id,'moderation_status'=>'pending','title'=>'Updated sample']);
  }

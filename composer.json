@@ -9,7 +9,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^11.5",
-    "laravel/pint": "^1.24"
+    "laravel/pint": "^1.24",
+    "mockery/mockery": "^1.6",
+    "fakerphp/faker": "^1.24"
   },
   "autoload": {
     "psr-4": {
@@ -29,5 +31,10 @@
     "sort-packages": true
   },
   "minimum_stability": "stable",
-  "prefer_stable": true
+  "prefer_stable": true,
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  }
 }

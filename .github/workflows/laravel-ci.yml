@@ -1,0 +1,102 @@
+name: Laravel CI
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/**
+  pull_request:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, pdo_pgsql, bcmath, xml, curl
+          coverage: none
+          tools: composer:v2
+      - name: Prepare Laravel writable directories
+        run: mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
+      - name: Validate Composer manifest
+        run: composer validate --no-check-publish
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: PHP syntax check
+        run: |
+          find app database routes tests config bootstrap -type f -name '*.php' -print0 | xargs -0 -n 1 php -l
+      - name: Run migrations against isolated SQLite database
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          VIBSIES_ADS_ENABLED: 'false'
+          VIBSIES_ADS_FINANCE_POSTING_ENABLED: 'false'
+        run: php artisan migrate --force
+      - name: Run Laravel tests
+        env:
+          APP_ENV: testing
+          VIBSIES_ADS_ENABLED: 'false'
+          VIBSIES_ADS_FINANCE_POSTING_ENABLED: 'false'
+        run: ./vendor/bin/phpunit
+  postgres-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: vibsies_test
+          POSTGRES_PASSWORD: integration_only
+          POSTGRES_DB: vibsies_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vibsies_test -d vibsies_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
+      DB_DATABASE: vibsies_test
+      DB_USERNAME: vibsies_test
+      DB_PASSWORD: integration_only
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      VIBSIES_ADS_ENABLED: 'false'
+      VIBSIES_ADS_FINANCE_POSTING_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_pgsql, pdo_sqlite, bcmath, xml, curl
+          coverage: none
+          tools: composer:v2
+      - name: Prepare Laravel paths
+        run: mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: PostgreSQL schema migrations
+        run: php artisan migrate --force
+      - name: PostgreSQL full regression suite
+        run: ./vendor/bin/phpunit

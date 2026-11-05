@@ -1,5 +1,14 @@
 <?php
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PublisherAdsController;
+use App\Http\Controllers\PublisherReferralController;
+use App\Http\Controllers\PublisherTrustController;
+use App\Http\Controllers\PublisherReputationController;
+use App\Http\Controllers\PublicSeoController;
+use App\Http\Controllers\PublisherInventoryController;
+use App\Http\Controllers\AdvertiserAdsController;
+use App\Http\Controllers\AdCampaignWorkflowController;
+use App\Http\Controllers\AdOfferLifecycleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorPortfolioController;
@@ -15,6 +24,19 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 Route::get('/',[MarketplaceController::class,'index'])->name('home');
+Route::get('/sitemap.xml',[PublicSeoController::class,'sitemap'])->name('seo.sitemap');
+Route::get('/robots.txt',[PublicSeoController::class,'robots'])->name('seo.robots');
+Route::get('/advertise-with-publishers',function(){
+ abort_unless(config('vibsies_ads.enabled'),404);
+ return view('marketplace.publisher-advertising');
+})->name('seo.publishers');
+Route::get('/advertise-with-publishers/{country}',function(string $country) {
+ abort_unless(config('vibsies_ads.enabled'),404);
+ abort_unless(in_array($country,['egypt','saudi-arabia'],true),404);
+ return view('marketplace.publisher-region',['country'=>$country]);
+})->name('seo.publishers.region');
+Route::get('/r/{code}',[PublisherReferralController::class,'visit'])->middleware('throttle:30,1')->name('ads.referral.visit');
+Route::get('/publisher-reputation/{property}',[PublisherReputationController::class,'publicScorecard'])->name('seo.publisher.rating');
 Route::get('/creators/{slug}',[CreatorPortfolioController::class,'show'])->name('creators.show');
 Route::post('/locale',[LocaleController::class,'switch'])->middleware('throttle:20,1')->name('locale.switch');
 Route::middleware('guest')->group(function(){
@@ -32,6 +54,41 @@ Route::middleware('auth')->group(function(){
  Route::post('/admin/verifications/{verification}/review',[VerificationController::class,'review'])->name('admin.verifications.review');
  Route::post('/logout',[AuthController::class,'logout'])->name('logout');
  Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
+ Route::get('/ads/advertiser',[AdvertiserAdsController::class,'index'])->name('ads.advertiser.index');
+ Route::post('/ads/advertiser/campaigns',[AdvertiserAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.advertiser.store');
+ Route::get('/ads/advertiser/campaigns/{campaign}',[AdvertiserAdsController::class,'show'])->name('ads.advertiser.show');
+ Route::post('/ads/advertiser/campaigns/{campaign}/submit',[AdCampaignWorkflowController::class,'submitCampaign'])->name('ads.campaign.submit');
+ Route::post('/ads/advertiser/campaigns/{campaign}/offers',[AdCampaignWorkflowController::class,'offer'])->middleware('throttle:10,1')->name('ads.campaign.offer');
+ Route::post('/ads/advertiser/offers/{offer}/review',[AdCampaignWorkflowController::class,'reviewPublication'])->name('ads.offer.review');
+ Route::post('/ads/advertiser/offers/{offer}/rating',[PublisherReputationController::class,'review'])->middleware('throttle:5,1')->name('ads.offer.rating');
+ Route::post('/ads/publisher/offers/{offer}/performance',[PublisherReputationController::class,'performance'])->middleware('throttle:5,1')->name('ads.offer.performance');
+ Route::post('/admin/ads/performance/{report}/moderate',[PublisherReputationController::class,'moderatePerformance'])->middleware('throttle:10,1')->name('ads.admin.performance.moderate');
+ Route::post('/ads/publisher/reviews/{review}/reply',[PublisherReputationController::class,'publisherReply'])->name('ads.publisher.review.reply');
+ Route::post('/ads/publisher/reviews/{review}/appeal',[PublisherReputationController::class,'appeal'])->name('ads.publisher.review.appeal');
+ Route::post('/admin/ads/review-appeals/{appeal}/resolve',[PublisherReputationController::class,'resolveAppeal'])->name('ads.admin.review.appeal.resolve');
+ Route::post('/admin/ads/reviews/{review}/moderate',[PublisherReputationController::class,'moderate'])->middleware('throttle:10,1')->name('ads.admin.review.moderate');
+ Route::post('/ads/offers/{offer}/cancel',[AdOfferLifecycleController::class,'cancel'])->name('ads.offer.cancel');
+ Route::post('/admin/ads/offers/{offer}/expire',[AdOfferLifecycleController::class,'expire'])->name('ads.admin.offer.expire');
+ Route::post('/admin/ads/offers/{offer}/resolve',[AdOfferLifecycleController::class,'resolve'])->name('ads.admin.offer.resolve');
+ Route::get('/ads/publisher/offers',[AdCampaignWorkflowController::class,'publisherOffers'])->name('ads.publisher.offers');
+ Route::post('/ads/publisher/offers/{offer}/decision',[AdCampaignWorkflowController::class,'decide'])->name('ads.publisher.offer.decide');
+ Route::post('/ads/publisher/offers/{offer}/publication',[AdCampaignWorkflowController::class,'submitPublication'])->middleware('throttle:5,1')->name('ads.publisher.offer.publish');
+ Route::post('/admin/ads/campaigns/{campaign}/review',[AdCampaignWorkflowController::class,'reviewCampaign'])->name('ads.admin.campaign.review');
+ Route::post('/ads/publisher/evidence/{property}/withdraw',[PublisherTrustController::class,'withdrawEvidence'])->name('ads.publisher.evidence.withdraw');
+ Route::post('/ads/publisher/challenges/{property}/renew',[PublisherTrustController::class,'renewChallenge'])->name('ads.publisher.challenge.renew');
+ Route::post('/admin/ads/referrals/{referral}/review',[PublisherTrustController::class,'reviewReferral'])->name('ads.admin.referral.review');
+ Route::get('/ads/publisher',[PublisherAdsController::class,'index'])->name('ads.publisher.index');
+ Route::post('/ads/publisher/properties',[PublisherAdsController::class,'store'])->middleware('throttle:10,1')->name('ads.publisher.store');
+ Route::post('/ads/publisher/properties/{property}/ownership-evidence',[PublisherAdsController::class,'submitOwnershipEvidence'])->middleware('throttle:5,1')->name('ads.publisher.evidence');
+ Route::post('/ads/publisher/properties/{property}/promotions',[PublisherAdsController::class,'promotion'])->middleware('throttle:5,1')->name('ads.publisher.promotion');
+ Route::post('/ads/publisher/properties/{property}/packages',[PublisherInventoryController::class,'storePackage'])->middleware('throttle:10,1')->name('ads.publisher.packages.store');
+ Route::post('/ads/publisher/properties/{property}/metrics',[PublisherInventoryController::class,'storeMetrics'])->middleware('throttle:10,1')->name('ads.publisher.metrics.store');
+ Route::get('/admin/ads',[PublisherAdsController::class,'admin'])->name('ads.admin.index');
+ Route::post('/admin/ads/packages/{package}/review',[PublisherInventoryController::class,'reviewPackage'])->name('ads.admin.packages.review');
+ Route::post('/admin/ads/metrics/{snapshot}/review',[PublisherInventoryController::class,'reviewMetrics'])->name('ads.admin.metrics.review');
+ Route::post('/admin/ads/properties/{property}/verify',[PublisherAdsController::class,'verify'])->name('ads.admin.verify');
+ Route::post('/admin/ads/promotions/{promotion}/review',[PublisherAdsController::class,'reviewPromotion'])->name('ads.admin.promotion');
+
  Route::post('/notifications/read-all',[NotificationController::class,'markAllRead'])->name('notifications.read-all');
  Route::post('/notifications/{notification}/read',[NotificationController::class,'markRead'])->name('notifications.read');
  Route::get('/creator',[CreatorController::class,'setup'])->name('creator.setup');

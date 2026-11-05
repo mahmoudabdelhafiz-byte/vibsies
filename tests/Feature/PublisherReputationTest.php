@@ -1,0 +1,221 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\AdCampaign;
+use App\Models\AdCampaignOffer;
+use App\Models\PublisherAdPackage;
+use App\Models\PublisherCampaignReview;
+use App\Models\PublisherProperty;
+use App\Models\User;
+use App\Services\Ads\PublisherReputation;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class PublisherReputationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function offer(string $status='confirmed'): array {
+        $advertiser=User::factory()->create();
+        $publisher=User::factory()->create();
+        $property=PublisherProperty::create([
+            'user_id'=>$publisher->id,'platform'=>'facebook','property_type'=>'page',
+            'display_name'=>'Cairo page','profile_url'=>'https://www.facebook.com/example',
+            'category'=>'Community','country_code'=>'EG','verification_token'=>'RATINGTEST12345',
+        ]);
+        $package=PublisherAdPackage::create([
+            'publisher_property_id'=>$property->id,'title'=>'Post',
+            'placement_type'=>'feed_post','price_minor'=>10000,'currency'=>'EGP','delivery_days'=>7,
+        ]);
+        $campaign=AdCampaign::create([
+            'user_id'=>$advertiser->id,'title'=>'Cairo campaign',
+            'brief'=>'A sample promotion for local audiences',
+            'objective'=>'awareness','target_category'=>'Community','target_country'=>'EG',
+            'budget_minor'=>20000,'currency'=>'EGP',
+        ]);
+        $offer=AdCampaignOffer::create([
+            'ad_campaign_id'=>$campaign->id,'publisher_ad_package_id'=>$package->id,
+            'publisher_user_id'=>$publisher->id,'agreed_price_minor'=>10000,'currency'=>'EGP',
+        ]);
+        $offer->forceFill(['status'=>$status])->save();
+        return compact('advertiser','publisher','property','offer');
+    }
+
+    private function ratings(): array {
+        return ['overall_rating'=>5,'communication_rating'=>5,'timeliness_rating'=>4,'quality_rating'=>5,'comment'=>'Delivered as agreed.'];
+    }
+
+    public function test_only_advertiser_can_review_confirmed_placement_once():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($publisher)->post(route('ads.offer.rating',$offer),$this->ratings())->assertForbidden();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $this->assertDatabaseHas('publisher_campaign_reviews',[
+            'ad_campaign_offer_id'=>$offer->id,'moderation_status'=>'pending','overall_rating'=>5,
+        ]);
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertStatus(409);
+        $this->assertDatabaseCount('publisher_campaign_reviews',1);
+    }
+
+    public function test_unconfirmed_or_cancelled_offer_cannot_be_rated():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'offer'=>$offer]=$this->offer('submitted');
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertStatus(409);
+        $this->assertDatabaseCount('publisher_campaign_reviews',0);
+    }
+
+    public function test_rating_validation_and_feature_flag():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'offer'=>$offer]=$this->offer();
+        $bad=$this->ratings();$bad['overall_rating']=6;
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$bad)->assertSessionHasErrors('overall_rating');
+        config()->set('vibsies_ads.enabled',false);
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertNotFound();
+    }
+
+    public function test_publisher_can_submit_only_one_unverified_report():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $data=['measured_on'=>now()->format('Y-m-d'),'views'=>340,'reach'=>200];
+        $this->actingAs($advertiser)->post(route('ads.offer.performance',$offer),$data)->assertForbidden();
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),$data)->assertRedirect();
+        $this->assertDatabaseHas('publisher_campaign_performance_reports',[
+            'ad_campaign_offer_id'=>$offer->id,'evidence_source'=>'self_reported',
+            'verification_status'=>'unverified','views'=>340,
+        ]);
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),$data)->assertStatus(409);
+    }
+
+    public function test_moderator_approval_is_restricted_and_does_not_create_payment():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::first();
+        $data=['decision'=>'approved','note'=>'Reviewed the completed campaign and feedback.'];
+        $this->actingAs($advertiser)->post(route('ads.admin.review.moderate',$review),$data)->assertForbidden();
+        $admin=User::factory()->create();$admin->forceFill(['is_admin'=>true])->save();
+        $this->actingAs($admin)->post(route('ads.admin.review.moderate',$review),$data)->assertRedirect();
+        $this->assertDatabaseHas('publisher_campaign_reviews',['id'=>$review->id,'moderation_status'=>'approved']);
+        $this->assertDatabaseCount('ad_ledger_batches',0);
+        $this->actingAs($admin)->post(route('ads.admin.review.moderate',$review),$data)->assertStatus(409);
+    }
+
+    public function test_no_public_score_until_three_independent_advertisers():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'property'=>$property,'offer'=>$offer]=$this->offer();
+        PublisherCampaignReview::create($this->ratings()+[
+            'ad_campaign_offer_id'=>$offer->id,'publisher_property_id'=>$property->id,
+            'advertiser_user_id'=>$advertiser->id,
+        ])->forceFill(['moderation_status'=>'approved'])->save();
+        $result=app(PublisherReputation::class)->summary($property);
+        $this->assertSame('unrated',$result['status']);
+        $this->assertNull($result['average_overall']);
+        $this->assertSame(1,$result['review_count']);
+    }
+    public function test_admin_requires_independent_evidence_to_verify_completed_report():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $payload=['measured_on'=>now()->toDateString(),'views'=>500];
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),$payload)->assertRedirect();
+        $report=\App\Models\PublisherCampaignPerformanceReport::firstOrFail();
+        $approval=['decision'=>'verified','source_type'=>'reviewed_export','note'=>'Checked data from independent publisher export.'];
+        $this->actingAs($publisher)->post(route('ads.admin.performance.moderate',$report),$approval)->assertForbidden();
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$approval)->assertStatus(409);
+        $this->assertSame('unverified',$report->fresh()->verification_status);
+    }
+
+    public function test_admin_may_reject_unverifiable_report_without_financial_effect():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),[
+            'measured_on'=>now()->toDateString(),'reach'=>1200,
+        ])->assertRedirect();
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $report=\App\Models\PublisherCampaignPerformanceReport::firstOrFail();
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),[
+            'decision'=>'rejected','note'=>'No reliable evidence could be independently located.',
+        ])->assertRedirect();
+        $this->assertSame('rejected',$report->fresh()->verification_status);
+        $this->assertDatabaseCount('ad_ledger_batches',0);
+    }
+
+    public function test_admin_can_verify_supported_performance_once():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $data=[
+            'measured_on'=>now()->toDateString(),
+            'views'=>700,
+            'evidence_url'=>'https://www.facebook.com/example/posts/123',
+        ];
+        $this->actingAs($publisher)->post(route('ads.offer.performance',$offer),$data)->assertRedirect();
+        $report=\App\Models\PublisherCampaignPerformanceReport::firstOrFail();
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $review=[
+            'decision'=>'verified',
+            'source_type'=>'reviewed_export',
+            'note'=>'Checked the submitted report against the dated platform evidence.',
+        ];
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$review)->assertRedirect();
+        $this->assertDatabaseHas('publisher_campaign_performance_reports',[
+            'id'=>$report->id,
+            'verification_status'=>'verified',
+            'evidence_source'=>'reviewed_export',
+            'verified_by_user_id'=>$admin->id,
+        ]);
+        $this->actingAs($admin)->post(route('ads.admin.performance.moderate',$report),$review)->assertStatus(409);
+    }
+
+    public function test_publisher_may_reply_once_to_approved_feedback():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::firstOrFail();
+        $response=['response'=>'Our delivery notes are available in the campaign history.'];
+        $this->actingAs($publisher)->post(route('ads.publisher.review.reply',$review),$response)->assertStatus(409);
+        $review->forceFill(['moderation_status'=>'approved'])->save();
+        $this->actingAs($advertiser)->post(route('ads.publisher.review.reply',$review),$response)->assertForbidden();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.reply',$review),$response)->assertRedirect();
+        $this->assertSame($response['response'],$review->fresh()->publisher_response);
+        $this->actingAs($publisher)->post(route('ads.publisher.review.reply',$review),$response)->assertStatus(409);
+    }
+
+    public function test_appealed_reviews_are_not_counted_and_original_rating_remains():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'property'=>$property,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::firstOrFail();
+        $review->forceFill(['moderation_status'=>'approved'])->save();
+        $payload=['reason'=>'This report contains disputed claims and needs evidence review.'];
+        $this->actingAs($advertiser)->post(route('ads.publisher.review.appeal',$review),$payload)->assertForbidden();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.appeal',$review),$payload)->assertRedirect();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.appeal',$review),$payload)->assertStatus(409);
+        $admin=User::factory()->create();
+        $admin->forceFill(['is_admin'=>true])->save();
+        $appeal=\App\Models\PublisherReviewAppeal::firstOrFail();
+        $decision=['decision'=>'upheld','note'=>'Reviewed evidence and determined the feedback was inappropriate.'];
+        $this->actingAs($advertiser)->post(route('ads.admin.review.appeal.resolve',$appeal),$decision)->assertForbidden();
+        $this->actingAs($admin)->post(route('ads.admin.review.appeal.resolve',$appeal),$decision)->assertRedirect();
+        $this->actingAs($admin)->post(route('ads.admin.review.appeal.resolve',$appeal),$decision)->assertStatus(409);
+        $this->assertSame(5,$review->fresh()->overall_rating);
+        $this->assertSame('upheld',$appeal->fresh()->status);
+        $this->assertSame(0,app(PublisherReputation::class)->summary($property)['review_count']);
+        $this->assertDatabaseCount('ad_ledger_batches',0);
+    }
+
+    public function test_appeal_requires_moderated_approved_feedback():void {
+        config()->set('vibsies_ads.enabled',true);
+        ['advertiser'=>$advertiser,'publisher'=>$publisher,'offer'=>$offer]=$this->offer();
+        $this->actingAs($advertiser)->post(route('ads.offer.rating',$offer),$this->ratings())->assertRedirect();
+        $review=PublisherCampaignReview::firstOrFail();
+        $this->actingAs($publisher)->post(route('ads.publisher.review.appeal',$review),[
+            'reason'=>'The message is inaccurate and the dispute should be examined.',
+        ])->assertStatus(409);
+        $this->assertDatabaseCount('publisher_review_appeals',0);
+    }
+
+}
