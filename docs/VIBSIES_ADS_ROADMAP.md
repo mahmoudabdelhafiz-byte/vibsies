@@ -175,6 +175,12 @@ Target: Laravel 12 / PostgreSQL on `develop`. The legacy Node.js prototype is no
 - **Verified GitHub Actions CI** run 41923362974: **180 tests and 1,478 assertions passed** on each of SQLite and PostgreSQL 16, including fresh migrations.
 - Feature and payment flags remain disabled; no external campaign or publisher payout has been initiated.
 
+## Phase 10E
+- Equal advertiser weighting for approved campaign feedback.
+- Public reputation view remains disabled by a new separate flag.
+- Moderator conflict-of-interest protections added.
+- Further anti-fraud checks and approval are required.
+
 ## Remaining (implement sequentially)
 1. Complete and stabilize Laravel baseline migration and tests (authentication, existing bookings, deliveries, contracts, financial controls).
 2. Implement proper verification challenges and evidence review history, secure asset uploads and resubmission.
