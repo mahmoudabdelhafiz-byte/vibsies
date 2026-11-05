@@ -20,11 +20,12 @@ class PublisherReputation
         $count=$reviews->count();
         $independent=$reviews->unique('advertiser_user_id')->count();
         $eligible=$count>=3 && $independent>=3;
+        $averages=$reviews->groupBy('advertiser_user_id')->map(fn($group)=>$group->avg('overall_rating'));
         return [
             'status'=>$eligible?'rated':'unrated',
             'review_count'=>$count,
             'independent_advertisers'=>$independent,
-            'average_overall'=>$eligible?round($reviews->avg('overall_rating'),1):null,
+            'average_overall'=>$eligible?round($averages->avg(),1):null,
             'last_review_at'=>$count?$reviews->max('created_at'):null,
             'basis'=>'approved advertiser reviews of completed placements; last 12 months',
         ];
